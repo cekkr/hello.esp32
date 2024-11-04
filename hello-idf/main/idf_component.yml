@@ -2,6 +2,10 @@
 dependencies:
   #espressif/arduino-esp32: "^3.0.7"
   #m5stack/m5gfx: "^0.1.17"
+  wasm3:
+    git: YOUR_GITHUB_FORK_URL
+    path: platforms/embedded/esp32-idf-wasi
+    version: "master"
   ## Required IDF version
   idf:
     version: ">=4.1.0"

@@ -165,6 +165,41 @@ void init_sd_card() {
     printf("Size: %lluMB\n", ((uint64_t)card->csd.capacity) * card->csd.sector_size / (1024 * 1024));
 }
 
+void mostra_info_sd(const char* mount_point) {
+    struct statvfs stat;
+    
+    // Ottiene le informazioni del filesystem
+    if (statvfs(mount_point, &stat) == -1) {
+        printf("Errore nel leggere le informazioni del filesystem\n");
+        return;
+    }
+    
+    // Calcola le dimensioni
+    size_t block_size = stat.f_frsize;
+    size_t total_blocks = stat.f_blocks;
+    size_t free_blocks = stat.f_bfree;
+    size_t available_blocks = stat.f_bavail;
+    
+    // Converte in megabytes per leggibilità
+    double total_mb = (block_size * total_blocks) / (1024.0 * 1024.0);
+    double free_mb = (block_size * free_blocks) / (1024.0 * 1024.0);
+    double used_mb = total_mb - free_mb;
+    
+    printf("\nInformazioni SD Card montata in %s:\n", mount_point);
+    printf("----------------------------------------\n");
+    printf("Dimensione blocco (chunk size): %lu bytes\n", block_size);
+    printf("Spazio totale: %.2f MB\n", total_mb);
+    printf("Spazio utilizzato: %.2f MB\n", used_mb);
+    printf("Spazio libero: %.2f MB\n", free_mb);
+    printf("Percentuale utilizzata: %.1f%%\n", (used_mb / total_mb) * 100);
+    printf("Numero massimo di file: %lu\n", stat.f_files);
+    printf("Numero di file liberi: %lu\n", stat.f_ffree);
+    printf("Flag del filesystem: 0x%lx\n", stat.f_flag);
+    printf("----------------------------------------\n");
+
+    LCD_ShowString(215,9,WHITE,BLACK,16,"Cle",0);
+}
+
 ///
 /// Touch Screen
 ///
@@ -230,6 +265,7 @@ void init_tft(void)
 	LCD_DrawFillRectangle(0,31,240,320,WHITE);
 	xTaskCreate(&Draw, "Draw", 4096, NULL, 5, NULL);
 	while(1){
+        mostra_info_sd("/sdcard");
 		vTaskDelay(1000 / portTICK_PERIOD_MS);
 	}
 }
