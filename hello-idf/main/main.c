@@ -13,7 +13,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-#include "libs/ili9340/pngle.h"
+//#include "libs/ili9340/pngle.h"
 
 #define CONFIG_XPT_MISO_GPIO   39
 #define CONFIG_XPT_CS_GPIO     33
