@@ -24,12 +24,12 @@ static const char *TAG = "hello_esp";
 ///
 /// Touch Screen
 ///
+
 #define CONFIG_XPT_MISO_GPIO   39
 #define CONFIG_XPT_CS_GPIO     33
 #define CONFIG_XPT_IRQ_GPIO    36
 #define CONFIG_XPT_SCLK_GPIO   25
 #define CONFIG_XPT_MOSI_GPIO   32
-#define CONFIG_XPT_ACCURACY    10
 
 static void Draw(void *pvParameters)
 {
@@ -233,11 +233,35 @@ void init_sd_card() {
     printf("Size: %lluMB\n", ((uint64_t)card->csd.capacity) * card->csd.sector_size / (1024 * 1024));
 }
 
+void init_spi(){
+    // Before SPI initialization
+    spi_bus_config_t bus_config = {
+        //.mosi_io_num = MOSI_PIN,
+        //.miso_io_num = -1,  // -1 if not used
+        //.sclk_io_num = SCK_PIN,
+        //.quadwp_io_num = -1,
+        //.quadhd_io_num = -1,
+        //.max_transfer_sz = 16*320*2
+        .flags = SPICOMMON_BUSFLAG_MASTER | 
+                SPICOMMON_BUSFLAG_GPIO_PINS |
+                SPICOMMON_BUSFLAG_SCLK |
+                SPICOMMON_BUSFLAG_MISO |
+                SPICOMMON_BUSFLAG_MOSI,
+        .intr_flags = ESP_INTR_FLAG_IRAM
+    };
+
+    // Add flags to initialize SPI without DMA
+    esp_err_t ret = spi_bus_initialize(SPI2_HOST, &bus_config, SPI_DMA_DISABLED);
+}
+
 void app_main(void) {
     esp_task_wdt_delete(NULL);
+
+    init_spi();
 
     printf("\nStarting SD card test...\n");
     init_sd_card();
 
+    printf("Init TFT\n");
     init_tft();
 }
