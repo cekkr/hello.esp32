@@ -15,6 +15,3 @@ project(hello-idf)
 
 
 #add_subdirectory(main/libs/ili9340)
-
-add_subdirectory(components/ili9340)
-add_subdirectory(components/TFT_eSPI)

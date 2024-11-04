@@ -1,6 +1,5 @@
 ## IDF Component Manager Manifest File
 dependencies:
-  espressif/arduino-esp32: "^3.0.7"
   #espressif/arduino-esp32: "^3.0.7"
   #m5stack/m5gfx: "^0.1.17"
   ## Required IDF version
