@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdarg.h>
-#include "FreeRTOS.h"
-#include "task.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #include <string.h>
 
 // Buffer size for the output string
@@ -22,8 +22,8 @@ void init_string_buffer(StringBuffer* str_buf) {
 }
 
 // Custom printf that writes to a string buffer
-int string_printf(StringBuffer* str_buf, const char* format, ...) {
-    taskENTER_CRITICAL();  // Enter critical section if needed
+int stringBuffer_printf(StringBuffer* str_buf, const char* format, ...) {
+    //taskENTER_CRITICAL();  // Enter critical section if needed
     
     va_list args;
     va_start(args, format);
@@ -44,41 +44,25 @@ int string_printf(StringBuffer* str_buf, const char* format, ...) {
         str_buf->position += written;
     }
     
-    taskEXIT_CRITICAL();  // Exit critical section
+    //taskEXIT_CRITICAL();  // Exit critical section
     
     return written;
 }
 
-
-// Buffer size for the output string
-#define MAX_STRING_LENGTH 256
-
-// Structure to hold the buffer and its properties
-typedef struct {
-    char buffer[MAX_STRING_LENGTH];
-    size_t position;
-    size_t max_length;
-} StringBuffer;
-
-// Initialize the string buffer
-void init_string_buffer(StringBuffer* str_buf) {
-    str_buf->position = 0;
-    str_buf->max_length = MAX_STRING_LENGTH;
-    str_buf->buffer[0] = '\0';
-}
-
-// Custom printf that writes to a string buffer
-int string_printf(StringBuffer* str_buf, const char* format, ...) {
-    taskENTER_CRITICAL();  // Enter critical section if needed
+char* string_printf(const char* format, ...){
+    StringBuffer str_buf;
+    init_string_buffer(&str_buf);
+    
+    //taskENTER_CRITICAL();  // Enter critical section if needed
     
     va_list args;
     va_start(args, format);
     
     // Calculate remaining space in buffer
-    size_t remaining = str_buf->max_length - str_buf->position;
+    size_t remaining = str_buf.max_length - str_buf.position;
     
     // Format string and write to buffer at current position
-    int written = vsnprintf(str_buf->buffer + str_buf->position, 
+    int written = vsnprintf(str_buf.buffer + str_buf.position, 
                            remaining, 
                            format, 
                            args);
@@ -87,17 +71,17 @@ int string_printf(StringBuffer* str_buf, const char* format, ...) {
     
     // Update position if write was successful
     if (written > 0 && written < remaining) {
-        str_buf->position += written;
+        str_buf.position += written;
     }
     
-    taskEXIT_CRITICAL();  // Exit critical section
+    //taskEXIT_CRITICAL();  // Exit critical section
     
-    return written;
+    return str_buf.buffer;
 }
 
 // Convert StringBuffer to char array (copying)
 void string_buffer_to_array(const StringBuffer* str_buf, char* dest, size_t dest_size) {
-    taskENTER_CRITICAL();
+    //taskENTER_CRITICAL();
     
     // Ensure we don't overflow the destination buffer
     size_t copy_size = (str_buf->position < dest_size - 1) ? 
@@ -110,7 +94,7 @@ void string_buffer_to_array(const StringBuffer* str_buf, char* dest, size_t dest
     // Ensure null termination
     dest[copy_size] = '\0';
     
-    taskEXIT_CRITICAL();
+    //taskEXIT_CRITICAL();
 }
 
 // Get pointer to internal buffer (no copying)
@@ -125,10 +109,10 @@ size_t string_buffer_length(const StringBuffer* str_buf) {
 
 // Clear the string buffer
 void string_buffer_clear(StringBuffer* str_buf) {
-    taskENTER_CRITICAL();
+    //taskENTER_CRITICAL();
     str_buf->position = 0;
     str_buf->buffer[0] = '\0';
-    taskEXIT_CRITICAL();
+    //taskEXIT_CRITICAL();
 }
 
 // Example usage
@@ -137,9 +121,9 @@ void example_usage_string_printf(void) {
     init_string_buffer(&str_buf);
     
     // Write to buffer
-    string_printf(&str_buf, "Hello %s! ", "World");
-    string_printf(&str_buf, "Number: %d ", 42);
-    string_printf(&str_buf, "Float: %.2f\n", 3.14);
+    stringBuffer_printf(&str_buf, "Hello %s! ", "World");
+    stringBuffer_printf(&str_buf, "Number: %d ", 42);
+    stringBuffer_printf(&str_buf, "Float: %.2f\n", 3.14);
     
     // Method 1: Get string by copying to a new array
     char output_array[MAX_STRING_LENGTH];

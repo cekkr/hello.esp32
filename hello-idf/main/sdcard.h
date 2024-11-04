@@ -2,6 +2,9 @@
 #include <string.h>
 #include <sys/unistd.h>
 #include <sys/stat.h>
+#include "esp_system.h"
+#include "driver/gpio.h"
+#include "esp_vfs.h"
 #include "esp_vfs_fat.h"
 #include "sdmmc_cmd.h"
 #include "driver/sdmmc_host.h"
@@ -9,6 +12,10 @@
 #include "driver/sdspi_host.h"
 #include "driver/gpio.h"
 #include "driver/spi_common.h"
+#include "esp_task_wdt.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "mgt_string.h"
 
 void init_sd_pins() {
     printf("Initializing SD pins with pull-ups...\n");
@@ -141,37 +148,49 @@ void init_sd_card() {
     printf("Size: %lluMB\n", ((uint64_t)card->csd.capacity) * card->csd.sector_size / (1024 * 1024));
 }
 
-void mostra_info_sd(const char* mount_point) {
-    struct statvfs stat;
-    
-    // Ottiene le informazioni del filesystem
-    if (statvfs(mount_point, &stat) == -1) {
-        printf("Errore nel leggere le informazioni del filesystem\n");
+void mostra_info_sd(const char* mount_point) {     
+    FATFS* fs;
+    size_t total_bytes;
+    size_t free_bytes;
+    esp_err_t ret = esp_vfs_fat_info(mount_point, &total_bytes, &free_bytes);
+    if (ret != ESP_OK) {
+        // Handle error
         return;
     }
-    
-    // Calcola le dimensioni
-    size_t block_size = stat.f_frsize;
-    size_t total_blocks = stat.f_blocks;
-    size_t free_blocks = stat.f_bfree;
-    size_t available_blocks = stat.f_bavail;
+
+    DWORD fre_clust;
+    FRESULT res = f_getfree(mount_point, &fre_clust, &fs);
+    if (res != FR_OK) {
+        // Handle error
+        return;
+    }
+
+    // Calculate total and free space
+    size_t total_sectors = (fs->n_fatent - 2) * fs->csize;
+    size_t free_sectors = fre_clust * fs->csize;
+
+    // Sector size is typically 512 bytes
+    // fs->ssize contiene il sector size in bytes
+    size_t sector_size = fs->ssize;
+    total_bytes = total_sectors * sector_size;
+    free_bytes = free_sectors * sector_size;
     
     // Converte in megabytes per leggibilità
-    double total_mb = (block_size * total_blocks) / (1024.0 * 1024.0);
-    double free_mb = (block_size * free_blocks) / (1024.0 * 1024.0);
+    double total_mb = total_bytes / (1024.0 * 1024.0);
+    double free_mb = free_bytes / (1024.0 * 1024.0);
     double used_mb = total_mb - free_mb;
     
     printf("\nInformazioni SD Card montata in %s:\n", mount_point);
     printf("----------------------------------------\n");
-    printf("Dimensione blocco (chunk size): %lu bytes\n", block_size);
+    printf("Dimensione blocco (chunk size): %i bytes\n", sector_size);
     printf("Spazio totale: %.2f MB\n", total_mb);
     printf("Spazio utilizzato: %.2f MB\n", used_mb);
     printf("Spazio libero: %.2f MB\n", free_mb);
     printf("Percentuale utilizzata: %.1f%%\n", (used_mb / total_mb) * 100);
-    printf("Numero massimo di file: %lu\n", stat.f_files);
-    printf("Numero di file liberi: %lu\n", stat.f_ffree);
-    printf("Flag del filesystem: 0x%lx\n", stat.f_flag);
     printf("----------------------------------------\n");
 
-    LCD_ShowString(215,9,WHITE,BLACK,16,"Cle",0);
+
+    char* text = string_printf("Chunk size: %i", sector_size);
+    LCD_ShowString(1000,9,WHITE,BLACK,12,text,0);
 }
+

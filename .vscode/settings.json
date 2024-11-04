@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "regex": "cpp",
+        "vector": "cpp",
+        "stat.h": "c"
+    }
+}

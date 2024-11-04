@@ -20,6 +20,8 @@ cd "$CUR_DIR"
 #cmake ..
 #make
 
+#rm -rf build # necessary everytime?
+
 #idf.py set-target esp32
 #idf.py menuconfig
 idf.py build
