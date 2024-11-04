@@ -14,4 +14,4 @@ project(hello-idf)
 #spiffs_create_partition_image(storage2 images FLASH_IN_PROJECT)
 
 
-#add_subdirectory(main/libs/ili9340)
+add_subdirectory(components/wasm3-helloesp/platforms/embedded/esp32-idf-wasi)
