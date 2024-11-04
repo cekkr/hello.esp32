@@ -13,6 +13,15 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
+#include "libs/ili9340/pngle.h"
+
+#define CONFIG_XPT_MISO_GPIO   39
+#define CONFIG_XPT_CS_GPIO     33
+#define CONFIG_XPT_IRQ_GPIO    36
+#define CONFIG_XPT_SCLK_GPIO   25
+#define CONFIG_XPT_MOSI_GPIO   32
+#define CONFIG_XPT_ACCURACY    10
+
 #define SD_SCK  18
 #define SD_MISO 19
 #define SD_MOSI 23
@@ -21,7 +30,11 @@
 #define MOUNT_POINT "/sdcard"
 #define SPI_DMA_CHAN    1
 
-static const char *TAG = "sd_card";
+#define CONFIG_XPT2046_ENABLE_DIFF_BUS 1
+
+//static const char *TAG = "sd_card";
+
+#include "tft_adv.h"
 
 void init_sd_pins() {
     printf("Initializing SD pins with pull-ups...\n");
@@ -156,6 +169,8 @@ void init_sd_card() {
 
 void app_main(void) {
     esp_task_wdt_delete(NULL);
+
+    xTaskCreate(ILI9341, "ILI9341", 1024*6, NULL, 2, NULL);
     
     printf("\nStarting SD card test...\n");
     init_sd_card();

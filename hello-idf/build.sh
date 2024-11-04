@@ -1,7 +1,7 @@
 #!/bin/bash
 
-export IDF_PATH="/Users/riccardo/Sources/Libs/esp-idf-v5.3.1"
-alias python=python3
+#export IDF_PATH="/Users/riccardo/Sources/Libs/esp-idf-v5.3.1"
+#alias python=python3
 
 CUR_DIR=$(pwd)
 
