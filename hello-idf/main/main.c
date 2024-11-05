@@ -136,11 +136,11 @@ void app_main(void) {
     // Inizializzazione della seriale
     setvbuf(stdout, NULL, _IONBF, 0);
 
-    //init_spi();
-
-    ESP_LOGI("hello_esp", "\nStarting SD card test...\n");
-    init_sd_card();
+    init_spi();
 
     ESP_LOGI("hello_esp", "Init TFT\n");
-    init_tft();        
+    init_tft();  
+
+    ESP_LOGI("hello_esp", "\nStarting SD card test...\n");
+    init_sd_card();      
 }

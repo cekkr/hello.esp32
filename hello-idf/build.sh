@@ -20,6 +20,9 @@ cd "$CUR_DIR"
 #cmake ..
 #make
 
+idf.py clean
+#idf.py fullclean
+
 #rm -rf build # necessary everytime?
 
 #idf.py set-target esp32
@@ -30,4 +33,4 @@ idf.py build
 #idf.py -p /dev/ttyUSB0 flash    # Linux
 idf.py -p /dev/tty.usbserial-1140 flash -b 115200    # MacOS
 
-idf.py monitor
+#idf.py monitor

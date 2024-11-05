@@ -87,7 +87,7 @@ void init_sd_card() {
     init_sd_pins();
     
     ESP_LOGI("hello_esp", "\nInitializing SPI bus...\n");
-    spi_bus_config_t bus_cfg = {
+    /*spi_bus_config_t bus_cfg = {
         .mosi_io_num = SD_MOSI,
         .miso_io_num = SD_MISO,
         .sclk_io_num = SD_SCK,
@@ -128,7 +128,47 @@ void init_sd_card() {
     };
 
     sdmmc_card_t *card;
-    ret = esp_vfs_fat_sdspi_mount(MOUNT_POINT, &host, &slot_config, &mount_config, &card);
+    ret = esp_vfs_fat_sdspi_mount(MOUNT_POINT, &host, &slot_config, &mount_config, &card);*/
+
+    spi_bus_config_t bus_cfg = {
+        .mosi_io_num = SD_MOSI,
+        .miso_io_num = SD_MISO,
+        .sclk_io_num = SD_SCK,
+        .quadwp_io_num = -1,
+        .quadhd_io_num = -1,
+        .max_transfer_sz = 4096,    // Aumentato per supportare blocchi SD
+        .flags = SPICOMMON_BUSFLAG_MASTER | 
+                SPICOMMON_BUSFLAG_GPIO_PINS |
+                SPICOMMON_BUSFLAG_SCLK |
+                SPICOMMON_BUSFLAG_MISO |
+                SPICOMMON_BUSFLAG_MOSI
+    };
+
+    // Inizializza il bus SPI con DMA abilitato
+    ret = spi_bus_initialize(SPI2_HOST, &bus_cfg, SPI_DMA_CHAN);
+
+    // Configurazione specifica per SD card
+    sdmmc_host_t host = SDSPI_HOST_DEFAULT();
+    host.slot = SPI2_HOST;
+    host.max_freq_khz = SDMMC_FREQ_DEFAULT;  // o prova con una frequenza più bassa come 20000
+
+    sdspi_device_config_t slot_config = SDSPI_DEVICE_CONFIG_DEFAULT();
+    slot_config.gpio_cs = SD_CS;
+    slot_config.host_id = host.slot;
+
+    // Opzioni di mount
+    esp_vfs_fat_sdmmc_mount_config_t mount_config = {
+        .format_if_mount_failed = false,
+        .max_files = 5,
+        .allocation_unit_size = 16 * 1024
+    };
+
+    sdmmc_card_t* card;
+    ret = esp_vfs_fat_sdspi_mount("/sdcard", &host, &slot_config, &mount_config, &card);
+    if (ret != ESP_OK) {
+        ESP_LOGE("SD", "Failed to mount SD card: %s", esp_err_to_name(ret));
+        return;
+    }
 
     if (ret != ESP_OK) {
         ESP_LOGI("hello_esp", "\nMount failed with error: %s (0x%x)\n", esp_err_to_name(ret), ret);
