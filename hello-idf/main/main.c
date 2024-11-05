@@ -45,7 +45,13 @@ static void Draw(void *pvParameters)
 	uint16_t CurrentColor = BLUE;
 	while (1){
 		if(xpt2046_read()){
+            ESP_LOGI("hello_esp","Touch: %d, %d", TouchX, TouchY);
+
 			if(TouchY<=30 && TouchX<=30){
+                LCD_ShowString(10,80,WHITE,BLACK,10,"Reading SD",0);
+                mostra_info_sd("/sdcard");
+                LCD_ShowString(10,60,WHITE,BLACK,10,"Read.",0);
+
 				CurrentColor = BLUE;
 			}else if(TouchY<=30 && TouchX>30 && TouchX<60){
 				CurrentColor = BROWN;
@@ -81,11 +87,7 @@ void init_tft(void)
 	LCD_Set_Orientation(LCD_DISPLAY_ORIENTATION_LANDSCAPE);// 纵向翻转
 	
     //TP_Adjust(); // Serve per calibrare lo schermo
-
-    LCD_ShowString(80,9,WHITE,BLACK,10,"Reading SD",0);
-    mostra_info_sd("/sdcard");
-    LCD_ShowString(60,9,WHITE,BLACK,10,"Read.",0);
-
+    
 	// 实心矩形
 	LCD_DrawFillRectangle(0,0,30,30,BLUE);
 	LCD_DrawFillRectangle(30,0,60,30,BROWN);
@@ -131,11 +133,14 @@ void init_spi(){
 void app_main(void) {
     esp_task_wdt_delete(NULL);
 
+    // Inizializzazione della seriale
+    setvbuf(stdout, NULL, _IONBF, 0);
+
     init_spi();
 
-    printf("\nStarting SD card test...\n");
+    ESP_LOGI("hello_esp", "\nStarting SD card test...\n");
     init_sd_card();
 
-    printf("Init TFT\n");
+    ESP_LOGI("hello_esp", "Init TFT\n");
     init_tft();        
 }
