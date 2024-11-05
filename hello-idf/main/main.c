@@ -151,7 +151,7 @@ void app_main(void) {
     // Inizializzazione della seriale
     setvbuf(stdout, NULL, _IONBF, 0);
 
-    init_spi();
+    //init_spi();
 
     //ESP_LOGI("hello_esp", "Init TFT\n");
     //init_tft();  

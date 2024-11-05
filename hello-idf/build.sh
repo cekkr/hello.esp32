@@ -33,4 +33,4 @@ idf.py build
 #idf.py -p /dev/ttyUSB0 flash    # Linux
 idf.py -p /dev/tty.usbserial-1140 flash -b 115200    # MacOS
 
-#idf.py monitor
+idf.py monitor
