@@ -16,7 +16,7 @@
 #include "pic.h"
 #include "xpt2046.h"
 
-static const char *TAG = "hello_esp";
+static const char *TAG = "HELLOESP";
 
 ///
 /// SD
@@ -48,7 +48,7 @@ static void Draw(void *pvParameters)
 	uint16_t CurrentColor = BLUE;
 	while (1){
 		if(xpt2046_read()){
-            ESP_LOGI("hello_esp","Touch: %d, %d", TouchX, TouchY);
+            ESP_LOGI(TAG,"Touch: %d, %d", TouchX, TouchY);
 
 			if(TouchY<=30 && TouchX<=30){
                 LCD_ShowString(10,80,WHITE,BLACK,10,"Reading SD",0);
@@ -153,11 +153,11 @@ void app_main(void) {
 
     //init_spi();
 
-    //ESP_LOGI("hello_esp", "Init TFT\n");
-    //init_tft();  
+    ESP_LOGI(TAG, "\nStarting SD card test...\n");
+    init_sd_card();  
 
-    ESP_LOGI("hello_esp", "\nStarting SD card test...\n");
-    init_sd_card();      
+    ESP_LOGI(TAG, "Init TFT\n");
+    init_tft();      
 
     while(1){        
 		vTaskDelay(1000 / portTICK_PERIOD_MS);

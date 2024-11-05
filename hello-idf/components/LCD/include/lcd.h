@@ -5,7 +5,7 @@
 #include "driver/spi_master.h"
 
 #define LCD_HOST		VSPI_HOST
-#define DMA_CHAN		1
+#define DMA_CHAN		0
 
 #define PIN_NUM_MISO	12
 #define PIN_NUM_MOSI	13
