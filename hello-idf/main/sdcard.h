@@ -12,7 +12,6 @@
 #include "driver/sdspi_host.h"
 #include "driver/gpio.h"
 #include "driver/spi_common.h"
-#include "esp_task_wdt.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "mgt_string.h"
@@ -136,12 +135,12 @@ void init_sd_card() {
         .sclk_io_num = SD_SCK,
         .quadwp_io_num = -1,
         .quadhd_io_num = -1,
-        .max_transfer_sz = 4096,    // Aumentato per supportare blocchi SD
-        .flags = SPICOMMON_BUSFLAG_MASTER | 
+        .max_transfer_sz = SDMMC_FREQ_DEFAULT, // 4096,    // Aumentato per supportare blocchi SD
+        .flags = SPICOMMON_BUSFLAG_MASTER /*| 
                 SPICOMMON_BUSFLAG_GPIO_PINS |
                 SPICOMMON_BUSFLAG_SCLK |
                 SPICOMMON_BUSFLAG_MISO |
-                SPICOMMON_BUSFLAG_MOSI
+                SPICOMMON_BUSFLAG_MOSI*/
     };
 
     // Inizializza il bus SPI con DMA abilitato

@@ -20,7 +20,7 @@ cd "$CUR_DIR"
 #cmake ..
 #make
 
-idf.py clean
+#idf.py clean
 #idf.py fullclean
 
 #rm -rf build # necessary everytime?

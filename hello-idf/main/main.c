@@ -3,9 +3,12 @@
 #include <sys/unistd.h>
 #include "driver/gpio.h"
 #include "driver/spi_common.h"
-#include "esp_task_wdt.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+
+// Watchdog
+#include "esp_task_wdt.h"
+#include "rtc_wdt.h"
 
 // Touch Screen
 #include "lcd.h"
@@ -100,9 +103,6 @@ void init_tft(void)
 	LCD_ShowString(215,9,WHITE,BLACK,16,"Cle",0);
 	LCD_DrawFillRectangle(0,31,240,320,WHITE);
 	xTaskCreate(&Draw, "Draw", 4096, NULL, 5, NULL);
-	while(1){        
-		vTaskDelay(1000 / portTICK_PERIOD_MS);
-	}
 }
 
 ///
@@ -130,17 +130,36 @@ void init_spi(){
     esp_err_t ret = spi_bus_initialize(SPI2_HOST, &bus_config, SPI_DMA_DISABLED);
 }
 
+void disable_watchdog(){
+// Disabilita il watchdog del timer RTC
+    rtc_wdt_protect_off();
+    rtc_wdt_disable();
+    
+    // Disabilita il Task Watchdog Timer (TWDT)
+    esp_task_wdt_config_t twdt_config = {
+        .timeout_ms = 5000,  // timeout in millisecondi
+        .idle_core_mask = (1 << portNUM_PROCESSORS) - 1,  // bitmask di tutti i core
+        .trigger_panic = false
+    };
+    //ESP_ERROR_CHECK(esp_task_wdt_init(&twdt_config));
+    //ESP_ERROR_CHECK(esp_task_wdt_delete(xTaskGetCurrentTaskHandle()));
+}
+
 void app_main(void) {
-    esp_task_wdt_delete(NULL);
+    disable_watchdog();
 
     // Inizializzazione della seriale
     setvbuf(stdout, NULL, _IONBF, 0);
 
     init_spi();
 
-    ESP_LOGI("hello_esp", "Init TFT\n");
-    init_tft();  
+    //ESP_LOGI("hello_esp", "Init TFT\n");
+    //init_tft();  
 
     ESP_LOGI("hello_esp", "\nStarting SD card test...\n");
     init_sd_card();      
+
+    while(1){        
+		vTaskDelay(1000 / portTICK_PERIOD_MS);
+	}
 }
