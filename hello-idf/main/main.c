@@ -82,6 +82,10 @@ void init_tft(void)
 	
     //TP_Adjust(); // Serve per calibrare lo schermo
 
+    LCD_ShowString(80,9,WHITE,BLACK,10,"Reading SD",0);
+    mostra_info_sd("/sdcard");
+    LCD_ShowString(60,9,WHITE,BLACK,10,"Read.",0);
+
 	// 实心矩形
 	LCD_DrawFillRectangle(0,0,30,30,BLUE);
 	LCD_DrawFillRectangle(30,0,60,30,BROWN);
@@ -94,8 +98,7 @@ void init_tft(void)
 	LCD_ShowString(215,9,WHITE,BLACK,16,"Cle",0);
 	LCD_DrawFillRectangle(0,31,240,320,WHITE);
 	xTaskCreate(&Draw, "Draw", 4096, NULL, 5, NULL);
-	while(1){
-        mostra_info_sd("/sdcard");
+	while(1){        
 		vTaskDelay(1000 / portTICK_PERIOD_MS);
 	}
 }

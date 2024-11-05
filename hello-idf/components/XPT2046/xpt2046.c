@@ -29,10 +29,10 @@
 #define TP_Adjust_Width			320
 #define TP_Adjust_Height		240
 
-float xfac;
-float yfac;
-short xoff;
-short yoff;
+float xfac = -0.089571;
+float yfac = -0.066622;
+short xoff = 332;
+short yoff = 259;
 uint16_t TouchX = 0;
 uint16_t TouchY = 0;
 
