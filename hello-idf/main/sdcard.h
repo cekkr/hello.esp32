@@ -93,12 +93,17 @@ void init_sd_card() {
         .sclk_io_num = SD_SCK,
         .quadwp_io_num = -1,
         .quadhd_io_num = -1,
-        .max_transfer_sz = 4000,
-        .flags = SPICOMMON_BUSFLAG_MASTER,
+        .max_transfer_sz = 4096*8,
+        .flags = SPICOMMON_BUSFLAG_MASTER | 
+                SPICOMMON_BUSFLAG_GPIO_PINS |
+                SPICOMMON_BUSFLAG_SCLK |
+                SPICOMMON_BUSFLAG_MISO |
+                SPICOMMON_BUSFLAG_MOSI,
+        .intr_flags = ESP_INTR_FLAG_IRAM
     };
 
     // Inizializza il bus SPI con frequenza molto bassa
-    ret = spi_bus_initialize(SPI2_HOST, &bus_cfg, SPI_DMA_CHAN);
+    ret = spi_bus_initialize(SPI2_HOST, &bus_cfg, SPI_DMA_DISABLED);
     if (ret != ESP_OK) {
         ESP_LOGI("hello_esp", "Failed to initialize bus. Error: %s\n", esp_err_to_name(ret));
         //return;
