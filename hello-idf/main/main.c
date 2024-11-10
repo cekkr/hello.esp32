@@ -153,7 +153,8 @@ void app_main(void) {
     // Inizializzazione della seriale
     setvbuf(stdout, NULL, _IONBF, 0);
 
-	start_serial_file_writer();
+	// Avvia il thread di gestione seriale
+    start_serial_handler();
 
     //init_spi();
 
