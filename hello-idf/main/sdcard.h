@@ -128,7 +128,7 @@ void init_sd_card() {
     };
 
     sdmmc_card_t *card;
-    ret = esp_vfs_fat_sdspi_mount(MOUNT_POINT, &host, &slot_config, &mount_config, &card);
+    ret = esp_vfs_fat_sdspi_mount(SD_MOUNT_POINT, &host, &slot_config, &mount_config, &card);
 
     if (ret != ESP_OK) {
         ESP_LOGI(TAG, "\nMount failed with error: %s (0x%x)\n", esp_err_to_name(ret), ret);

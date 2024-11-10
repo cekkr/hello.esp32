@@ -26,12 +26,14 @@ static const char *TAG = "HELLOESP";
 #define SD_MOSI 23
 #define SD_CS   5
 
-#define MOUNT_POINT "/sdcard"
+#define SD_MOUNT_POINT "/sdcard"
 #define SPI_DMA_CHAN    1
 
 #define CONFIG_XPT2046_ENABLE_DIFF_BUS 1
 
 #include "sdcard.h"
+
+#include "serial.h"
 
 ///
 /// Touch Screen
@@ -52,7 +54,7 @@ static void Draw(void *pvParameters)
 
 			if(TouchY<=30 && TouchX<=30){
                 LCD_ShowString(10,80,WHITE,BLACK,10,"Reading SD",0);
-                mostra_info_sd("/sdcard");
+                mostra_info_sd(SD_MOUNT_POINT);
                 LCD_ShowString(10,60,WHITE,BLACK,10,"Read.",0);
 
 				CurrentColor = BLUE;
@@ -150,6 +152,8 @@ void app_main(void) {
 
     // Inizializzazione della seriale
     setvbuf(stdout, NULL, _IONBF, 0);
+
+	start_serial_file_writer();
 
     //init_spi();
 
