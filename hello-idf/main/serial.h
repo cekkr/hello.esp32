@@ -400,7 +400,8 @@ void serial_handler_task(void *pvParameters) {
                 }
             }
             else {
-                send_response(STATUS_ERROR, "Unknown command");
+                char* text = string_printf("Unknown command: %s\n", cmd_type);
+                send_response(STATUS_ERROR, text);
             }
         }
         vTaskDelay(pdMS_TO_TICKS(10));
