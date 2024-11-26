@@ -133,11 +133,13 @@ static command_status_t parse_command(const char* command, char* cmd_type, comma
         }
     } else if (strncmp(command, CMD_READ_FILE, strlen(CMD_READ_FILE)) == 0) {
         strcpy(cmd_type, CMD_READ_FILE);
-        if (sscanf(command + strlen(CMD_READ_FILE) + 1, "%s",
-                   params->filename) != 1) {
+        if (sscanf(command + strlen(CMD_READ_FILE) + 1, "%s", params->filename) != 1) {
             return STATUS_ERROR_PARAMS;
         }
     }
+    else if (strncmp(command, CMD_LIST_FILES, strlen(CMD_LIST_FILES)) == 0) {
+        strcpy(cmd_type, CMD_LIST_FILES);
+    }    
     // ... altri comandi ...
     return STATUS_OK;
 }
@@ -406,10 +408,8 @@ void serial_handler_task(void *pvParameters) {
             }
             else {
                 char text [128];
-                sprintf(text, "Unknown command: %s\n", cmd_type);
-                
+                sprintf(text, "Unknown command: %s\n", command);                
                 send_response(STATUS_ERROR, text);
-                free(text);
             }
         }
         vTaskDelay(pdMS_TO_TICKS(10));
