@@ -12,4 +12,5 @@ idf_component_register(
         fatfs            # per il filesystem FAT
         sdmmc           # per il supporto SD card
         freertos        # per il supporto ai thread
+        mbedtls
 )
