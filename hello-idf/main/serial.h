@@ -24,6 +24,7 @@
 #define CMD_READ_FILE  "$$$READ_FILE$$$"
 #define CMD_LIST_FILES "$$$LIST_FILES$$$"
 #define CMD_DELETE_FILE "$$$DELETE_FILE$$$"
+#define CMD_CHECK_FILE "$$$CHECK_FILE$$$"
 
 // Codici di risposta
 typedef enum {
@@ -90,12 +91,14 @@ static command_status_t calculate_file_md5(const char* filename, char* hash_out)
 static command_status_t handle_write_file(const command_params_t* params) {
     FILE* f = fopen(params->filename, "w");
     if (f == NULL) {
+        ESP_LOGE(TAG, "handle_write_file: STATUS_ERROR_OPEN");
         return STATUS_ERROR_OPEN;
     }
 
     char* buf = malloc(BUF_SIZE);
     if (!buf) {
         fclose(f);
+        ESP_LOGE(TAG, "handle_write_file: STATUS_ERROR_MEMORY");
         return STATUS_ERROR_MEMORY;
     }
 
@@ -108,11 +111,13 @@ static command_status_t handle_write_file(const command_params_t* params) {
 
         if (received > 0) {
             if (fwrite(buf, 1, received, f) != received) {
+                ESP_LOGE(TAG, "handle_write_file: STATUS_ERROR_WRITE");
                 status = STATUS_ERROR_WRITE;
                 break;
             }
             remaining -= received;
         } else {
+            ESP_LOGE(TAG, "handle_write_file: STATUS_ERROR_READ");
             status = STATUS_ERROR_READ;
             break;
         }
@@ -127,19 +132,32 @@ static command_status_t handle_write_file(const command_params_t* params) {
 static command_status_t parse_command(const char* command, char* cmd_type, command_params_t* params) {
     if (strncmp(command, CMD_WRITE_FILE, strlen(CMD_WRITE_FILE)) == 0) {
         strcpy(cmd_type, CMD_WRITE_FILE);
-        if (sscanf(command + strlen(CMD_WRITE_FILE) + 1, "%[^,],%zu",
+        if (sscanf(command + strlen(CMD_WRITE_FILE), "%[^,],%zu",
                    params->filename, &params->filesize) != 2) {
             return STATUS_ERROR_PARAMS;
         }
     } else if (strncmp(command, CMD_READ_FILE, strlen(CMD_READ_FILE)) == 0) {
         strcpy(cmd_type, CMD_READ_FILE);
-        if (sscanf(command + strlen(CMD_READ_FILE) + 1, "%s", params->filename) != 1) {
+        if (sscanf(command + strlen(CMD_READ_FILE), "%s", params->filename) != 1) {
             return STATUS_ERROR_PARAMS;
         }
     }
     else if (strncmp(command, CMD_LIST_FILES, strlen(CMD_LIST_FILES)) == 0) {
         strcpy(cmd_type, CMD_LIST_FILES);
     }    
+    else if(strncmp(command, CMD_DELETE_FILE, strlen(CMD_DELETE_FILE) == 0)) {
+        strcpy(cmd_type, CMD_DELETE_FILE);
+        if (sscanf(command + strlen(CMD_DELETE_FILE), "%s", params->filename) != 1) {
+            return STATUS_ERROR_PARAMS;
+        }
+    }
+    else if(strncmp(command, CMD_CHECK_FILE, strlen(CMD_CHECK_FILE) == 0)) {
+        strcpy(cmd_type, CMD_CHECK_FILE);
+        if (sscanf(command + strlen(CMD_CHECK_FILE), "%s", params->filename) != 1) {
+            return STATUS_ERROR_PARAMS;
+        }
+    }
+
     // ... altri comandi ...
     return STATUS_OK;
 }
@@ -212,7 +230,9 @@ void serial_handler_task(void *pvParameters) {
 
                 // Controllo caratteri validi nel nome file
                 if (!is_filename_valid(params->filename)) {
-                    send_response(STATUS_ERROR, "Invalid filename characters");
+                    char text [286];
+                    sprintf(text, "Invalid filename characters: %s\n", params->filename);             
+                    send_response(STATUS_ERROR, text);
                     continue;
                 }
 
@@ -225,7 +245,7 @@ void serial_handler_task(void *pvParameters) {
                 // Controllo spazio disponibile su SD
                 FATFS *fs;
                 DWORD fre_clust;
-                if (f_getfree("/", &fre_clust, &fs) == FR_OK) {
+                if (f_getfree(SD_MOUNT_POINT, &fre_clust, &fs) == FR_OK) {
                     uint64_t free_space = (uint64_t)fre_clust * fs->csize * 512;
                     if (params->filesize > free_space) {
                         send_response(STATUS_ERROR, "Not enough space on SD card");
@@ -259,6 +279,18 @@ void serial_handler_task(void *pvParameters) {
                 } else {
                     send_response(write_status, "Failed to write file");
                 }
+            }
+            else if (strcmp(cmd_type, CMD_CHECK_FILE) == 0) {
+                // Controllo esistenza file
+                if (stat(params->filename, &file_stat) != 0) {
+                    send_response(STATUS_ERROR, "0: File not found");                   
+                }
+                else {
+                    char resp [128];
+                    sprintf(resp, "%ld: File found", file_stat.st_size);            
+                    send_response(STATUS_OK, "1: File found");
+                }                
+                continue;
             }
             else if (strcmp(cmd_type, CMD_READ_FILE) == 0) {
                 /*if (!params->filename) { // always true
@@ -340,7 +372,7 @@ void serial_handler_task(void *pvParameters) {
                 char file_list[4096] = "";  // Buffer per la lista file
                 size_t offset = 0;
 
-                dir = opendir("/");
+                dir = opendir(SD_MOUNT_POINT);
                 if (dir == NULL) {
                     send_response(STATUS_ERROR, "Failed to open directory");
                     continue;
