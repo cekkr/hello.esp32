@@ -1,11 +1,7 @@
 #include <stdio.h>
 #include <stdarg.h>
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
+#include <stdlib.h>
 #include <string.h>
-
-//#include "esp_heap_caps.h"
-//char* buffer = (char*)heap_caps_malloc(256, MALLOC_CAP_8BIT | MALLOC_CAP_INTERNAL);
 
 // Buffer size for the output string
 #define MAX_STRING_LENGTH 256
@@ -25,6 +21,53 @@ void init_string_buffer(StringBuffer* str_buf) {
     str_buf->buffer = malloc(str_buf->max_length);
     str_buf->buffer[0] = '\0';
 }
+
+// Free the memory allocated for the string buffer
+void free_string_buffer(StringBuffer* str_buf) {
+    free(str_buf->buffer);
+}
+
+char* string_printf(const char* format, ...) { // FANCULO, usa invece: sprintf(text, "Result: %d", number);
+    StringBuffer* str_buf = malloc(sizeof(StringBuffer));
+    init_string_buffer(str_buf);
+
+    va_list args;
+    va_start(args, format);
+
+    // Calculate remaining space in buffer
+    size_t remaining = str_buf->max_length - str_buf->position;
+
+    // Format string and write to buffer at current position
+    int written = vsnprintf(str_buf->buffer + str_buf->position,
+                            remaining,
+                            format,
+                            args);
+
+    va_end(args);
+
+    // Update position if write was successful
+    if (written > 0 && written < remaining) {
+        str_buf->position += written;
+    }
+
+    str_buf->buffer[str_buf->position] = '\0';
+
+    return str_buf->buffer;
+}
+
+// Function to free the memory allocated by string_printf
+void free_string(char* str) { // ???????
+    StringBuffer* str_buf = (StringBuffer*)((char*)str - offsetof(StringBuffer, buffer));
+    free_string_buffer(str_buf);
+    free(str_buf);
+}
+
+/*
+Example:
+char* str = string_printf("Hello, %s! Value: %d", "world", 42);
+printf("%s\n", str);
+free_string(str);
+*/
 
 // Custom printf that writes to a string buffer
 int stringBuffer_printf(StringBuffer* str_buf, const char* format, ...) {
@@ -52,38 +95,6 @@ int stringBuffer_printf(StringBuffer* str_buf, const char* format, ...) {
     //taskEXIT_CRITICAL();  // Exit critical section
     
     return written;
-}
-
-char* string_printf(const char* format, ...){
-    StringBuffer str_buf;
-    init_string_buffer(&str_buf);
-    
-    //taskENTER_CRITICAL();  // Enter critical section if needed
-
-    va_list args;
-    va_start(args, format);
-    
-    // Calculate remaining space in buffer
-    size_t remaining = str_buf.max_length - str_buf.position;
-    
-    // Format string and write to buffer at current position
-    int written = vsnprintf(str_buf.buffer + str_buf.position, 
-                           remaining, 
-                           format, 
-                           args);
-
-    va_end(args);
-    
-    // Update position if write was successful
-    if (written > 0 && written < remaining) {
-        str_buf.position += written;
-    }
-    
-    str_buf.buffer[str_buf.position] = '\0';
-
-    //taskEXIT_CRITICAL();  // Exit critical section
-
-    return str_buf.buffer;
 }
 
 // Convert StringBuffer to char array (copying)

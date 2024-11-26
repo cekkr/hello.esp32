@@ -200,8 +200,9 @@ void mostra_info_sd(const char* mount_point) {
     ESP_LOGI(TAG, "----------------------------------------\n");
 
 
-    char* text = string_printf("Chunk size: %d", sector_size);
-    
+    char text [64];
+    sprintf(text, "Chunk size: %d", sector_size);
+
     ESP_LOGI(TAG, "Output string_printf: %s\n", text);
     free(text);
     LCD_ShowString(10,40,WHITE,BLACK,12,"test output",0);

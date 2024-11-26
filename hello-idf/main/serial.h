@@ -183,6 +183,11 @@ void serial_handler_task(void *pvParameters) {
 
         if (fgets(command, BUF_SIZE, stdin) != NULL) {
             command[strcspn(command, "\n")] = 0;
+
+            if(false){ // debug echo
+                ESP_LOGW(TAG, "Command: %s", command);
+                continue;
+            }
             
             command_status_t parse_status = parse_command(command, cmd_type, params);
             if (parse_status != STATUS_OK) {
@@ -400,11 +405,11 @@ void serial_handler_task(void *pvParameters) {
                 }
             }
             else {
-                char* text = string_printf("Unknown command: %s\n", cmd_type);
-                ESP_LOGI(TAG, "string_printf del giudizio:\n");
-                ESP_LOGI(TAG, "string_printf: %s\n", text);
-                free(text);
+                char text [128];
+                sprintf(text, "Unknown command: %s\n", cmd_type);
+                
                 send_response(STATUS_ERROR, text);
+                free(text);
             }
         }
         vTaskDelay(pdMS_TO_TICKS(10));
