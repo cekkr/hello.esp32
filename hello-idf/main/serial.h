@@ -198,7 +198,7 @@ void serial_handler_task(void *pvParameters) {
                 }
 
                 // Controllo lunghezza nome file
-                if (strlen(params->filename) > MAX_STRING_LENGTH) { // stupid, it was MAX_FILENAME_LENGTH ... (or MAX_FILENAME)
+                if (strlen(params->filename) > MAX_FILENAME) { // stupid, it was MAX_FILENAME_LENGTH ... (or MAX_FILENAME)
                     send_response(STATUS_ERROR, "Filename too long");
                     continue;
                 }
@@ -401,6 +401,9 @@ void serial_handler_task(void *pvParameters) {
             }
             else {
                 char* text = string_printf("Unknown command: %s\n", cmd_type);
+                ESP_LOGI(TAG, "string_printf del giudizio:\n");
+                ESP_LOGI(TAG, "string_printf: %s\n", text);
+                free(text);
                 send_response(STATUS_ERROR, text);
             }
         }

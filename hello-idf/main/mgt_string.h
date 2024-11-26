@@ -4,12 +4,15 @@
 #include "freertos/task.h"
 #include <string.h>
 
+//#include "esp_heap_caps.h"
+//char* buffer = (char*)heap_caps_malloc(256, MALLOC_CAP_8BIT | MALLOC_CAP_INTERNAL);
+
 // Buffer size for the output string
 #define MAX_STRING_LENGTH 256
 
 // Structure to hold the buffer and its properties
 typedef struct {
-    char buffer[MAX_STRING_LENGTH];
+    char* buffer;
     size_t position;
     size_t max_length;
 } StringBuffer;
@@ -18,6 +21,8 @@ typedef struct {
 void init_string_buffer(StringBuffer* str_buf) {
     str_buf->position = 0;
     str_buf->max_length = MAX_STRING_LENGTH;
+
+    str_buf->buffer = malloc(str_buf->max_length);
     str_buf->buffer[0] = '\0';
 }
 
@@ -54,7 +59,7 @@ char* string_printf(const char* format, ...){
     init_string_buffer(&str_buf);
     
     //taskENTER_CRITICAL();  // Enter critical section if needed
-    
+
     va_list args;
     va_start(args, format);
     
@@ -66,7 +71,7 @@ char* string_printf(const char* format, ...){
                            remaining, 
                            format, 
                            args);
-    
+
     va_end(args);
     
     // Update position if write was successful
@@ -74,8 +79,10 @@ char* string_printf(const char* format, ...){
         str_buf.position += written;
     }
     
+    str_buf.buffer[str_buf.position] = '\0';
+
     //taskEXIT_CRITICAL();  // Exit critical section
-    
+
     return str_buf.buffer;
 }
 
