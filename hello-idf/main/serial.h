@@ -50,6 +50,44 @@ typedef struct {
     char chunk_hash[33];
 } command_params_t;
 
+///
+///
+///
+
+esp_err_t prepend_mount_point(const char* filename, char* full_path) {
+    if (filename == NULL || full_path == NULL) {
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    if (strlen(SD_MOUNT_POINT) + strlen(filename) + 1 > MAX_FILENAME) {
+        return ESP_ERR_INVALID_SIZE;
+    }
+
+    strcpy(full_path, SD_MOUNT_POINT);
+    strcat(full_path, filename);
+
+    return ESP_OK;
+}
+
+// Usage example:
+/*esp_err_t handle_filename(const char* params_filename) {
+    char full_path[MAX_FILENAME_LENGTH];
+    esp_err_t ret = prepend_mount_point(params_filename, full_path);
+    
+    if (ret != ESP_OK) {
+        ESP_LOGE("FILE", "Error preparing filename");
+        return ret;
+    }
+
+    // Now full_path contains the complete path with SD_MOUNT_POINT prefixed
+    ESP_LOGI("FILE", "Complete path: %s", full_path);
+    return ESP_OK;
+}*/
+
+///
+///
+///
+
 // Funzione per inviare la risposta
 static void send_response(command_status_t status, const char* message) {
     switch(status) {
@@ -302,7 +340,10 @@ void serial_handler_task(void *pvParameters) {
 
                 FILE* file = fopen(params->filename, "wb");
                 if (!file) {
-                    send_response(STATUS_ERROR, "Failed to create file");
+                    char text [FILENAME_MAX + 64];
+                    sprintf(text, "Failed to create file %s", params->filename);
+
+                    send_response(STATUS_ERROR, text);
                     continue;
                 }
 
@@ -492,6 +533,7 @@ void serial_handler_task(void *pvParameters) {
                 closedir(dir);
 
                 if (offset > 0) {
+                    offset++;
                     file_list[offset] = '\0';  // Rimuovi ultimo separatore
                 }
 
