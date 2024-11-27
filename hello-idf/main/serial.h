@@ -25,6 +25,7 @@
 #define CMD_LIST_FILES "$$$LIST_FILES$$$"
 #define CMD_DELETE_FILE "$$$DELETE_FILE$$$"
 #define CMD_CHECK_FILE "$$$CHECK_FILE$$$"
+#define CMD_CHUCK = "$$$CHUCK$$$";
 
 // Codici di risposta
 typedef enum {
@@ -42,6 +43,9 @@ typedef enum {
 typedef struct {
     char filename[MAX_FILENAME];
     size_t filesize;
+    char file_hash[33];
+    size_t chunk_size;
+    char chunk_hash[33];
 } command_params_t;
 
 // Funzione per inviare la risposta
@@ -132,8 +136,15 @@ static command_status_t handle_write_file(const command_params_t* params) {
 static command_status_t parse_command(const char* command, char* cmd_type, command_params_t* params) {
     if (strncmp(command, CMD_WRITE_FILE, strlen(CMD_WRITE_FILE)) == 0) {
         strcpy(cmd_type, CMD_WRITE_FILE);
-        if (sscanf(command + strlen(CMD_WRITE_FILE), "%[^,],%zu",
-                   params->filename, &params->filesize) != 2) {
+        if (sscanf(command + strlen(CMD_WRITE_FILE), "%[^,],%zu,%32s",
+                params->filename, &params->filesize, params->file_hash) != 3) {
+            return STATUS_ERROR_PARAMS;
+        }
+    }
+    else if (strncmp(command, CMD_CHUNK, strlen(CMD_CHUNK)) == 0) {
+        strcpy(cmd_type, CMD_CHUNK);
+        if (sscanf(command + strlen(CMD_CHUNK), "%zu,%32s",
+                &params->chunk_size, params->chunk_hash) != 2) {
             return STATUS_ERROR_PARAMS;
         }
     } else if (strncmp(command, CMD_READ_FILE, strlen(CMD_READ_FILE)) == 0) {
@@ -145,7 +156,7 @@ static command_status_t parse_command(const char* command, char* cmd_type, comma
     else if (strncmp(command, CMD_LIST_FILES, strlen(CMD_LIST_FILES)) == 0) {
         strcpy(cmd_type, CMD_LIST_FILES);
     }    
-    else if(strncmp(command, CMD_DELETE_FILE, strlen(CMD_DELETE_FILE) == 0)) {
+    else if(strncmp(command, CMD_DELETE_FILE, strlen(CMD_DELETE_FILE)) == 0) {
         strcpy(cmd_type, CMD_DELETE_FILE);
         if (sscanf(command + strlen(CMD_DELETE_FILE), "%s", params->filename) != 1) {
             return STATUS_ERROR_PARAMS;
@@ -237,48 +248,79 @@ void serial_handler_task(void *pvParameters) {
                 }
 
                 // Controllo dimensione file
-                if (params->filesize > MAX_FILENAME || params->filesize == 0) {
+                if (params->filesize > (1024*1024*32) || params->filesize == 0) {
                     send_response(STATUS_ERROR, "Invalid file size");
                     continue;
                 }
 
-                // Controllo spazio disponibile su SD
-                FATFS *fs;
-                DWORD fre_clust;
-                if (f_getfree(SD_MOUNT_POINT, &fre_clust, &fs) == FR_OK) {
-                    uint64_t free_space = (uint64_t)fre_clust * fs->csize * 512;
-                    if (params->filesize > free_space) {
-                        send_response(STATUS_ERROR, "Not enough space on SD card");
-                        continue;
-                    }
-                }
-
-                // Controllo esistenza file
-                if (stat(params->filename, &file_stat) == 0) {
-                    char msg[64];
-                    snprintf(msg, sizeof(msg), 
-                            "File exists with size: %ld bytes", 
-                            file_stat.st_size);
-                    send_response(STATUS_ERROR, msg);
+                FILE* file = fopen(params->filename, "wb");
+                if (!file) {
+                    send_response(STATUS_ERROR, "Failed to create file");
                     continue;
                 }
 
-                ESP_LOGI(TAG, "Writing file: %s (%zu bytes)", 
-                         params->filename, params->filesize);
-                
-                command_status_t write_status = handle_write_file(params);
-                if (write_status == STATUS_OK) {
-                    // Verifica integrità dopo scrittura
-                    if (stat(params->filename, &file_stat) == 0) {
-                        if (file_stat.st_size != params->filesize) {
-                            send_response(STATUS_ERROR, "File size mismatch after write");
-                            continue;
-                        }
+                size_t total_received = 0;
+                uint8_t chunk_buffer[1024];
+                char calculated_hash[33];
+                mbedtls_md5_context md5_ctx;
+                mbedtls_md5_init(&md5_ctx);
+                mbedtls_md5_starts(&md5_ctx);
+
+                send_response(STATUS_OK, "Ready for chunks");
+
+                while (total_received < params->filesize) {
+                    // Attendi comando chunk
+                    if (wait_for_command(cmd_type, params) != STATUS_OK ||
+                        strcmp(cmd_type, CMD_CHUNK) != 0) {
+                        fclose(file);
+                        unlink(params->filename);
+                        send_response(STATUS_ERROR, "Invalid chunk command");
+                        continue;
                     }
-                    send_response(STATUS_OK, "File written successfully");
-                } else {
-                    send_response(write_status, "Failed to write file");
+
+                    // Leggi e verifica chunk
+                    size_t to_read = params->chunk_size;
+                    size_t read = uart_read_bytes(UART_NUM_0, chunk_buffer, to_read, portMAX_DELAY);
+                    
+                    if (read != to_read) {
+                        fclose(file);
+                        unlink(params->filename);
+                        send_response(STATUS_ERROR, "Chunk size mismatch");
+                        continue;
+                    }
+
+                    // Verifica hash chunk
+                    calculate_md5(chunk_buffer, read, calculated_hash);
+                    if (strcmp(calculated_hash, params->chunk_hash) != 0) {
+                        fclose(file);
+                        unlink(params->filename);
+                        send_response(STATUS_ERROR, "Chunk hash mismatch");
+                        continue;
+                    }
+
+                    // Aggiorna hash totale e scrivi
+                    mbedtls_md5_update(&md5_ctx, chunk_buffer, read);
+                    fwrite(chunk_buffer, 1, read, file);
+                    total_received += read;
+
+                    send_response(STATUS_OK, "Chunk received");
                 }
+
+                // Verifica hash finale
+                uint8_t hash_result[16];
+                mbedtls_md5_finish(&md5_ctx, hash_result);
+                mbedtls_md5_free(&md5_ctx);
+                calculate_md5_hex(hash_result, calculated_hash);
+
+                fclose(file);
+
+                if (strcmp(calculated_hash, params->file_hash) != 0) {
+                    unlink(params->filename);
+                    send_response(STATUS_ERROR, "File hash mismatch");
+                } else {
+                    send_response(STATUS_OK, "File written successfully");
+                }
+
             }
             else if (strcmp(cmd_type, CMD_CHECK_FILE) == 0) {
                 // Controllo esistenza file
