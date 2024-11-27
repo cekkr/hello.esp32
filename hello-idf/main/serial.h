@@ -64,6 +64,7 @@ esp_err_t prepend_mount_point(const char* filename, char* full_path) {
     }
 
     strcpy(full_path, SD_MOUNT_POINT);
+    strcat(full_path, "/");
     strcat(full_path, filename);
 
     return ESP_OK;
@@ -249,8 +250,13 @@ command_status_t wait_for_command(char* cmd_type, command_params_t* params) {
     char command_buffer[256] = {0};
     size_t length = 0;
     
-    while (length < sizeof(command_buffer) - 1) {
+    int init_cmd = 0;
+    while (length < sizeof(command_buffer) - 1 || init_cmd <= 6) {
         char c = getchar();
+
+        if(c == '$')
+            init_cmd++;
+
         if (c == EOF) {
             return STATUS_ERROR_TIMEOUT;
         }
@@ -272,7 +278,7 @@ command_status_t wait_for_command(char* cmd_type, command_params_t* params) {
 
 // Helper function per validare il nome del file
 static bool is_filename_valid(const char* filename) {
-    const char* invalid_chars = "\\/:*?\"<>|";
+    const char* invalid_chars = ":*?\"<>|"; // rimossi / e \
     
     if (!filename) return false;
     
