@@ -25,7 +25,7 @@
 #define CMD_LIST_FILES "$$$LIST_FILES$$$"
 #define CMD_DELETE_FILE "$$$DELETE_FILE$$$"
 #define CMD_CHECK_FILE "$$$CHECK_FILE$$$"
-#define CMD_CHUCK = "$$$CHUCK$$$";
+#define CMD_CHUNK = "$$$CHUNK$$$";
 
 // Codici di risposta
 typedef enum {
