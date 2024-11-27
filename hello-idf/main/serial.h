@@ -25,7 +25,7 @@
 #define CMD_LIST_FILES "$$$LIST_FILES$$$"
 #define CMD_DELETE_FILE "$$$DELETE_FILE$$$"
 #define CMD_CHECK_FILE "$$$CHECK_FILE$$$"
-#define CMD_CHUNK = "$$$CHUNK$$$";
+#define CMD_CHUNK "$$$CHUNK$$$"
 
 // Codici di risposta
 typedef enum {
@@ -89,6 +89,26 @@ static command_status_t calculate_file_md5(const char* filename, char* hash_out)
     hash_out[32] = '\0';
 
     return STATUS_OK;
+}
+
+static void calculate_md5_hex(const unsigned char* digest, char* hash_out) {
+    for(int i = 0; i < 16; i++) {
+        sprintf(&hash_out[i*2], "%02x", (unsigned int)digest[i]);
+    }
+    hash_out[32] = '\0';
+}
+
+static void calculate_md5(const unsigned char* data, size_t len, char* hash_out) {
+    mbedtls_md5_context md5_ctx;
+    mbedtls_md5_init(&md5_ctx);
+    mbedtls_md5_starts(&md5_ctx);
+    mbedtls_md5_update(&md5_ctx, data, len);
+    
+    unsigned char digest[16];
+    mbedtls_md5_finish(&md5_ctx, digest);
+    mbedtls_md5_free(&md5_ctx);
+    
+    calculate_md5_hex(digest, hash_out);
 }
 
 // Funzione per la scrittura del file
@@ -171,6 +191,31 @@ static command_status_t parse_command(const char* command, char* cmd_type, comma
 
     // ... altri comandi ...
     return STATUS_OK;
+}
+
+command_status_t wait_for_command(char* cmd_type, command_params_t* params) {
+    char command_buffer[256] = {0};
+    size_t length = 0;
+    
+    while (length < sizeof(command_buffer) - 1) {
+        char c;
+        if (read(serial_fd, &c, 1) != 1) {
+            return STATUS_ERROR_TIMEOUT;
+        }
+        
+        if (c == '\n') {
+            command_buffer[length] = '\0';
+            break;
+        }
+        
+        command_buffer[length++] = c;
+    }
+    
+    if (length == sizeof(command_buffer) - 1) {
+        return STATUS_ERROR_BUFFER;
+    }
+    
+    return parse_command(command_buffer, cmd_type, params);
 }
 
 // Helper function per validare il nome del file
@@ -280,7 +325,7 @@ void serial_handler_task(void *pvParameters) {
 
                     // Leggi e verifica chunk
                     size_t to_read = params->chunk_size;
-                    size_t read = uart_read_bytes(UART_NUM_0, chunk_buffer, to_read, portMAX_DELAY);
+                    size_t read = read(serial_fd, chunk_buffer, to_read);
                     
                     if (read != to_read) {
                         fclose(file);
