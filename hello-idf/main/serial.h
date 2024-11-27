@@ -205,6 +205,8 @@ static command_status_t parse_command(const char* command, char* cmd_type, comma
             return STATUS_ERROR_PARAMS;
         }
         prepend_mount_point(filename, params->filename);
+
+        ESP_LOGI(TAG, "Writing path: %s\n", params->filename);
     }
     else if (strncmp(command, CMD_CHUNK, strlen(CMD_CHUNK)) == 0) {
         strcpy(cmd_type, CMD_CHUNK);
@@ -520,10 +522,24 @@ void serial_handler_task(void *pvParameters) {
                 send_response(STATUS_OK, "File sent successfully");
             }
             else if (strcmp(cmd_type, CMD_LIST_FILES) == 0) {
+                // Analyze the mounting point
+                struct stat st;
+                if (stat(SD_MOUNT_POINT, &st) != 0) {
+                    char text [128];
+                    sprintf(text, "Mount point error: %s\n", strerror(errno));            
+                    send_response(STATUS_ERROR, text);
+                    continue;
+                }
+
+                char dirPermission [128];
+                sprintf(dirPermission, "Directory permissions: %o", st.st_mode & 0777);            
+                ESP_LOGI(TAG, "%s\n", dirPermission);
+
+                ////////////////////////////////
                 DIR *dir;
                 struct dirent *ent;
                 char file_list[4096] = "LIST:";  // Buffer per la lista file
-                size_t offset = 5;
+                size_t offset = 5;                
 
                 dir = opendir(SD_MOUNT_POINT);
                 if (dir == NULL) {
