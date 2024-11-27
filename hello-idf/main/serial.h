@@ -3,6 +3,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_log.h"
+#include <errno.h>
 
 // Comandi di lettura file
 #define CMD_READ_FILE "READ_FILE"
@@ -278,7 +279,7 @@ command_status_t wait_for_command(char* cmd_type, command_params_t* params) {
 
 // Helper function per validare il nome del file
 static bool is_filename_valid(const char* filename) {
-    const char* invalid_chars = ":*?\"<>|"; // rimossi / e \
+    const char* invalid_chars = ":*?\"<>|"; // rimossi / e back
     
     if (!filename) return false;
     
@@ -358,9 +359,9 @@ void serial_handler_task(void *pvParameters) {
 
                 FILE* file = fopen(params->filename, "wb");
                 if (!file) {
-                    char text [FILENAME_MAX + 64];
-                    sprintf(text, "Failed to create file %s", params->filename);
-
+                    char text[FILENAME_MAX + 128];
+                    sprintf(text, "Failed to create file %s: %s", 
+                            params->filename, strerror(errno));
                     send_response(STATUS_ERROR, text);
                     continue;
                 }
