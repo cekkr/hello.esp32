@@ -532,7 +532,7 @@ void serial_handler_task(void *pvParameters) {
                 }
 
                 char dirPermission [128];
-                sprintf(dirPermission, "Directory permissions: %o", st.st_mode & 0777);            
+                sprintf(dirPermission, "Directory permissions: %lo", st.st_mode & 0777);            
                 ESP_LOGI(TAG, "%s\n", dirPermission);
 
                 ////////////////////////////////
