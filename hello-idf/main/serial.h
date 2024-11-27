@@ -462,8 +462,8 @@ void serial_handler_task(void *pvParameters) {
             else if (strcmp(cmd_type, CMD_LIST_FILES) == 0) {
                 DIR *dir;
                 struct dirent *ent;
-                char file_list[4096] = "";  // Buffer per la lista file
-                size_t offset = 0;
+                char file_list[4096] = "LIST:";  // Buffer per la lista file
+                size_t offset = 5;
 
                 dir = opendir(SD_MOUNT_POINT);
                 if (dir == NULL) {
@@ -492,7 +492,7 @@ void serial_handler_task(void *pvParameters) {
                 closedir(dir);
 
                 if (offset > 0) {
-                    file_list[offset-1] = '\0';  // Rimuovi ultimo separatore
+                    file_list[offset] = '\0';  // Rimuovi ultimo separatore
                 }
 
                 send_response(STATUS_OK, file_list);
