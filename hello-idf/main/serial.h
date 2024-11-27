@@ -36,6 +36,8 @@ typedef enum {
     STATUS_ERROR_MEMORY,
     STATUS_ERROR_PARAMS,
     STATUS_ERROR_NOT_FOUND,
+    STATUS_ERROR_TIMEOUT,
+    STATUS_ERROR_BUFFER,
     STATUS_ERROR
 } command_status_t;
 
@@ -198,8 +200,8 @@ command_status_t wait_for_command(char* cmd_type, command_params_t* params) {
     size_t length = 0;
     
     while (length < sizeof(command_buffer) - 1) {
-        char c;
-        if (read(serial_fd, &c, 1) != 1) {
+        char c = getchar();
+        if (c == EOF) {
             return STATUS_ERROR_TIMEOUT;
         }
         
@@ -325,13 +327,17 @@ void serial_handler_task(void *pvParameters) {
 
                     // Leggi e verifica chunk
                     size_t to_read = params->chunk_size;
-                    size_t read = read(serial_fd, chunk_buffer, to_read);
-                    
-                    if (read != to_read) {
-                        fclose(file);
-                        unlink(params->filename);
-                        send_response(STATUS_ERROR, "Chunk size mismatch");
-                        continue;
+                    size_t total_read = 0;
+
+                    while (total_read < to_read) {
+                        int c = getchar();
+                        if (c == EOF) {
+                            fclose(file);
+                            unlink(params->filename); 
+                            send_response(STATUS_ERROR, "Failed to read chunk data");
+                            continue;
+                        }
+                        chunk_buffer[total_read++] = (uint8_t)c;
                     }
 
                     // Verifica hash chunk
