@@ -196,8 +196,13 @@ static command_status_t handle_write_file(const command_params_t* params) {
 static command_status_t parse_command(const char* command, char* cmd_type, command_params_t* params) {
     if (strncmp(command, CMD_WRITE_FILE, strlen(CMD_WRITE_FILE)) == 0) {
         strcpy(cmd_type, CMD_WRITE_FILE);
+
+        char filename[MAX_FILENAME];
         if (sscanf(command + strlen(CMD_WRITE_FILE), "%[^,],%zu,%32s",
-                params->filename, &params->filesize, params->file_hash) != 3) {
+                filename, &params->filesize, params->file_hash) != 3) {
+
+            prepend_mount_point(filename, params->filename);
+            
             return STATUS_ERROR_PARAMS;
         }
     }
@@ -209,7 +214,10 @@ static command_status_t parse_command(const char* command, char* cmd_type, comma
         }
     } else if (strncmp(command, CMD_READ_FILE, strlen(CMD_READ_FILE)) == 0) {
         strcpy(cmd_type, CMD_READ_FILE);
-        if (sscanf(command + strlen(CMD_READ_FILE), "%s", params->filename) != 1) {
+
+        char filename[MAX_FILENAME];
+        if (sscanf(command + strlen(CMD_READ_FILE), "%s", filename) != 1) {
+            prepend_mount_point(filename, params->filename);
             return STATUS_ERROR_PARAMS;
         }
     }
@@ -218,13 +226,19 @@ static command_status_t parse_command(const char* command, char* cmd_type, comma
     }    
     else if(strncmp(command, CMD_DELETE_FILE, strlen(CMD_DELETE_FILE)) == 0) {
         strcpy(cmd_type, CMD_DELETE_FILE);
-        if (sscanf(command + strlen(CMD_DELETE_FILE), "%s", params->filename) != 1) {
+
+        char filename[MAX_FILENAME];
+        if (sscanf(command + strlen(CMD_DELETE_FILE), "%s", filename) != 1) {
+            prepend_mount_point(filename, params->filename);
             return STATUS_ERROR_PARAMS;
         }
     }
     else if(strncmp(command, CMD_CHECK_FILE, strlen(CMD_CHECK_FILE) == 0)) {
         strcpy(cmd_type, CMD_CHECK_FILE);
-        if (sscanf(command + strlen(CMD_CHECK_FILE), "%s", params->filename) != 1) {
+
+        char filename[MAX_FILENAME];
+        if (sscanf(command + strlen(CMD_CHECK_FILE), "%s", filename) != 1) {
+            prepend_mount_point(filename, params->filename);
             return STATUS_ERROR_PARAMS;
         }
     }
