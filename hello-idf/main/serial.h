@@ -5,13 +5,6 @@
 #include "esp_log.h"
 #include <errno.h>
 
-// Comandi di lettura file
-#define CMD_READ_FILE "READ_FILE"
-#define CMD_LIST_FILES "LIST_FILES"
-#define CMD_DELETE_FILE "DELETE_FILE"
-#define CMD_CHECK_FILE "CHECK_FILE"
-#define CHUNK_SIZE 1024
-
 #include <dirent.h>
 #include "mbedtls/md5.h"
 
@@ -19,6 +12,7 @@
 #define BUF_SIZE 1024
 #define MAX_FILENAME 256
 #define STACK_SIZE (8192)
+#define CHUNK_SIZE 1024
 
 // Comandi
 #define CMD_WRITE_FILE "$$$WRITE_FILE$$$"
@@ -235,7 +229,7 @@ static command_status_t parse_command(const char* command, char* cmd_type, comma
         }
         prepend_mount_point(filename, params->filename);
     }
-    else if(strncmp(command, CMD_CHECK_FILE, strlen(CMD_CHECK_FILE) == 0)) {
+    else if(strncmp(command, CMD_CHECK_FILE, strlen(CMD_CHECK_FILE)) == 0) {
         strcpy(cmd_type, CMD_CHECK_FILE);
 
         char filename[MAX_FILENAME];
@@ -359,7 +353,7 @@ void serial_handler_task(void *pvParameters) {
                     continue;
                 }
 
-                FILE* file = fopen(params->filename, "wb");
+                FILE* file = fopen(params->filename, "w");
                 if (!file) {
                     char text[FILENAME_MAX + 128];
                     sprintf(text, "Failed to create file %s: %s", 
@@ -383,7 +377,11 @@ void serial_handler_task(void *pvParameters) {
                         strcmp(cmd_type, CMD_CHUNK) != 0) {
                         fclose(file);
                         unlink(params->filename);
-                        send_response(STATUS_ERROR, "Invalid chunk command");
+
+                        char text [286];
+                        sprintf(text, "Invalid chunk command: %s\n", cmd_type);             
+
+                        send_response(STATUS_ERROR, text);
                         continue;
                     }
 

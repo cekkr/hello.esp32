@@ -123,7 +123,7 @@ void init_sd_card() {
     ESP_LOGI(TAG, "\nMounting SD card...\n");
     esp_vfs_fat_sdmmc_mount_config_t mount_config = {
         .format_if_mount_failed = false,
-        .max_files = 5,
+        .max_files = 16, // Il parametro max_files indica il numero massimo di file che possono essere aperti contemporaneamente, non il numero totale di file sulla SD card
         .allocation_unit_size = 16 * 1024
     };
 
