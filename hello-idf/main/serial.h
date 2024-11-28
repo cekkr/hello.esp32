@@ -384,7 +384,9 @@ void serial_handler_task(void *pvParameters) {
 
                 // Controllo dimensione file
                 if (params->filesize > (1024*1024*32) || params->filesize == 0) {
-                    send_response(STATUS_ERROR, "Invalid file size");
+                    char text [256];
+                    sprintf(text, "Invalid file size: %d\n", params->filesize);             
+                    send_response(STATUS_ERROR, text);
                     continue;
                 }
 
