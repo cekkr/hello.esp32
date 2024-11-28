@@ -15,6 +15,7 @@
 #define CHUNK_SIZE 1024
 
 // Comandi
+#define CMD_PING_FILE "$$PING$$"
 #define CMD_WRITE_FILE "$$$WRITE_FILE$$$"
 #define CMD_READ_FILE  "$$$READ_FILE$$$"
 #define CMD_LIST_FILES "$$$LIST_FILES$$$"
@@ -94,6 +95,8 @@ static void send_response(command_status_t status, const char* message) {
             printf("ERROR: %s\n", message);
             break;
     }
+
+    fflush(stdout);
 }
 
 
@@ -189,8 +192,12 @@ static command_status_t handle_write_file(const command_params_t* params) {
 }
 
 // Funzione per il parsing dei comandi
-static command_status_t parse_command(const char* command, char* cmd_type, command_params_t* params) {
-    if (strncmp(command, CMD_WRITE_FILE, strlen(CMD_WRITE_FILE)) == 0) {
+static command_status_t parse_command(const char* command, char* cmd_type, command_params_t* params) {    
+
+    if (strncmp(command, CMD_PING_FILE, strlen(CMD_PING_FILE)) == 0) {
+        send_response(STATUS_OK, "PONG");
+    }
+    else if (strncmp(command, CMD_WRITE_FILE, strlen(CMD_WRITE_FILE)) == 0) {
         strcpy(cmd_type, CMD_WRITE_FILE);
 
         char filename[MAX_FILENAME];
@@ -300,18 +307,18 @@ void serial_handler_task(void *pvParameters) {
     struct stat file_stat;
 
     if (!command || !cmd_type || !params) {
-        ESP_LOGE(TAG, "Failed to allocate buffers");
+        ESP_LOGE(TAG, "Failed to allocate buffers\n");
         goto cleanup;
     }
 
-    ESP_LOGI(TAG, "Serial handler started");
+    ESP_LOGI(TAG, "Serial handler started\n");
 
     while(1) {
         if (uxTaskGetStackHighWaterMark(NULL) < 512) {
-            ESP_LOGW(TAG, "Stack getting low! %d bytes remaining",
+            ESP_LOGW(TAG, "Stack getting low! %d bytes remaining\n",
                      uxTaskGetStackHighWaterMark(NULL));
         }
-
+        
         if (fgets(command, BUF_SIZE, stdin) != NULL) {
             command[strcspn(command, "\n")] = 0;
 
@@ -353,6 +360,7 @@ void serial_handler_task(void *pvParameters) {
                     continue;
                 }
 
+                ESP_LOGI(TAG, "Starting reading file...\n");
                 FILE* file = fopen(params->filename, "w");
                 if (!file) {
                     char text[FILENAME_MAX + 128];
@@ -362,19 +370,25 @@ void serial_handler_task(void *pvParameters) {
                     continue;
                 }
 
+                ESP_LOGI(TAG, "Calculating MD5\n");
                 size_t total_received = 0;
                 uint8_t chunk_buffer[1024];
                 char calculated_hash[33];
                 mbedtls_md5_context md5_ctx;
+                ESP_LOGI(TAG, "mbedtls_md5_init\n");
                 mbedtls_md5_init(&md5_ctx);
+                ESP_LOGI(TAG, "mbedtls_md5_init\n");
                 mbedtls_md5_starts(&md5_ctx);
+                ESP_LOGI(TAG, "mbedtls_md5_init COMPLETE\n");
 
-                send_response(STATUS_OK, "Ready for chunks");
+                send_response(STATUS_OK, "OK:READY: Ready for chunks");
 
                 while (total_received < params->filesize) {
                     // Attendi comando chunk
-                    if (wait_for_command(cmd_type, params) != STATUS_OK ||
-                        strcmp(cmd_type, CMD_CHUNK) != 0) {
+
+                    char* cmd_type_chunk = malloc(BUF_SIZE);
+                    //command_params_t* params_chunk = malloc(sizeof(command_params_t));
+                    if (wait_for_command(cmd_type_chunk, params) != STATUS_OK || strcmp(cmd_type_chunk, CMD_CHUNK) != 0) {
                         fclose(file);
                         unlink(params->filename);
 
@@ -385,12 +399,17 @@ void serial_handler_task(void *pvParameters) {
                         continue;
                     }
 
+                    ESP_LOGI(TAG, "Starting reading chunk\n");
+
                     // Leggi e verifica chunk
                     size_t to_read = params->chunk_size;
                     size_t total_read = 0;
 
                     while (total_read < to_read) {
+                        ESP_LOGI(TAG, "getchar()\n");
                         int c = getchar();
+                        ESP_LOGI(TAG, "getchar() complete: %c\n", c);
+
                         if (c == EOF) {
                             fclose(file);
                             unlink(params->filename); 
