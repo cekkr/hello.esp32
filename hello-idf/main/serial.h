@@ -51,6 +51,23 @@ typedef struct {
 ///
 ///
 
+int serial_write(char *buffer, size_t size){
+    return uart_write_bytes(UART_NUM_0, buffer, size);
+}
+
+char serial_read_char(){
+    char c = '\0';
+    while(uart_read_bytes(UART_NUM_0, &c, 1, portMAX_DELAY) == 0){
+        vTaskDelay(1);
+    }
+
+    return c;
+}
+
+///
+///
+///
+
 esp_err_t prepend_mount_point(const char* filename, char* full_path) {
     if (filename == NULL || full_path == NULL) {
         return ESP_ERR_INVALID_ARG;
@@ -88,16 +105,18 @@ esp_err_t prepend_mount_point(const char* filename, char* full_path) {
 
 // Funzione per inviare la risposta
 static void send_response(command_status_t status, const char* message) {
+    char buffer[1024];
     switch(status) {
         case STATUS_OK:
-            printf("OK: %s\n", message);
+            sprintf(buffer, "OK: %s\n", message);            
             break;
         default:
-            printf("ERROR: %s\n", message);
+            sprintf(buffer, "OK: %s\n", message);
             break;
     }
 
-    fflush(stdout);
+    serial_write(buffer, strlen(buffer));
+    uart_wait_tx_done(UART_NUM_0, pdMS_TO_TICKS(100));  // timeout di 100ms
 }
 
 
@@ -278,45 +297,47 @@ command_status_t wait_for_command(char* cmd_type, command_params_t* params) {
     while (length < sizeof(command_buffer) - 1) {
         //char c = getchar();        
 
-        char c;
-        if (uart_read_bytes(UART_NUM_0, &c, 1, portMAX_DELAY) > 0) {
-            if(incipit == 0){
-                if(c == 0xFF){
-                    vTaskDelay(1);            
-                    continue;
-                }
-                
-                if(c == '$'){
-                    incipit++;
-                }
-                else {
-                    vTaskDelay(1);
-                    continue;
-                }
-            }
-            
-            if (incipit < 3 && length > 3){
-                command_buffer[length] = '\0';
-                ESP_LOGI(TAG, "wait_for_command: RESET (%s)\n", command_buffer);
-                incipit = 0;
-                length = 0;
+        char c = serial_read_char();
+        //if (uart_read_bytes(UART_NUM_0, &c, 1, portMAX_DELAY) > 0) {
+
+        if(incipit == 0){
+            if(c == 0xFF){
+                vTaskDelay(1);            
                 continue;
             }
-
-            if (c == EOF) {
-                ESP_LOGI(TAG, "wait_for_command: EOF\n");
-                command_buffer[length] = '\0';
-                return STATUS_ERROR_TIMEOUT;
+            else if(c != '$'){
+                vTaskDelay(1);
+                continue;
             }
-            
-            if (c == '\n') {            
-                command_buffer[length] = '\0';
-                ESP_LOGI(TAG, "wait_for_command: end (%d) '%s'\n", sizeof(command_buffer), command_buffer);
-                break;
-            }
-            
-            command_buffer[length++] = c;
         }
+
+        if(c == '$'){
+            incipit++;
+        }
+        
+        if (incipit < 3 && length > 3){
+            command_buffer[length] = '\0';
+            ESP_LOGI(TAG, "wait_for_command: RESET (%s)\n", command_buffer);
+            incipit = 0;
+            length = 0;
+            continue;
+        }
+
+        if (c == EOF) {
+            ESP_LOGI(TAG, "wait_for_command: EOF\n");
+            command_buffer[length] = '\0';
+            return STATUS_ERROR_TIMEOUT;
+        }
+        
+        if (c == '\n') {            
+            command_buffer[length] = '\0';
+            ESP_LOGI(TAG, "wait_for_command: end (%d) '%s'\n", sizeof(command_buffer), command_buffer);
+            break;
+        }
+        
+        command_buffer[length++] = c;
+
+        //}
     }
     
     if (length == sizeof(command_buffer) - 1) {
@@ -468,9 +489,9 @@ void serial_handler_task(void *pvParameters) {
                 size_t total_read = 0;
 
                 while (total_read < to_read) {
-                    ESP_LOGI(TAG, "getchar()\n");
-                    int c = getchar();
-                    ESP_LOGI(TAG, "getchar() complete: %c\n", c);
+                    //ESP_LOGI(TAG, "serial_read_char()\n");
+                    int c = serial_read_char();
+                    //ESP_LOGI(TAG, "serial_read_char() complete: %c\n", c);
 
                     if (c == EOF) {
                         fclose(file);
