@@ -15,7 +15,7 @@
 #define CHUNK_SIZE 1024
 
 // Comandi
-#define CMD_PING_FILE "$$PING$$"
+#define CMD_PING "$$PING$$"
 #define CMD_WRITE_FILE "$$$WRITE_FILE$$$"
 #define CMD_READ_FILE  "$$$READ_FILE$$$"
 #define CMD_LIST_FILES "$$$LIST_FILES$$$"
@@ -191,18 +191,37 @@ static command_status_t handle_write_file(const command_params_t* params) {
     return status;
 }
 
+
+// to be used: timeout not implemented
+command_status_t wait_content(char* content, command_params_t* params) {
+    char command_buffer[1536] = {0};
+    size_t length = 0;
+    
+    while (length < sizeof(command_buffer) - 1 && length < params->chunk_size) {
+        char c = getchar();               
+        command_buffer[length++] = c;
+    }
+    
+    return STATUS_OK;
+}
+
 // Funzione per il parsing dei comandi
 static command_status_t parse_command(const char* command, char* cmd_type, command_params_t* params) {    
 
-    if (strncmp(command, CMD_PING_FILE, strlen(CMD_PING_FILE)) == 0) {
+    ESP_LOGI(TAG, "Parsing command: %s\n", command);
+
+    if (strncmp(command, CMD_PING, strlen(CMD_PING)) == 0) {
         send_response(STATUS_OK, "PONG");
     }
     else if (strncmp(command, CMD_WRITE_FILE, strlen(CMD_WRITE_FILE)) == 0) {
         strcpy(cmd_type, CMD_WRITE_FILE);
 
         char filename[MAX_FILENAME];
-        if (sscanf(command + strlen(CMD_WRITE_FILE), "%[^,],%zu,%32s",
-                filename, &params->filesize, params->file_hash) != 3) {                        
+        if (sscanf(command + strlen(CMD_WRITE_FILE), 
+                "%63[^,],%zu,%32s",  // Limitare la lunghezza di lettura
+                filename,
+                &params->filesize, 
+                params->file_hash) != 3) {
             return STATUS_ERROR_PARAMS;
         }
         prepend_mount_point(filename, params->filename);
@@ -251,7 +270,7 @@ static command_status_t parse_command(const char* command, char* cmd_type, comma
 }
 
 command_status_t wait_for_command(char* cmd_type, command_params_t* params) {
-    char command_buffer[256] = {0};
+    char command_buffer[1536] = {0};
     size_t length = 0;
     
     int init_cmd = 0;
@@ -277,8 +296,17 @@ command_status_t wait_for_command(char* cmd_type, command_params_t* params) {
         return STATUS_ERROR_BUFFER;
     }
     
-    return parse_command(command_buffer, cmd_type, params);
+    command_status_t res = parse_command(command_buffer, cmd_type, params);
+
+    if(res == STATUS_OK) {
+        if(strncmp(cmd_type, CMD_PING, strlen(CMD_PING)) == 0){
+            return wait_for_command(cmd_type, params);
+        }
+    }
+
+    return res;
 }
+
 
 // Helper function per validare il nome del file
 static bool is_filename_valid(const char* filename) {
@@ -387,13 +415,13 @@ void serial_handler_task(void *pvParameters) {
                     // Attendi comando chunk
 
                     char* cmd_type_chunk = malloc(BUF_SIZE);
-                    //command_params_t* params_chunk = malloc(sizeof(command_params_t));
-                    if (wait_for_command(cmd_type_chunk, params) != STATUS_OK || strcmp(cmd_type_chunk, CMD_CHUNK) != 0) {
+                    command_params_t* params_chunk = malloc(sizeof(command_params_t));
+                    if (wait_for_command(cmd_type_chunk, params_chunk) != STATUS_OK || strcmp(cmd_type_chunk, CMD_CHUNK) != 0) {
                         fclose(file);
                         unlink(params->filename);
 
                         char text [286];
-                        sprintf(text, "Invalid chunk command: %s\n", cmd_type);             
+                        sprintf(text, "Invalid chunk command: %s\n", cmd_type_chunk);             
 
                         send_response(STATUS_ERROR, text);
                         continue;
@@ -402,7 +430,7 @@ void serial_handler_task(void *pvParameters) {
                     ESP_LOGI(TAG, "Starting reading chunk\n");
 
                     // Leggi e verifica chunk
-                    size_t to_read = params->chunk_size;
+                    size_t to_read = params_chunk->chunk_size;
                     size_t total_read = 0;
 
                     while (total_read < to_read) {
@@ -420,8 +448,9 @@ void serial_handler_task(void *pvParameters) {
                     }
 
                     // Verifica hash chunk
+                    ESP_LOGI(TAG, "Verifying chunk MD5\n");
                     calculate_md5(chunk_buffer, read, calculated_hash);
-                    if (strcmp(calculated_hash, params->chunk_hash) != 0) {
+                    if (strcmp(calculated_hash, params_chunk->chunk_hash) != 0) {
                         fclose(file);
                         unlink(params->filename);
                         send_response(STATUS_ERROR, "Chunk hash mismatch");
