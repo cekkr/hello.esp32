@@ -4,6 +4,7 @@
 #include "freertos/task.h"
 #include "esp_log.h"
 #include <errno.h>
+#include "driver/uart.h"     // Per UART_NUM_0 e altre costanti UART
 
 #include <dirent.h>
 #include "mbedtls/md5.h"
@@ -275,37 +276,47 @@ command_status_t wait_for_command(char* cmd_type, command_params_t* params) {
     
     int incipit = 0;
     while (length < sizeof(command_buffer) - 1) {
-        char c = getchar();
+        //char c = getchar();        
 
-        if(incipit == 0){
-            if(c == '$'){
-                incipit++;
+        char c;
+        if (uart_read_bytes(UART_NUM_0, &c, 1, portMAX_DELAY) > 0) {
+            if(incipit == 0){
+                if(c == 0xFF){
+                    vTaskDelay(1);            
+                    continue;
+                }
+                
+                if(c == '$'){
+                    incipit++;
+                }
+                else {
+                    vTaskDelay(1);
+                    continue;
+                }
             }
-            else {
+            
+            if (incipit < 3 && length > 3){
+                command_buffer[length] = '\0';
+                ESP_LOGI(TAG, "wait_for_command: RESET (%s)\n", command_buffer);
+                incipit = 0;
+                length = 0;
                 continue;
             }
-        }
-        
-        if (incipit < 3 && length > 3){
-            ESP_LOGI(TAG, "wait_for_command: RESET\n");
-            incipit = 0;
-            length = 0;
-            continue;
-        }
 
-        if (c == EOF) {
-            ESP_LOGI(TAG, "wait_for_command: EOF\n");
-            command_buffer[length] = '\0';
-            return STATUS_ERROR_TIMEOUT;
+            if (c == EOF) {
+                ESP_LOGI(TAG, "wait_for_command: EOF\n");
+                command_buffer[length] = '\0';
+                return STATUS_ERROR_TIMEOUT;
+            }
+            
+            if (c == '\n') {            
+                command_buffer[length] = '\0';
+                ESP_LOGI(TAG, "wait_for_command: end (%d) '%s'\n", sizeof(command_buffer), command_buffer);
+                break;
+            }
+            
+            command_buffer[length++] = c;
         }
-        
-        if (c == '\n') {            
-            command_buffer[length] = '\0';
-            ESP_LOGI(TAG, "wait_for_command: end (%d) '%s'\n", sizeof(command_buffer), command_buffer);
-            break;
-        }
-        
-        command_buffer[length++] = c;
     }
     
     if (length == sizeof(command_buffer) - 1) {

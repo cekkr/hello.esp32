@@ -13,4 +13,5 @@ idf_component_register(
         sdmmc           # per il supporto SD card
         freertos        # per il supporto ai thread
         mbedtls
+        driver        
 )
