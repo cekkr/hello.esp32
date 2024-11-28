@@ -16,7 +16,7 @@
 #define CHUNK_SIZE 1024
 
 // Comandi
-#define CMD_PING "$$PING$$"
+#define CMD_PING "$$$PING$$$"
 #define CMD_WRITE_FILE "$$$WRITE_FILE$$$"
 #define CMD_READ_FILE  "$$$READ_FILE$$$"
 #define CMD_LIST_FILES "$$$LIST_FILES$$$"
@@ -229,6 +229,8 @@ command_status_t wait_content(char* content, command_params_t* params) {
 static command_status_t parse_command(const char* command, char* cmd_type, command_params_t* params) {    
 
     ESP_LOGI(TAG, "Parsing command: %s\n", command);
+
+    //ESP_LOGI(TAG, "PING strncmp: %s = %d\n", command, strncmp(command, CMD_PING, strlen(CMD_PING)));
 
     if (strncmp(command, CMD_PING, strlen(CMD_PING)) == 0) {
         strcpy(cmd_type, CMD_PING);
