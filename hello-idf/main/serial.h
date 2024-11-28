@@ -231,7 +231,7 @@ static command_status_t parse_command(const char* command, char* cmd_type, comma
     ESP_LOGI(TAG, "Parsing command: %s\n", command);
 
     if (strncmp(command, CMD_PING, strlen(CMD_PING)) == 0) {
-        send_response(STATUS_OK, "PONG");
+        strcpy(cmd_type, CMD_PING);
     }
     else if (strncmp(command, CMD_WRITE_FILE, strlen(CMD_WRITE_FILE)) == 0) {
         strcpy(cmd_type, CMD_WRITE_FILE);
@@ -377,14 +377,14 @@ static bool is_filename_valid(const char* filename) {
 
 // Funzione per la scrittura del file
 void serial_handler_task(void *pvParameters) {
-    char* command = malloc(BUF_SIZE);
+    //char* command = malloc(BUF_SIZE);
     char* cmd_type = malloc(BUF_SIZE);
     command_params_t* params = malloc(sizeof(command_params_t));
     struct stat file_stat;
 
     char text [512];
 
-    if (!command || !cmd_type || !params) {
+    if (!cmd_type || !params) { // || !command
         ESP_LOGE(TAG, "Failed to allocate buffers\n");
         goto cleanup;
     }
@@ -411,10 +411,16 @@ void serial_handler_task(void *pvParameters) {
        command_status_t parse_status = wait_for_command(cmd_type, params);
 
        if (parse_status != STATUS_OK) {
-            sprintf(text, "Invalid command parameters: %s", command);             
+            sprintf(text, "Invalid command parameters: %s", cmd_type);             
             send_response(parse_status, text);
             continue;
         }
+
+         if (strcmp(cmd_type, CMD_PING) == 0) {
+            send_response(STATUS_OK, "PONG");
+            continue;
+         }
+
 
         if (strcmp(cmd_type, CMD_WRITE_FILE) == 0) {
             // Validazione parametri
@@ -709,7 +715,7 @@ void serial_handler_task(void *pvParameters) {
             }
         }
         else {
-            sprintf(text, "Unknown command: %s", command);                
+            sprintf(text, "Unknown command: %s", cmd_type);                
             send_response(STATUS_ERROR, text);
         }
     
@@ -717,7 +723,7 @@ void serial_handler_task(void *pvParameters) {
     }
 
 cleanup:
-    free(command);
+    //free(command);
     free(cmd_type);
     free(params);
     vTaskDelete(NULL);
