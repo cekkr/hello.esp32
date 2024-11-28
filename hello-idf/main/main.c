@@ -89,7 +89,7 @@ void init_tft(void)
 	Init_LCD(WHITE);
 	//初始化 XPT2046
 	xpt2046_init();
-	LCD_Set_Orientation(LCD_DISPLAY_ORIENTATION_LANDSCAPE);// 纵向翻转
+	LCD_Set_Orientation(LCD_DISPLAY_ORIENTATION_LANDSCAPE_INVERTED);// 纵向翻转
 	
     //TP_Adjust(); // Serve per calibrare lo schermo
     
