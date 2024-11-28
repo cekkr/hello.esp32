@@ -11,7 +11,7 @@
 // Definizioni
 #define BUF_SIZE 1024
 #define MAX_FILENAME 256
-#define STACK_SIZE (8192)
+#define STACK_SIZE (32768)
 #define CHUNK_SIZE 1024
 
 // Comandi
@@ -273,19 +273,35 @@ command_status_t wait_for_command(char* cmd_type, command_params_t* params) {
     char command_buffer[1536] = {0};
     size_t length = 0;
     
-    int init_cmd = 0;
-    while (length < sizeof(command_buffer) - 1 || init_cmd <= 6) {
+    int incipit = 0;
+    while (length < sizeof(command_buffer) - 1) {
         char c = getchar();
 
-        if(c == '$')
-            init_cmd++;
+        if(incipit == 0){
+            if(c == '$'){
+                incipit++;
+            }
+            else {
+                continue;
+            }
+        }
+        
+        if (incipit < 3 && length > 3){
+            ESP_LOGI(TAG, "wait_for_command: RESET\n");
+            incipit = 0;
+            length = 0;
+            continue;
+        }
 
         if (c == EOF) {
+            ESP_LOGI(TAG, "wait_for_command: EOF\n");
+            command_buffer[length] = '\0';
             return STATUS_ERROR_TIMEOUT;
         }
         
-        if (c == '\n') {
+        if (c == '\n') {            
             command_buffer[length] = '\0';
+            ESP_LOGI(TAG, "wait_for_command: end (%d) '%s'\n", sizeof(command_buffer), command_buffer);
             break;
         }
         
@@ -334,6 +350,8 @@ void serial_handler_task(void *pvParameters) {
     command_params_t* params = malloc(sizeof(command_params_t));
     struct stat file_stat;
 
+    char text [512];
+
     if (!command || !cmd_type || !params) {
         ESP_LOGE(TAG, "Failed to allocate buffers\n");
         goto cleanup;
@@ -347,7 +365,7 @@ void serial_handler_task(void *pvParameters) {
                      uxTaskGetStackHighWaterMark(NULL));
         }
         
-        if (fgets(command, BUF_SIZE, stdin) != NULL) {
+        /*if (fgets(command, BUF_SIZE, stdin) != NULL) {
             command[strcspn(command, "\n")] = 0;
 
             if(false){ // debug echo
@@ -355,313 +373,314 @@ void serial_handler_task(void *pvParameters) {
                 continue;
             }
             
-            command_status_t parse_status = parse_command(command, cmd_type, params);
-            if (parse_status != STATUS_OK) {
-                send_response(parse_status, "Invalid command parameters");
+            command_status_t parse_status = parse_command(command, cmd_type, params);            
+        }*/
+
+       command_status_t parse_status = wait_for_command(cmd_type, params);
+
+       if (parse_status != STATUS_OK) {
+            sprintf(text, "Invalid command parameters: %s", command);             
+            send_response(parse_status, text);
+            continue;
+        }
+
+        if (strcmp(cmd_type, CMD_WRITE_FILE) == 0) {
+            // Validazione parametri
+            if (!params->filesize) {
+                send_response(STATUS_ERROR, "Missing filename or filesize");
                 continue;
             }
 
-            if (strcmp(cmd_type, CMD_WRITE_FILE) == 0) {
-                // Validazione parametri
-                if (!params->filesize) {
-                    send_response(STATUS_ERROR, "Missing filename or filesize");
-                    continue;
-                }
+            // Controllo lunghezza nome file
+            if (strlen(params->filename) > MAX_FILENAME) { // stupid, it was MAX_FILENAME_LENGTH ... (or MAX_FILENAME)
+                send_response(STATUS_ERROR, "Filename too long");
+                continue;
+            }
 
-                // Controllo lunghezza nome file
-                if (strlen(params->filename) > MAX_FILENAME) { // stupid, it was MAX_FILENAME_LENGTH ... (or MAX_FILENAME)
-                    send_response(STATUS_ERROR, "Filename too long");
-                    continue;
-                }
+            // Controllo caratteri validi nel nome file
+            if (!is_filename_valid(params->filename)) {
+                sprintf(text, "Invalid filename characters: %s", params->filename);             
+                send_response(STATUS_ERROR, text);
+                continue;
+            }
 
-                // Controllo caratteri validi nel nome file
-                if (!is_filename_valid(params->filename)) {
-                    char text [286];
-                    sprintf(text, "Invalid filename characters: %s\n", params->filename);             
-                    send_response(STATUS_ERROR, text);
-                    continue;
-                }
+            // Controllo dimensione file
+            if (params->filesize > (1024*1024*32) || params->filesize == 0) {
+                sprintf(text, "Invalid file size: %d", params->filesize);             
+                send_response(STATUS_ERROR, text);
+                continue;
+            }
 
-                // Controllo dimensione file
-                if (params->filesize > (1024*1024*32) || params->filesize == 0) {
-                    char text [256];
-                    sprintf(text, "Invalid file size: %d\n", params->filesize);             
-                    send_response(STATUS_ERROR, text);
-                    continue;
-                }
+            ESP_LOGI(TAG, "Starting reading file...\n");
+            FILE* file = fopen(params->filename, "w");
+            if (!file) {
+                char text[FILENAME_MAX + 128];
+                sprintf(text, "Failed to create file %s: %s", 
+                        params->filename, strerror(errno));
+                send_response(STATUS_ERROR, text);
+                continue;
+            }
 
-                ESP_LOGI(TAG, "Starting reading file...\n");
-                FILE* file = fopen(params->filename, "w");
-                if (!file) {
-                    char text[FILENAME_MAX + 128];
-                    sprintf(text, "Failed to create file %s: %s", 
-                            params->filename, strerror(errno));
-                    send_response(STATUS_ERROR, text);
-                    continue;
-                }
+            ESP_LOGI(TAG, "Calculating MD5\n");
+            size_t total_received = 0;
+            uint8_t chunk_buffer[1024];
+            char calculated_hash[33];
+            mbedtls_md5_context md5_ctx;
+            ESP_LOGI(TAG, "mbedtls_md5_init\n");
+            mbedtls_md5_init(&md5_ctx);
+            ESP_LOGI(TAG, "mbedtls_md5_init\n");
+            mbedtls_md5_starts(&md5_ctx);
+            ESP_LOGI(TAG, "mbedtls_md5_init COMPLETE\n");
+            
+            sprintf(text, "OK:READY: Ready for chunks (%d)", params->filesize);    
+            send_response(STATUS_OK, text);
 
-                ESP_LOGI(TAG, "Calculating MD5\n");
-                size_t total_received = 0;
-                uint8_t chunk_buffer[1024];
-                char calculated_hash[33];
-                mbedtls_md5_context md5_ctx;
-                ESP_LOGI(TAG, "mbedtls_md5_init\n");
-                mbedtls_md5_init(&md5_ctx);
-                ESP_LOGI(TAG, "mbedtls_md5_init\n");
-                mbedtls_md5_starts(&md5_ctx);
-                ESP_LOGI(TAG, "mbedtls_md5_init COMPLETE\n");
+            while (total_received < params->filesize) {
+                // Attendi comando chunk
 
-                send_response(STATUS_OK, "OK:READY: Ready for chunks");
-
-                while (total_received < params->filesize) {
-                    // Attendi comando chunk
-
-                    char* cmd_type_chunk = malloc(BUF_SIZE);
-                    command_params_t* params_chunk = malloc(sizeof(command_params_t));
-                    if (wait_for_command(cmd_type_chunk, params_chunk) != STATUS_OK || strcmp(cmd_type_chunk, CMD_CHUNK) != 0) {
-                        fclose(file);
-                        unlink(params->filename);
-
-                        char text [286];
-                        sprintf(text, "Invalid chunk command: %s\n", cmd_type_chunk);             
-
-                        send_response(STATUS_ERROR, text);
-                        continue;
-                    }
-
-                    ESP_LOGI(TAG, "Starting reading chunk\n");
-
-                    // Leggi e verifica chunk
-                    size_t to_read = params_chunk->chunk_size;
-                    size_t total_read = 0;
-
-                    while (total_read < to_read) {
-                        ESP_LOGI(TAG, "getchar()\n");
-                        int c = getchar();
-                        ESP_LOGI(TAG, "getchar() complete: %c\n", c);
-
-                        if (c == EOF) {
-                            fclose(file);
-                            unlink(params->filename); 
-                            send_response(STATUS_ERROR, "Failed to read chunk data");
-                            continue;
-                        }
-                        chunk_buffer[total_read++] = (uint8_t)c;
-                    }
-
-                    // Verifica hash chunk
-                    ESP_LOGI(TAG, "Verifying chunk MD5\n");
-                    calculate_md5(chunk_buffer, read, calculated_hash);
-                    if (strcmp(calculated_hash, params_chunk->chunk_hash) != 0) {
-                        fclose(file);
-                        unlink(params->filename);
-                        send_response(STATUS_ERROR, "Chunk hash mismatch");
-                        continue;
-                    }
-
-                    // Aggiorna hash totale e scrivi
-                    mbedtls_md5_update(&md5_ctx, chunk_buffer, read);
-                    fwrite(chunk_buffer, 1, read, file);
-                    total_received += read;
-
-                    send_response(STATUS_OK, "Chunk received");
-                }
-
-                // Verifica hash finale
-                uint8_t hash_result[16];
-                mbedtls_md5_finish(&md5_ctx, hash_result);
-                mbedtls_md5_free(&md5_ctx);
-                calculate_md5_hex(hash_result, calculated_hash);
-
-                fclose(file);
-
-                if (strcmp(calculated_hash, params->file_hash) != 0) {
+                char* cmd_type_chunk = malloc(BUF_SIZE);
+                command_params_t* params_chunk = malloc(sizeof(command_params_t));
+                if (wait_for_command(cmd_type_chunk, params_chunk) != STATUS_OK || strcmp(cmd_type_chunk, CMD_CHUNK) != 0) {
+                    fclose(file);
                     unlink(params->filename);
-                    send_response(STATUS_ERROR, "File hash mismatch");
-                } else {
-                    send_response(STATUS_OK, "File written successfully");
-                }
 
-            }
-            else if (strcmp(cmd_type, CMD_CHECK_FILE) == 0) {
-                // Controllo esistenza file
-                if (stat(params->filename, &file_stat) != 0) {
-                    send_response(STATUS_ERROR, "0: File not found");                   
-                }
-                else {
-                    char resp [128];
-                    sprintf(resp, "%ld: File found", file_stat.st_size);            
-                    send_response(STATUS_OK, "1: File found");
-                }                
-                continue;
-            }
-            else if (strcmp(cmd_type, CMD_READ_FILE) == 0) {
-                /*if (!params->filename) { // always true
-                    send_response(STATUS_ERROR, "Missing filename");
-                    continue;
-                }*/
+                    sprintf(text, "Invalid chunk command: %s", cmd_type_chunk);             
 
-                // Controllo esistenza file
-                if (stat(params->filename, &file_stat) != 0) {
-                    send_response(STATUS_ERROR, "File not found");
-                    continue;
-                }
-
-                // Calcolo e invio hash MD5 del file
-                char hash[33];
-                if (calculate_file_md5(params->filename, hash) != STATUS_OK) {
-                    send_response(STATUS_ERROR, "Failed to calculate file hash");
-                    continue;
-                }
-
-                // Invia dimensione file e hash
-                char response[100];
-                snprintf(response, sizeof(response), "%ld,%s", file_stat.st_size, hash);
-                send_response(STATUS_OK, response);
-
-                // Leggi e invia il file a chunks
-                FILE *f = fopen(params->filename, "rb");
-                if (!f) {
-                    send_response(STATUS_ERROR, "Failed to open file");
-                    continue;
-                }
-
-                uint8_t *chunk = malloc(CHUNK_SIZE);
-                if (!chunk) {
-                    fclose(f);
-                    send_response(STATUS_ERROR, "Failed to allocate chunk buffer");
-                    continue;
-                }
-
-                size_t bytes_sent = 0;
-                while (bytes_sent < file_stat.st_size) {
-                    size_t to_read = MIN(CHUNK_SIZE, file_stat.st_size - bytes_sent);
-                    size_t read = fread(chunk, 1, to_read, f);
-                    if (read != to_read) {
-                        free(chunk);
-                        fclose(f);
-                        send_response(STATUS_ERROR, "Failed to read file");
-                        continue;
-                    }
-
-                    // Invia chunk
-                    if (fwrite(chunk, 1, read, stdout) != read) {
-                        free(chunk);
-                        fclose(f);
-                        send_response(STATUS_ERROR, "Failed to send chunk");
-                        continue;
-                    }
-                    fflush(stdout);
-
-                    // Attendi ACK
-                    char ack[10];
-                    if (fgets(ack, sizeof(ack), stdin) == NULL || strncmp(ack, "OK", 2) != 0) {
-                        free(chunk);
-                        fclose(f);
-                        send_response(STATUS_ERROR, "Failed to get chunk ACK");
-                        continue;
-                    }
-
-                    bytes_sent += read;
-                }
-
-                free(chunk);
-                fclose(f);
-                send_response(STATUS_OK, "File sent successfully");
-            }
-            else if (strcmp(cmd_type, CMD_LIST_FILES) == 0) {
-                // Analyze the mounting point
-                struct stat st;
-                if (stat(SD_MOUNT_POINT, &st) != 0) {
-                    char text [128];
-                    sprintf(text, "Mount point error: %s\n", strerror(errno));            
                     send_response(STATUS_ERROR, text);
                     continue;
                 }
 
-                char dirPermission [128];
-                sprintf(dirPermission, "Directory permissions: %lo", st.st_mode & 0777);            
-                ESP_LOGI(TAG, "%s\n", dirPermission);
+                ESP_LOGI(TAG, "Starting reading chunk\n");
 
-                ////////////////////////////////
-                DIR *dir;
-                struct dirent *ent;
-                char file_list[4096] = "LIST:";  // Buffer per la lista file
-                size_t offset = 5;                
+                // Leggi e verifica chunk
+                size_t to_read = params_chunk->chunk_size;
+                size_t total_read = 0;
 
-                dir = opendir(SD_MOUNT_POINT);
-                if (dir == NULL) {
-                    send_response(STATUS_ERROR, "Failed to open directory");
-                    continue;
-                }
+                while (total_read < to_read) {
+                    ESP_LOGI(TAG, "getchar()\n");
+                    int c = getchar();
+                    ESP_LOGI(TAG, "getchar() complete: %c\n", c);
 
-                while ((ent = readdir(dir)) != NULL) {
-                    // Salta directory . e ..
-                    if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0) {
+                    if (c == EOF) {
+                        fclose(file);
+                        unlink(params->filename); 
+                        send_response(STATUS_ERROR, "Failed to read chunk data");
                         continue;
                     }
-
-                    // Prendi dimensione file
-                    if (stat(ent->d_name, &file_stat) == 0) {
-                        int written = snprintf(file_list + offset, 
-                                            sizeof(file_list) - offset,
-                                            "%s,%ld;", 
-                                            ent->d_name, 
-                                            file_stat.st_size);
-                        if (written > 0) {
-                            offset += written;
-                        }
-                    }
-                }
-                closedir(dir);
-
-                if (offset > 0) {
-                    offset++;
-                    file_list[offset] = '\0';  // Rimuovi ultimo separatore
+                    chunk_buffer[total_read++] = (uint8_t)c;
                 }
 
-                send_response(STATUS_OK, file_list);
+                // Verifica hash chunk
+                ESP_LOGI(TAG, "Verifying chunk MD5\n");
+                calculate_md5(chunk_buffer, read, calculated_hash);
+                if (strcmp(calculated_hash, params_chunk->chunk_hash) != 0) {
+                    fclose(file);
+                    unlink(params->filename);
+                    send_response(STATUS_ERROR, "Chunk hash mismatch");
+                    continue;
+                }
+
+                // Aggiorna hash totale e scrivi
+                mbedtls_md5_update(&md5_ctx, chunk_buffer, read);
+                fwrite(chunk_buffer, 1, read, file);
+                total_received += read;
+
+                send_response(STATUS_OK, "Chunk received");
             }
-            else if (strcmp(cmd_type, CMD_DELETE_FILE) == 0) {
-                /*if (!params->filename) { // always true
-                    send_response(STATUS_ERROR, "Missing filename");
-                    continue;
-                }*/
 
-                // Controllo esistenza file
-                if (stat(params->filename, &file_stat) != 0) {
-                    send_response(STATUS_ERROR, "File not found");
-                    continue;
-                }
+            // Verifica hash finale
+            uint8_t hash_result[16];
+            mbedtls_md5_finish(&md5_ctx, hash_result);
+            mbedtls_md5_free(&md5_ctx);
+            calculate_md5_hex(hash_result, calculated_hash);
 
-                // Prova a eliminare il file
-                if (unlink(params->filename) != 0) {
-                    send_response(STATUS_ERROR, "Failed to delete file");
-                    continue;
-                }
+            fclose(file);
 
-                send_response(STATUS_OK, "File deleted successfully");
+            if (strcmp(calculated_hash, params->file_hash) != 0) {
+                unlink(params->filename);
+                send_response(STATUS_ERROR, "File hash mismatch");
+            } else {
+                send_response(STATUS_OK, "File written successfully");
             }
-            else if (strcmp(cmd_type, CMD_CHECK_FILE) == 0) {
-                /*if (!params->filename) { // always true
-                    send_response(STATUS_ERROR, "Missing filename");
-                    continue;
-                }*/
 
-                if (stat(params->filename, &file_stat) == 0) {
-                    char size_str[20];
-                    snprintf(size_str, sizeof(size_str), "%ld", file_stat.st_size);
-                    send_response(STATUS_OK, size_str);
-                } else {
-                    send_response(STATUS_ERROR, "File not found");
-                }
+        }
+        else if (strcmp(cmd_type, CMD_CHECK_FILE) == 0) {
+            // Controllo esistenza file
+            if (stat(params->filename, &file_stat) != 0) {
+                send_response(STATUS_ERROR, "0: File not found");                   
             }
             else {
-                char text [128];
-                sprintf(text, "Unknown command: %s\n", command);                
+                char resp [128];
+                sprintf(resp, "%ld: File found", file_stat.st_size);            
+                send_response(STATUS_OK, "1: File found");
+            }                
+            continue;
+        }
+        else if (strcmp(cmd_type, CMD_READ_FILE) == 0) {
+            /*if (!params->filename) { // always true
+                send_response(STATUS_ERROR, "Missing filename");
+                continue;
+            }*/
+
+            // Controllo esistenza file
+            if (stat(params->filename, &file_stat) != 0) {
+                send_response(STATUS_ERROR, "File not found");
+                continue;
+            }
+
+            // Calcolo e invio hash MD5 del file
+            char hash[33];
+            if (calculate_file_md5(params->filename, hash) != STATUS_OK) {
+                send_response(STATUS_ERROR, "Failed to calculate file hash");
+                continue;
+            }
+
+            // Invia dimensione file e hash
+            char response[100];
+            snprintf(response, sizeof(response), "%ld,%s", file_stat.st_size, hash);
+            send_response(STATUS_OK, response);
+
+            // Leggi e invia il file a chunks
+            FILE *f = fopen(params->filename, "rb");
+            if (!f) {
+                send_response(STATUS_ERROR, "Failed to open file");
+                continue;
+            }
+
+            uint8_t *chunk = malloc(CHUNK_SIZE);
+            if (!chunk) {
+                fclose(f);
+                send_response(STATUS_ERROR, "Failed to allocate chunk buffer");
+                continue;
+            }
+
+            size_t bytes_sent = 0;
+            while (bytes_sent < file_stat.st_size) {
+                size_t to_read = MIN(CHUNK_SIZE, file_stat.st_size - bytes_sent);
+                size_t read = fread(chunk, 1, to_read, f);
+                if (read != to_read) {
+                    free(chunk);
+                    fclose(f);
+                    send_response(STATUS_ERROR, "Failed to read file");
+                    continue;
+                }
+
+                // Invia chunk
+                if (fwrite(chunk, 1, read, stdout) != read) {
+                    free(chunk);
+                    fclose(f);
+                    send_response(STATUS_ERROR, "Failed to send chunk");
+                    continue;
+                }
+                fflush(stdout);
+
+                // Attendi ACK
+                char ack[10];
+                if (fgets(ack, sizeof(ack), stdin) == NULL || strncmp(ack, "OK", 2) != 0) {
+                    free(chunk);
+                    fclose(f);
+                    send_response(STATUS_ERROR, "Failed to get chunk ACK");
+                    continue;
+                }
+
+                bytes_sent += read;
+            }
+
+            free(chunk);
+            fclose(f);
+            send_response(STATUS_OK, "File sent successfully");
+        }
+        else if (strcmp(cmd_type, CMD_LIST_FILES) == 0) {
+            // Analyze the mounting point
+            struct stat st;
+            if (stat(SD_MOUNT_POINT, &st) != 0) {
+                sprintf(text, "Mount point error: %s", strerror(errno));            
                 send_response(STATUS_ERROR, text);
+                continue;
+            }
+
+            char dirPermission [128];
+            sprintf(dirPermission, "Directory permissions: %lo", st.st_mode & 0777);            
+            ESP_LOGI(TAG, "%s\n", dirPermission);
+
+            ////////////////////////////////
+            DIR *dir;
+            struct dirent *ent;
+            char file_list[4096] = "LIST:";  // Buffer per la lista file
+            size_t offset = 5;                
+
+            dir = opendir(SD_MOUNT_POINT);
+            if (dir == NULL) {
+                send_response(STATUS_ERROR, "Failed to open directory");
+                continue;
+            }
+
+            while ((ent = readdir(dir)) != NULL) {
+                // Salta directory . e ..
+                if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0) {
+                    continue;
+                }
+
+                // Prendi dimensione file
+                if (stat(ent->d_name, &file_stat) == 0) {
+                    int written = snprintf(file_list + offset, 
+                                        sizeof(file_list) - offset,
+                                        "%s,%ld;", 
+                                        ent->d_name, 
+                                        file_stat.st_size);
+                    if (written > 0) {
+                        offset += written;
+                    }
+                }
+            }
+            closedir(dir);
+
+            if (offset > 0) {
+                offset++;
+                file_list[offset] = '\0';  // Rimuovi ultimo separatore
+            }
+
+            send_response(STATUS_OK, file_list);
+        }
+        else if (strcmp(cmd_type, CMD_DELETE_FILE) == 0) {
+            /*if (!params->filename) { // always true
+                send_response(STATUS_ERROR, "Missing filename");
+                continue;
+            }*/
+
+            // Controllo esistenza file
+            if (stat(params->filename, &file_stat) != 0) {
+                send_response(STATUS_ERROR, "File not found");
+                continue;
+            }
+
+            // Prova a eliminare il file
+            if (unlink(params->filename) != 0) {
+                send_response(STATUS_ERROR, "Failed to delete file");
+                continue;
+            }
+
+            send_response(STATUS_OK, "File deleted successfully");
+        }
+        else if (strcmp(cmd_type, CMD_CHECK_FILE) == 0) {
+            /*if (!params->filename) { // always true
+                send_response(STATUS_ERROR, "Missing filename");
+                continue;
+            }*/
+
+            if (stat(params->filename, &file_stat) == 0) {
+                char size_str[20];
+                snprintf(size_str, sizeof(size_str), "%ld", file_stat.st_size);
+                send_response(STATUS_OK, size_str);
+            } else {
+                send_response(STATUS_ERROR, "File not found");
             }
         }
+        else {
+            sprintf(text, "Unknown command: %s", command);                
+            send_response(STATUS_ERROR, text);
+        }
+    
         vTaskDelay(pdMS_TO_TICKS(10));
     }
 
