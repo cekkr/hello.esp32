@@ -240,7 +240,7 @@ static command_status_t parse_command(const char* command, char* cmd_type, comma
 
         char filename[MAX_FILENAME];
         if (sscanf(command + strlen(CMD_WRITE_FILE), 
-                "%63[^,],%zu,%32s",  // Limitare la lunghezza di lettura
+                "%255[^,],%zu,%32s",  // Limitare la lunghezza di lettura
                 filename,
                 &params->filesize, 
                 params->file_hash) != 3) {
@@ -467,11 +467,12 @@ void serial_handler_task(void *pvParameters) {
             mbedtls_md5_init(&md5_ctx);
             ESP_LOGI(TAG, "mbedtls_md5_init\n");
             mbedtls_md5_starts(&md5_ctx);
-            ESP_LOGI(TAG, "mbedtls_md5_init COMPLETE\n");
-            
-            sprintf(text, "OK:READY: Ready for chunks (%d)", params->filesize);    
-            send_response(STATUS_OK, text);
+            ESP_LOGI(TAG, "mbedtls_md5_init COMPLETE\n");      
 
+            sprintf(text, "OK:READY: Wait for chunks");    
+            send_response(STATUS_OK, text);                  
+
+            bool chunkHashFailed = false;
             while (total_received < params->filesize) {
                 // Attendi comando chunk
 
@@ -482,16 +483,19 @@ void serial_handler_task(void *pvParameters) {
                     unlink(params->filename);
 
                     sprintf(text, "Invalid chunk command: %s", cmd_type_chunk);             
-
                     send_response(STATUS_ERROR, text);
                     continue;
-                }
-
-                ESP_LOGI(TAG, "Starting reading chunk\n");
+                }    
+                else {
+                    sprintf(text, "OK:READY: Ready for chunk (%d)", params->filesize);    
+                    send_response(STATUS_OK, text);
+                }            
 
                 // Leggi e verifica chunk
                 size_t to_read = params_chunk->chunk_size;
                 size_t total_read = 0;
+
+                ESP_LOGI(TAG, "Starting reading chunk of size %d\n", to_read);
 
                 while (total_read < to_read) {
                     //ESP_LOGI(TAG, "serial_read_char()\n");
@@ -501,29 +505,38 @@ void serial_handler_task(void *pvParameters) {
                     if (c == EOF) {
                         fclose(file);
                         unlink(params->filename); 
-                        send_response(STATUS_ERROR, "Failed to read chunk data");
-                        continue;
+                        send_response(STATUS_ERROR, "Failed to read chunk data");                        
+                        break;
                     }
                     chunk_buffer[total_read++] = (uint8_t)c;
                 }
 
                 // Verifica hash chunk
+                total_received += to_read;
+                ESP_LOGI(TAG, "Read %d of %d\n", total_received, params->filesize);
                 ESP_LOGI(TAG, "Verifying chunk MD5\n");
-                calculate_md5(chunk_buffer, read, calculated_hash);
+                calculate_md5(chunk_buffer, params->filesize, calculated_hash);
+                ESP_LOGI(TAG, "calculate_md5 done.\n");
                 if (strcmp(calculated_hash, params_chunk->chunk_hash) != 0) {
                     fclose(file);
                     unlink(params->filename);
                     send_response(STATUS_ERROR, "Chunk hash mismatch");
-                    continue;
+                    chunkHashFailed = true;
+                    break;
                 }
 
                 // Aggiorna hash totale e scrivi
-                mbedtls_md5_update(&md5_ctx, chunk_buffer, read);
-                fwrite(chunk_buffer, 1, read, file);
-                total_received += read;
+                mbedtls_md5_update(&md5_ctx, chunk_buffer, total_received);
+                fwrite(chunk_buffer, sizeof(chunk_buffer[0]), total_received, file);                
 
                 send_response(STATUS_OK, "Chunk received");
             }
+
+            if(chunkHashFailed){
+                continue;
+            }
+
+            ESP_LOGI(TAG, "All data received\n");
 
             // Verifica hash finale
             uint8_t hash_result[16];
@@ -533,6 +546,7 @@ void serial_handler_task(void *pvParameters) {
 
             fclose(file);
 
+            ESP_LOGI(TAG, "Verifying total hash...\n");
             if (strcmp(calculated_hash, params->file_hash) != 0) {
                 unlink(params->filename);
                 send_response(STATUS_ERROR, "File hash mismatch");

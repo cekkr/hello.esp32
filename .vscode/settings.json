@@ -5,6 +5,7 @@
         "stat.h": "c",
         "__locale": "cpp",
         "ostream": "cpp",
-        "print": "cpp"
+        "print": "cpp",
+        "istream": "cpp"
     }
 }
