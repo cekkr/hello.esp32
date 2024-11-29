@@ -16,6 +16,9 @@
 #include "pic.h"
 #include "xpt2046.h"
 
+// WASM
+#include "wasm.h"
+
 static const char *TAG = "HELLOESP";
 
 ///

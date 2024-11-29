@@ -2,7 +2,7 @@
 idf_component_register(
     SRCS "main.c"
     INCLUDE_DIRS "." "../components/XPT2046/include" "../components/LCD/include" "../components/GUI/include" 
-       # "../components/wasm3-helloesp/embedded/esp32-idf-wasi/main"
+        "../components/wasm3-helloesp/platforms/embedded/esp32-idf-wasi/main/wasm3"
     REQUIRES 
         esp_timer 
         esp_system 
