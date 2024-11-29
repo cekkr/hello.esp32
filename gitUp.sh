@@ -40,6 +40,10 @@ do_git_commit() {
     git commit -m "Auto commit: $current_date" || handle_error "Errore durante il commit in $dir"
     
     echo "Commit completato con successo in $dir"
+
+    git push
+
+    echo "Push completato con successo in $dir"
 }
 
 # Directory corrente
