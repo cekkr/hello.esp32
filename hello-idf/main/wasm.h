@@ -5,14 +5,30 @@
 #include "wasm3.h"
 #include "m3_env.h"
 
+////////////////////////////////////////////////////////////////////////
+
+#include "m3_core.h"
+
+d_m3BeginExternC
+
+typedef struct m3_wasi_context_t
+{
+    i32                     exit_code;
+    u32                     argc;
+    ccstr_t *               argv;
+} m3_wasi_context_t;
+
+    M3Result    m3_LinkEspWASI     (IM3Module io_module);
+
+m3_wasi_context_t* m3_GetWasiContext();
+
+////////////////////////////////////////////////////////////////////////
+
 #define FATAL(msg, ...) { printf("Fatal: " msg "\n", ##__VA_ARGS__); return; }
 
-static void run_wasm(void)
+static void run_wasm(uint8_t* wasm, uint32_t fsize)
 {
     M3Result result = m3Err_none;
-
-    uint8_t* wasm = (uint8_t*)wasi_test_wasm;
-    uint32_t fsize = wasi_test_wasm_len;
 
     printf("Loading WebAssembly...\n");
     IM3Environment env = m3_NewEnvironment ();
@@ -48,12 +64,12 @@ static void run_wasm(void)
     if (result) FATAL("m3_Call: %s", result);
 }
 
-extern "C" void app_main_wasm3(void)
+void app_main_wasm3(void) // just for example
 {
     printf("\nWasm3 v" M3_VERSION " on " CONFIG_IDF_TARGET ", build " __DATE__ " " __TIME__ "\n");
 
     clock_t start = clock();
-    run_wasm();
+    //run_wasm();
     clock_t end = clock();
 
     printf("Elapsed: %ld ms\n", (end - start)*1000 / CLOCKS_PER_SEC);
