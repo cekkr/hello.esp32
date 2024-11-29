@@ -649,10 +649,8 @@ void serial_handler_task(void *pvParameters) {
                 send_response(STATUS_ERROR, text);
                 continue;
             }
-
-            char dirPermission [128];
-            sprintf(dirPermission, "Directory permissions: %lo", st.st_mode & 0777);            
-            ESP_LOGI(TAG, "%s\n", dirPermission);
+   
+            ESP_LOGI(TAG, "Directory permissions: %lo\n", st.st_mode & 0777);
 
             ////////////////////////////////
             DIR *dir;
@@ -666,14 +664,17 @@ void serial_handler_task(void *pvParameters) {
                 continue;
             }
 
+            char fullpath[MAX_FILENAME+64];
             while ((ent = readdir(dir)) != NULL) {
                 // Salta directory . e ..
                 if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0) {
                     continue;
                 }
 
+                sprintf(fullpath, "%s/%s", SD_MOUNT_POINT, ent->d_name);
+
                 // Prendi dimensione file
-                if (stat(ent->d_name, &file_stat) == 0) {
+                if (stat(fullpath, &file_stat) == 0) {
                     int written = snprintf(file_list + offset, 
                                         sizeof(file_list) - offset,
                                         "%s,%ld;", 
@@ -682,6 +683,9 @@ void serial_handler_task(void *pvParameters) {
                     if (written > 0) {
                         offset += written;
                     }
+                }
+                else {         
+                    ESP_LOGE(TAG, "File %s stat error: %s", fullpath, strerror(errno));                    
                 }
             }
             closedir(dir);
