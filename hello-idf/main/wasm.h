@@ -23,6 +23,15 @@ typedef struct m3_wasi_context_t
 m3_wasi_context_t* m3_GetWasiContext();
 
 ////////////////////////////////////////////////////////////////////////
+// Native functions
+
+m3ApiRawFunction(native_print) {
+    m3ApiGetArg(int32_t, value)
+    ESP_LOGI(TAG, "WASM called native_print with value: %d", value);
+    m3ApiSuccess();
+}
+
+////////////////////////////////////////////////////////////////
 
 #define FATAL(msg, ...) { printf("Fatal: " msg "\n", ##__VA_ARGS__); return; }
 
@@ -47,6 +56,14 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
     result = m3_LinkEspWASI (runtime->modules);
     if (result) FATAL("m3_LinkEspWASI: %s", result);
 
+    // Linking native functions
+    // Link delle funzioni native
+    result = m3_LinkRawFunction(module, "*", "print", "v(i)", &native_print);
+    if (result) {
+        ESP_LOGE(TAG, "Failed to link native function: %s", result);
+    }
+
+    // Execution
     IM3Function f;
     result = m3_FindFunction (&f, runtime, "_start");
     if (result) FATAL("m3_FindFunction: %s", result);
