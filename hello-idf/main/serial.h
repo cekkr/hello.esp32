@@ -350,6 +350,7 @@ command_status_t wait_for_command(char* cmd_type, command_params_t* params) {
 
     if(res == STATUS_OK) {
         if(strncmp(cmd_type, CMD_PING, strlen(CMD_PING)) == 0){
+            send_response(STATUS_OK, "PONG");
             return wait_for_command(cmd_type, params);
         }
     }
@@ -412,17 +413,13 @@ void serial_handler_task(void *pvParameters) {
 
        command_status_t parse_status = wait_for_command(cmd_type, params);
 
+       ESP_LOGI(TAG, "Working on cmd_type: %s\n", cmd_type);
+
        if (parse_status != STATUS_OK) {
             sprintf(text, "Invalid command parameters: %s", cmd_type);             
             send_response(parse_status, text);
             continue;
-        }
-
-         if (strcmp(cmd_type, CMD_PING) == 0) {
-            send_response(STATUS_OK, "PONG");
-            continue;
-         }
-
+       }
 
         if (strcmp(cmd_type, CMD_WRITE_FILE) == 0) {
             // Validazione parametri
