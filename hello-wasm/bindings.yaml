@@ -25,7 +25,7 @@ functions:
     parameters: []
     return_type: i32
 
-   - name: esp_printf # example dynamic function arguments
+  - name: esp_printf
     description: "Printf-like function for ESP32"
     parameters:
       - name: format

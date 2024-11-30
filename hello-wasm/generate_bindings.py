@@ -54,6 +54,11 @@ class BindingGenerator:
         }
     }
 
+    def __init__(self, config_file: str):
+        with open(config_file, 'r') as f:
+            self.config = yaml.safe_load(f)
+        self.functions = self._parse_functions()
+
     def _parse_functions(self) -> List[WasmFunction]:
         functions = []
         for func in self.config['functions']:
@@ -174,10 +179,116 @@ class BindingGenerator:
                 ])
             else:
                 # Implementazione standard per funzioni senza varargs
-                # [codice esistente per funzioni normali...]
-                pass
+                output.extend([
+                    f"m3ApiRawFunction({func.name}) {{",
+                    "    m3ApiReturnType(" + self.TYPE_MAPPINGS['c'][func.return_type] + ")"
+                ])
+
+                # Genera il codice per ottenere i parametri
+                for param in func.params:
+                    output.append(
+                        f"    m3ApiGetArg({self.TYPE_MAPPINGS['c'][param.type]}, {param.name})"
+                    )
+
+                # Chiamata alla funzione reale
+                params_str = ', '.join(p.name for p in func.params)
+                if func.return_type != 'void':
+                    output.append(f"    m3ApiReturn({func.name}_impl({params_str}));")
+                else:
+                    output.append(f"    {func.name}_impl({params_str});")
+                    output.append("    m3ApiSuccess();")
+
+                output.extend([
+                    "}",
+                    ""
+                ])
+
+        # Genera l'array dei binding
+        output.extend([
+            "// Array of bindings",
+            "WasmBinding esp_bindings[] = {"
+        ])
+
+        for func in self.functions:
+            # Genera la signature WASM
+            params_sig = ''
+            for p in func.params:
+                if not p.is_vararg:
+                    params_sig += 'i'  # Per semplicità, trattiamo tutti i parametri come i32
+            return_sig = 'v' if func.return_type == 'void' else 'i'
+            signature = f"{return_sig}({params_sig})"
+            
+            func_name = f"{func.name}_wasm" if func.has_varargs else func.name
+            output.append(f'    {{"{func.name}", {func_name}, "{signature}"}},')
+
+        output.extend([
+            "};",
+            "",
+            "size_t esp_bindings_count = sizeof(esp_bindings) / sizeof(WasmBinding);",
+            ""
+        ])
 
         return '\n'.join(output)
+
+    def generate_rust_bindings(self) -> str:
+        output = [
+            "// Auto-generated Rust bindings for ESP32 WASM",
+            ""
+        ]
+
+        output.append("#[link(wasm_import_module = \"env\")]")
+        output.append("extern \"C\" {")
+        
+        for func in self.functions:
+            if func.description:
+                output.append(f"    // {func.description}")
+            
+            params = []
+            for p in func.params:
+                if p.is_vararg:
+                    params.append(f"{p.name}: {self.TYPE_MAPPINGS['rust']['varargs']}")
+                else:
+                    params.append(f"{p.name}: {self.TYPE_MAPPINGS['rust'][p.type]}")
+            
+            params_str = ', '.join(params)
+            if func.has_varargs:
+                params_str += ", vararg_count: i32"
+            
+            return_type = self.TYPE_MAPPINGS['rust'][func.return_type]
+            output.append(
+                f"    pub fn {func.name}({params_str}) -> {return_type};"
+            )
+            output.append("")
+
+        output.append("}")
+        return '\n'.join(output)
+
+    def generate_typescript_bindings(self) -> str:
+        output = [
+            "// Auto-generated TypeScript bindings for ESP32 WASM",
+            ""
+        ]
+
+        for func in self.functions:
+            if func.description:
+                output.append(f"// {func.description}")
+            
+            params = []
+            for p in func.params:
+                if p.is_vararg:
+                    params.append(f"...{p.name}: {self.TYPE_MAPPINGS['typescript']['varargs']}")
+                else:
+                    params.append(f"{p.name}: {self.TYPE_MAPPINGS['typescript'][p.type]}")
+            
+            params_str = ', '.join(params)
+            return_type = self.TYPE_MAPPINGS['typescript'][func.return_type]
+            output.append(
+                f"declare function {func.name}({params_str}): {return_type};"
+            )
+            output.append("")
+
+        return '\n'.join(output)
+    
 
 def main():
     parser = argparse.ArgumentParser(description='Generate ESP32 WASM bindings')
@@ -193,23 +304,28 @@ def main():
                         help='Output directory for generated files')
     args = parser.parse_args()
 
-    generator = BindingGenerator(args.config)
+    try:
+        generator = BindingGenerator(args.config)
 
-    # Crea la directory di output se non esiste
-    os.makedirs(args.output_dir, exist_ok=True)
+        # Crea la directory di output se non esiste
+        os.makedirs(args.output_dir, exist_ok=True)
 
-    # Genera i file
-    with open(os.path.join(args.output_dir, 'esp_wasm_bindings.h'), 'w') as f:
-        f.write(generator.generate_c_header())
+        # Genera i file
+        with open(os.path.join(args.output_dir, 'esp_wasm_bindings.h'), 'w') as f:
+            f.write(generator.generate_c_header())
 
-    with open(os.path.join(args.output_dir, 'esp_wasm_bindings.c'), 'w') as f:
-        f.write(generator.generate_c_implementation())
+        with open(os.path.join(args.output_dir, 'esp_wasm_bindings.c'), 'w') as f:
+            f.write(generator.generate_c_implementation())
 
-    with open(os.path.join(args.output_dir, 'bindings.rs'), 'w') as f:
-        f.write(generator.generate_rust_bindings())
+        with open(os.path.join(args.output_dir, 'bindings.rs'), 'w') as f:
+            f.write(generator.generate_rust_bindings())
 
-    with open(os.path.join(args.output_dir, 'bindings.ts'), 'w') as f:
-        f.write(generator.generate_typescript_bindings())
+        with open(os.path.join(args.output_dir, 'bindings.ts'), 'w') as f:
+            f.write(generator.generate_typescript_bindings())
+
+    except ValueError as e:
+        print(f"Error: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

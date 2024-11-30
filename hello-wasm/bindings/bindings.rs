@@ -14,4 +14,7 @@ extern "C" {
     // Performs a WiFi scan and returns number of networks found
     pub fn esp_wifi_scan() -> i32;
 
+    // Printf-like function for ESP32
+    pub fn esp_printf(format: &str, args: *const i32, vararg_count: i32) -> ();
+
 }

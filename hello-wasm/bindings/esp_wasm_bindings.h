@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdarg.h>
 
 // Auto-generated ESP32 WASM bindings
 
@@ -17,5 +18,8 @@ float esp_get_temperature();
 
 // Performs a WiFi scan and returns number of networks found
 int32_t esp_wifi_scan();
+
+// Printf-like function for ESP32
+void esp_printf(const char* format, ...);
 
 #endif // ESP32_WASM_BINDINGS_H

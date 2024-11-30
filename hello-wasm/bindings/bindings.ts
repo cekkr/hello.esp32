@@ -11,3 +11,6 @@ declare function esp_get_temperature(): number;
 
 // Performs a WiFi scan and returns number of networks found
 declare function esp_wifi_scan(): number;
+
+// Printf-like function for ESP32
+declare function esp_printf(format: string, ...args: ...number[]): void;
