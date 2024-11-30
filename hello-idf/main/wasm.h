@@ -116,7 +116,7 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
     result = m3_FindFunction(&f, runtime, "main");
     if (result) FATAL("m3_FindFunction: %s", result);
 
-    printf("Running...\n");
+    printf("Running WASM...\n");
 
     const char* i_argv[] = {"main.wasm", NULL}; //todo: set right wasm name(?)
 
@@ -146,6 +146,8 @@ void app_main_wasm3(void) // just for example
 
 // WASM3 Task
 static void wasm_task(void* pvParameters) {
+    ESP_LOGI(TAG, "Calling wasm_task");
+    
     wasm_task_params_t* params = (wasm_task_params_t*)pvParameters;
     
     // Esegui WASM in un contesto isolato
