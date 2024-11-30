@@ -2,6 +2,8 @@
 # CMakeLists in this exact order for cmake to work correctly
 cmake_minimum_required(VERSION 3.5)
 
+set(EXTRA_COMPONENT_DIRS components/wasm3-helloesp/platforms/embedded/esp32-idf-wasi/main)
+
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 project(hello-idf)
 
@@ -12,6 +14,3 @@ project(hello-idf)
 #spiffs_create_partition_image(storage0 font FLASH_IN_PROJECT)
 #spiffs_create_partition_image(storage1 icons FLASH_IN_PROJECT)
 #spiffs_create_partition_image(storage2 images FLASH_IN_PROJECT)
-
-
-add_subdirectory(components/wasm3-helloesp/platforms/embedded/esp32-idf-wasi)

@@ -2,7 +2,7 @@
 idf_component_register(
     SRCS "main.c"
     INCLUDE_DIRS "." "../components/XPT2046/include" "../components/LCD/include" "../components/GUI/include" 
-        "../components/wasm3-helloesp/platforms/embedded/esp32-idf-wasi/main/wasm3"
+        #"../components/wasm3-helloesp/platforms/embedded/esp32-idf-wasi/main/wasm3"
     REQUIRES 
         esp_timer 
         esp_system 
@@ -13,5 +13,6 @@ idf_component_register(
         sdmmc           # per il supporto SD card
         freertos        # per il supporto ai thread
         mbedtls
-        driver        
+        driver     
+        wasm3   
 )

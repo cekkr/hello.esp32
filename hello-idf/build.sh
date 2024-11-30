@@ -20,6 +20,7 @@ cd "$CUR_DIR"
 #cmake ..
 #make
 
+#idf.py reconfigure
 #idf.py clean
 #idf.py fullclean
 
