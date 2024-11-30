@@ -74,32 +74,44 @@ static int cmd_run(int argc, char** argv) {
         return -1;
     }
     
-    //todo: implement arguments
-    ESP_LOGI(TAG, "Executing file: %s\n", argv[1]);
-    for (int i = 2; i < argc; i++) {
-        ESP_LOGI(TAG, "Arg %d: %s\n", i-1, argv[i]);
-    }
-
-    // Append SD mount path
+    // Preparazione del path e lettura del file come prima
     char* fullpath = malloc(sizeof(char)*MAX_FILENAME);
     sprintf(fullpath, "%s/%s", SD_MOUNT_POINT, argv[0]);
 
-    // Get program
     uint8_t* data = NULL;
     size_t size = 0;
     esp_err_t result = read_file_to_memory(fullpath, &data, &size);
+    free(fullpath);
 
     if (result == ESP_OK) {
-        // WASM execution
-        run_wasm(data, size);
-
-        free(data);
+        // Crea i parametri per la task
+        wasm_task_params_t* params = malloc(sizeof(wasm_task_params_t));
+        params->wasm_data = data;
+        params->wasm_size = size;
+        
+        // Crea la task
+        TaskHandle_t task_handle;
+        BaseType_t ret = xTaskCreate(
+            wasm_task,
+            "wasm_executor",
+            WASM_STACK_SIZE,
+            params,
+            WASM_TASK_PRIORITY,
+            &task_handle
+        );
+        
+        if (ret != pdPASS) {
+            ESP_LOGE(TAG, "Failed to create WASM task");
+            free(data);
+            free(params);
+            return -1;
+        }
+        
+        return 0;
     } else {
-        ESP_LOGI(TAG, "Errore nella lettura del file: %d\n", result);
+        ESP_LOGE(TAG, "Errore nella lettura del file: %d\n", result);
         return -1;
-    }    
-
-    return 0;
+    }
 }
 
 // Handler per il comando "echo"

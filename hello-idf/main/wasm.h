@@ -11,6 +11,7 @@
 
 #include "wasm_native.h"
 
+
 ////////////////////////////////////////////////////////////////////////
 
 #include "m3_core.h"
@@ -27,6 +28,17 @@ typedef struct m3_wasi_context_t
     M3Result    m3_LinkEspWASI     (IM3Module io_module);
 
 m3_wasi_context_t* m3_GetWasiContext();
+
+////////////////////////////////////////////////////////////////
+
+// Definizione della task e configurazione
+#define WASM_STACK_SIZE (32*1024)  // Esempio di dimensione stack
+#define WASM_TASK_PRIORITY 5
+
+typedef struct {
+    uint8_t* wasm_data;
+    size_t wasm_size;
+} wasm_task_params_t;
 
 ////////////////////////////////////////////////////////////////////////
 // Native functions
@@ -105,6 +117,21 @@ void app_main_wasm3(void) // just for example
     sleep(3);
     printf("Restarting...\n\n\n");
     esp_restart();
+}
+
+// WASM3 Task
+static void wasm_task(void* pvParameters) {
+    wasm_task_params_t* params = (wasm_task_params_t*)pvParameters;
+    
+    // Esegui WASM in un contesto isolato
+    run_wasm(params->wasm_data, params->wasm_size);
+    
+    // Libera la memoria
+    free(params->wasm_data);
+    free(params);
+    
+    // Elimina la task
+    vTaskDelete(NULL);
 }
 
 #endif // HELLOESP_WASM
