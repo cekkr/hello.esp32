@@ -24,3 +24,12 @@ functions:
     description: "Performs a WiFi scan and returns number of networks found"
     parameters: []
     return_type: i32
+
+   - name: esp_printf # example dynamic function arguments
+    description: "Printf-like function for ESP32"
+    parameters:
+      - name: format
+        type: string
+      - name: args
+        type: varargs
+    return_type: void
