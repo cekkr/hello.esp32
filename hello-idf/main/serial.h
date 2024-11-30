@@ -46,6 +46,7 @@ typedef struct {
     char file_hash[33];
     size_t chunk_size;
     char chunk_hash[33];
+    char* cmdline;
 } command_params_t;
 
 ///
@@ -290,10 +291,12 @@ static command_status_t parse_command(const char* command, char* cmd_type, comma
     else if(strncmp(command, CMD_CMD, strlen(CMD_CMD)) == 0) {
         strcpy(cmd_type, CMD_CMD);
 
-        char cmd[MAX_COMMAND_LENGTH];
+        char* cmd = malloc(sizeof(char) * MAX_COMMAND_LENGTH);
         if (sscanf(command + strlen(CMD_CMD), " %[^]]", cmd) != 1) {
             return STATUS_ERROR_PARAMS;
         }
+
+        params->cmdline = cmd;
     }
 
     // ... altri comandi ...
@@ -739,6 +742,11 @@ void serial_handler_task(void *pvParameters) {
             } else {
                 send_response(STATUS_ERROR, "File not found");
             }
+        }
+        else if(strcmp(cmd_type, CMD_CMD) == 0){
+            //todo: CMD_CMD
+
+            free(params->cmdline);
         }
         else {
             sprintf(text, "Unknown command: %s", cmd_type);                
