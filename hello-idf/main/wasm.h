@@ -5,6 +5,8 @@
 #include "wasm3.h"
 #include "m3_env.h"
 
+#include "wasm_native.h"
+
 ////////////////////////////////////////////////////////////////////////
 
 #include "m3_core.h"
@@ -63,6 +65,11 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
         ESP_LOGE(TAG, "Failed to link native function: %s", result);
     }
 
+    result = m3_LinkRawFunction(module, "env", "esp_printf", "v(i*i)", &esp_printf_wasm);
+    if (result) {
+        ESP_LOGE(TAG, "Failed to link native function: %s", result);
+    }
+    
     // Execution
     IM3Function f;
     result = m3_FindFunction (&f, runtime, "_start");
