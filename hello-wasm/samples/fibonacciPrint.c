@@ -1,8 +1,9 @@
-// fibonacci.c
+// fibonacciPrint.c
 #include <stdint.h>
+#include <emscripten.h>
 
 // Dichiarazione della funzione esterna
-extern void esp_printf(const char* format, ...);
+void esp_printf(const char* format, ...) __attribute__((import_module("env"), import_name("esp_printf")));
 
 // Funzione che calcola l'n-esimo numero di Fibonacci
 uint32_t fib(uint32_t n) {
@@ -19,6 +20,7 @@ uint32_t fib(uint32_t n) {
 }
 
 // Funzione principale che stampa la serie
+EMSCRIPTEN_KEEPALIVE
 void print_fibonacci(uint32_t n) {
     esp_printf("Fibonacci series up to %d:\n", n);
     
@@ -28,7 +30,9 @@ void print_fibonacci(uint32_t n) {
     }
 }
 
-// Punto di ingresso del modulo WASM
-void _start() {
-    print_fibonacci(10); // Stampa i primi 10 numeri della serie
+// Punto di ingresso
+EMSCRIPTEN_KEEPALIVE
+int main() {
+    print_fibonacci(10);
+    return 0;
 }
