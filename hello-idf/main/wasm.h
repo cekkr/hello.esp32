@@ -73,18 +73,18 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
 
     // Execution
     IM3Function f;
-    result = m3_FindFunction (&f, runtime, "_start");
+    result = m3_FindFunction(&f, runtime, "main");
     if (result) FATAL("m3_FindFunction: %s", result);
 
     printf("Running...\n");
 
-    const char* i_argv[2] = { "test.wasm", NULL };
+    const char* i_argv[] = {"main.wasm", NULL}; //todo: set right wasm name(?)
 
     m3_wasi_context_t* wasi_ctx = m3_GetWasiContext();
     wasi_ctx->argc = 1;
     wasi_ctx->argv = i_argv;
 
-    result = m3_CallV (f);
+    result = m3_CallV(f);
 
     if (result) FATAL("m3_Call: %s", result);
 }
