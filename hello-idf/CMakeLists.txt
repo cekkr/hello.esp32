@@ -2,7 +2,6 @@
 # CMakeLists in this exact order for cmake to work correctly
 cmake_minimum_required(VERSION 3.5)
 
-#include(components/wasm3-helloesp/platforms/embedded/esp32-idf-wasi/main/CMakeLists.txt)
 set(EXTRA_COMPONENT_DIRS components/wasm3-helloesp/platforms/embedded/esp32-idf-wasi/wasm3)
 
 
