@@ -86,7 +86,7 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
     IM3Environment env = m3_NewEnvironment ();
     if (!env) FATAL("m3_NewEnvironment failed");
 
-    IM3Runtime runtime = m3_NewRuntime (env, 8*1024, NULL);
+    IM3Runtime runtime = m3_NewRuntime (env, 64*1024, NULL); //todo: WASM_RUNTIME_MEMORY instead of x*1024
     if (!runtime) FATAL("m3_NewRuntime failed");
 
     IM3Module module;
@@ -147,7 +147,7 @@ void app_main_wasm3(void) // just for example
 // WASM3 Task
 static void wasm_task(void* pvParameters) {
     ESP_LOGI(TAG, "Calling wasm_task");
-    
+
     wasm_task_params_t* params = (wasm_task_params_t*)pvParameters;
     
     // Esegui WASM in un contesto isolato
