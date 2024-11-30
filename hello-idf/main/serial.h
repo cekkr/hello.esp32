@@ -526,7 +526,7 @@ void serial_handler_task(void *pvParameters) {
                 total_received += to_read;
                 ESP_LOGI(TAG, "Read %d of %d\n", total_received, params->filesize);
                 ESP_LOGI(TAG, "Verifying chunk MD5\n");
-                calculate_md5(chunk_buffer, params->filesize, calculated_hash);
+                calculate_md5(chunk_buffer, total_read, calculated_hash);
                 ESP_LOGI(TAG, "calculate_md5 done.\n");
                 if (strcmp(calculated_hash, params_chunk->chunk_hash) != 0) {
                     fclose(file);
@@ -746,6 +746,9 @@ void serial_handler_task(void *pvParameters) {
             process_command(params->cmdline);
 
             free(params->cmdline);
+        }
+        else if(strcmp(cmd_type, CMD_CHUNK) == 0){
+            send_response(STATUS_ERROR, "Chunk out of context");
         }
         else {
             sprintf(text, "Unknown command: %s", cmd_type);                
