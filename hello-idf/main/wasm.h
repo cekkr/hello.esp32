@@ -51,11 +51,36 @@ typedef struct {
 
 ////////////////////////////////////////////////////////////////
 
-#define FATAL(msg, ...) { printf("Fatal: " msg "\n", ##__VA_ARGS__); return; }
+#define FATAL(msg, ...) { ESP_LOGI(TAG, "ERROR: Fatal: " msg "\n", ##__VA_ARGS__); return; }
+
+bool prepare_wasm_execution(const uint8_t* wasm_data, size_t size) {
+    // Stima della memoria necessaria (questo valore andrà calibrato)
+    size_t estimated_memory = size * 3;  // esempio: 3x il size del modulo
+    
+    if (!check_memory_available(estimated_memory)) {
+        ESP_LOGE(TAG, "Insufficient memory for WASM module");
+        return false;
+    }
+    
+    // Pre-alloca memoria se necessario
+    void* pre_allocated = preallocate_wasm_memory(estimated_memory);
+    if (!pre_allocated) {
+        return false;
+    }
+    
+    // Continua con l'esecuzione...
+    return true;
+}
 
 static void run_wasm(uint8_t* wasm, uint32_t fsize)
 {
     M3Result result = m3Err_none;
+
+    // Prima verifica la disponibilità di memoria
+    if (!prepare_wasm_execution(wasm, fsize)) {
+        FATAL("failed to prepare memory for WASM execution");
+        return;
+    }
 
     printf("Loading WebAssembly...\n");
     IM3Environment env = m3_NewEnvironment ();
