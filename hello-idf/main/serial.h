@@ -744,7 +744,7 @@ void serial_handler_task(void *pvParameters) {
             }
         }
         else if(strcmp(cmd_type, CMD_CMD) == 0){
-            //todo: CMD_CMD
+            process_command(params->cmdline);
 
             free(params->cmdline);
         }
