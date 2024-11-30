@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <unistd.h>
+#include "esp_log.h"
 
 #include "wasm3.h"
 #include "m3_env.h"
@@ -27,11 +28,11 @@ m3_wasi_context_t* m3_GetWasiContext();
 ////////////////////////////////////////////////////////////////////////
 // Native functions
 
-m3ApiRawFunction(native_print) {
+/*m3ApiRawFunction(native_print) {
     m3ApiGetArg(int32_t, value)
     ESP_LOGI(TAG, "WASM called native_print with value: %d", value);
     m3ApiSuccess();
-}
+}*/
 
 ////////////////////////////////////////////////////////////////
 
@@ -60,16 +61,16 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
 
     // Linking native functions
     // Link delle funzioni native
-    result = m3_LinkRawFunction(module, "*", "print", "v(i)", &native_print);
+    /*result = m3_LinkRawFunction(module, "*", "print", "v(i)", &native_print);
+    if (result) {
+        ESP_LOGE(TAG, "Failed to link native function: %s", result);
+    }*/
+
+    result = m3_LinkRawFunction(module, "env", "esp_printf", "v(i*i)", &wasm_esp_printf);
     if (result) {
         ESP_LOGE(TAG, "Failed to link native function: %s", result);
     }
 
-    result = m3_LinkRawFunction(module, "env", "esp_printf", "v(i*i)", &esp_printf_wasm);
-    if (result) {
-        ESP_LOGE(TAG, "Failed to link native function: %s", result);
-    }
-    
     // Execution
     IM3Function f;
     result = m3_FindFunction (&f, runtime, "_start");

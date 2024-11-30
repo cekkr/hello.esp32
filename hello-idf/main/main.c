@@ -16,10 +16,10 @@
 #include "pic.h"
 #include "xpt2046.h"
 
+static const char *TAG = "HELLOESP";
+
 // WASM
 #include "wasm.h"
-
-static const char *TAG = "HELLOESP";
 
 ///
 /// SD
