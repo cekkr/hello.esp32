@@ -18,6 +18,9 @@
 
 static const char *TAG = "HELLOESP";
 
+// CMDs
+#include "cmd.h"
+
 // WASM
 #include "wasm.h"
 

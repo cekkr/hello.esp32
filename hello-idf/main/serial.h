@@ -23,6 +23,7 @@
 #define CMD_DELETE_FILE "$$$DELETE_FILE$$$"
 #define CMD_CHECK_FILE "$$$CHECK_FILE$$$"
 #define CMD_CHUNK "$$$CHUNK$$$"
+#define CMD_CMD "$$$CMD$$$"
 
 // Codici di risposta
 typedef enum {
@@ -285,6 +286,14 @@ static command_status_t parse_command(const char* command, char* cmd_type, comma
             return STATUS_ERROR_PARAMS;
         }
         prepend_mount_point(filename, params->filename);
+    }
+    else if(strncmp(command, CMD_CMD, strlen(CMD_CMD)) == 0) {
+        strcpy(cmd_type, CMD_CMD);
+
+        char cmd[MAX_COMMAND_LENGTH];
+        if (sscanf(command + strlen(CMD_CMD), " %[^]]", cmd) != 1) {
+            return STATUS_ERROR_PARAMS;
+        }
     }
 
     // ... altri comandi ...
