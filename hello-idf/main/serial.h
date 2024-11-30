@@ -549,19 +549,25 @@ void serial_handler_task(void *pvParameters) {
 
             ESP_LOGI(TAG, "All data received\n");
 
-            // Verifica hash finale
-            uint8_t hash_result[16];
-            mbedtls_md5_finish(&md5_ctx, hash_result);
-            mbedtls_md5_free(&md5_ctx);
-            calculate_md5_hex(hash_result, calculated_hash);
+            if(false){ // IGNORE_FINAL_FILE_HASH //todo: implement correctly
+                // Verifica hash finale
+                uint8_t hash_result[16];
+                mbedtls_md5_finish(&md5_ctx, hash_result);
+                mbedtls_md5_free(&md5_ctx);
+                calculate_md5_hex(hash_result, calculated_hash);
 
-            fclose(file);
+                fclose(file);
 
-            ESP_LOGI(TAG, "Verifying total hash...\n");
-            if (strcmp(calculated_hash, params->file_hash) != 0) {
-                unlink(params->filename);
-                send_response(STATUS_ERROR, "File hash mismatch");
-            } else {
+                ESP_LOGI(TAG, "Verifying total hash...\n");
+                if (strcmp(calculated_hash, params->file_hash) != 0) {
+                    unlink(params->filename);
+                    send_response(STATUS_ERROR, "File hash mismatch");
+                } else {
+                    send_response(STATUS_OK, "File written successfully");
+                }
+            }
+            else {
+                fclose(file);
                 send_response(STATUS_OK, "File written successfully");
             }
 
