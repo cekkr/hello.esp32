@@ -154,10 +154,21 @@ int process_command(char* cmd_str) {
     // Parsing degli argomenti
     int argc = parse_arguments(trimmed_cmd, argv);
     if (argc == 0) return 0;
+
+    /// Pop program
+    char* program = argv[0];     // salva il primo argomento
+
+    // sposta tutti gli elementi di una posizione indietro
+    for(int i = 0; i < argc-1; i++) {
+        argv[i] = argv[i+1];
+    }
+
+    argc--;     // decrementa il contatore degli argomenti
+    /// 
     
     // Cerca il comando nella tabella
     for (const command_entry_t* cmd = commands; cmd->command != NULL; cmd++) {
-        if (strcmp(argv[0], cmd->command) == 0) {
+        if (strcmp(program, cmd->command) == 0) {
             return cmd->handler(argc, argv);
         }
     }
