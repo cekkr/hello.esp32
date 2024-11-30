@@ -44,7 +44,7 @@ void wasm_esp_printf(const char* format, int32_t* args, int32_t arg_count) {
     }
 
     *current = '\0';
-    ESP_LOGI("WASM", "%s", message);
+    ESP_LOGI(TAG, "%s", message);
 }
 
 #endif // ESP_WASM_BINDINGS_IMPL_H

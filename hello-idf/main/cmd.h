@@ -6,6 +6,8 @@
 #include <stdbool.h>
 #include <ctype.h>
 
+#include "esp_log.h"
+
 #define MAX_ARGS 32
 #define MAX_COMMAND_LENGTH 256
 
@@ -65,13 +67,13 @@ static int parse_arguments(char* input, char** argv) {
 // Handler per il comando "run"
 static int cmd_run(int argc, char** argv) {
     if (argc < 2) {
-        printf("Usage: run <filename> [args...]\n");
+        ESP_LOGI(TAG, "Usage: run <filename> [args...]\n");
         return -1;
     }
     
-    printf("Executing file: %s\n", argv[1]);
+    ESP_LOGI(TAG, "Executing file: %s\n", argv[1]);
     for (int i = 2; i < argc; i++) {
-        printf("Arg %d: %s\n", i-1, argv[i]);
+        ESP_LOGI(TAG, "Arg %d: %s\n", i-1, argv[i]);
     }
     
     // Qui implementare la logica per eseguire il file
@@ -81,16 +83,16 @@ static int cmd_run(int argc, char** argv) {
 // Handler per il comando "echo"
 static int cmd_echo(int argc, char** argv) {
     for (int i = 1; i < argc; i++) {
-        printf("%s ", argv[i]);
+        ESP_LOGI(TAG, "%s ", argv[i]);
     }
-    printf("\n");
+    ESP_LOGI(TAG, "\n");
     return 0;
 }
 
 // Handler per il comando "ls"
 static int cmd_ls(int argc, char** argv) {
     const char* path = argc > 1 ? argv[1] : ".";
-    printf("Listing directory: %s\n", path);
+    ESP_LOGI(TAG, "Listing directory: %s\n", path);
     // Implementare la logica per listare i file
     return 0;
 }
@@ -126,7 +128,7 @@ int process_command(char* cmd_str) {
         }
     }
     
-    printf("Unknown command: %s\n", argv[0]);
+    ESP_LOGI(TAG, "Unknown command: %s\n", argv[0]);
     return -1;
 }
 
