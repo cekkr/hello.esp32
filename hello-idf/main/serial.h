@@ -11,7 +11,6 @@
 
 // Definizioni
 #define BUF_SIZE 1024
-#define MAX_FILENAME 256
 #define STACK_SIZE (32768)
 #define CHUNK_SIZE 1024
 

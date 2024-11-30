@@ -206,4 +206,3 @@ void mostra_info_sd(const char* mount_point) {
     ESP_LOGI(TAG, "Output string_printf: %s\n", text);
     LCD_ShowString(10,40,WHITE,BLACK,12,"test output",0);
 }
-

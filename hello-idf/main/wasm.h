@@ -1,3 +1,6 @@
+#ifndef HELLOESP_WASM
+#define HELLOESP_WASM
+
 #include <stdio.h>
 #include <time.h>
 #include <unistd.h>
@@ -103,3 +106,5 @@ void app_main_wasm3(void) // just for example
     printf("Restarting...\n\n\n");
     esp_restart();
 }
+
+#endif // HELLOESP_WASM

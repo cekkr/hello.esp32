@@ -6,6 +6,7 @@
         "__locale": "cpp",
         "ostream": "cpp",
         "print": "cpp",
-        "istream": "cpp"
+        "istream": "cpp",
+        "cmd.h": "c"
     }
 }

@@ -8,6 +8,9 @@
 
 #include "esp_log.h"
 
+// WASM
+#include "wasm.h"
+
 #define MAX_ARGS 32
 #define MAX_COMMAND_LENGTH 256
 
@@ -71,12 +74,31 @@ static int cmd_run(int argc, char** argv) {
         return -1;
     }
     
+    //todo: implement arguments
     ESP_LOGI(TAG, "Executing file: %s\n", argv[1]);
     for (int i = 2; i < argc; i++) {
         ESP_LOGI(TAG, "Arg %d: %s\n", i-1, argv[i]);
     }
-    
-    // Qui implementare la logica per eseguire il file
+
+    // Append SD mount path
+    char* fullpath = malloc(sizeof(char)*MAX_FILENAME);
+    sprintf(fullpath, "%s/%s", SD_MOUNT_POINT, argv[0]);
+
+    // Get program
+    uint8_t* data = NULL;
+    size_t size = 0;
+    esp_err_t result = read_file_to_memory(fullpath, &data, &size);
+
+    if (result == ESP_OK) {
+        // WASM execution
+        run_wasm(data, size);
+
+        free(data);
+    } else {
+        ESP_LOGI(TAG, "Errore nella lettura del file: %d\n", result);
+        return -1;
+    }    
+
     return 0;
 }
 

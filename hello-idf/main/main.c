@@ -16,13 +16,16 @@
 #include "pic.h"
 #include "xpt2046.h"
 
+// Constants
 static const char *TAG = "HELLOESP";
+#define SD_MOUNT_POINT "/sdcard"
+#define MAX_FILENAME 256
+
+// General functions
+#include "io.h"
 
 // CMDs
 #include "cmd.h"
-
-// WASM
-#include "wasm.h"
 
 ///
 /// SD
@@ -32,13 +35,11 @@ static const char *TAG = "HELLOESP";
 #define SD_MOSI 23
 #define SD_CS   5
 
-#define SD_MOUNT_POINT "/sdcard"
 #define SPI_DMA_CHAN    1
 
 #define CONFIG_XPT2046_ENABLE_DIFF_BUS 1
 
 #include "sdcard.h"
-
 #include "serial.h"
 
 ///
