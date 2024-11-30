@@ -69,7 +69,7 @@ static int parse_arguments(char* input, char** argv) {
 
 // Handler per il comando "run"
 static int cmd_run(int argc, char** argv) {
-    if (argc < 2) {
+    if (argc < 1) {
         ESP_LOGI(TAG, "Usage: run <filename> [args...]\n");
         return -1;
     }
@@ -116,7 +116,7 @@ static int cmd_run(int argc, char** argv) {
 
 // Handler per il comando "echo"
 static int cmd_echo(int argc, char** argv) {
-    for (int i = 1; i < argc; i++) {
+    for (int i = 0; i < argc; i++) {
         ESP_LOGI(TAG, "%s ", argv[i]);
     }
     ESP_LOGI(TAG, "\n");
@@ -125,7 +125,7 @@ static int cmd_echo(int argc, char** argv) {
 
 // Handler per il comando "ls"
 static int cmd_ls(int argc, char** argv) {
-    const char* path = argc > 1 ? argv[1] : ".";
+    const char* path = argc > 0 ? argv[0] : ".";
     ESP_LOGI(TAG, "Listing directory: %s\n", path);
     // Implementare la logica per listare i file
     return 0;
@@ -165,7 +165,7 @@ int process_command(char* cmd_str) {
 
     argc--;     // decrementa il contatore degli argomenti
     /// 
-    
+
     // Cerca il comando nella tabella
     for (const command_entry_t* cmd = commands; cmd->command != NULL; cmd++) {
         if (strcmp(program, cmd->command) == 0) {
