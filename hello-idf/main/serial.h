@@ -537,7 +537,7 @@ void serial_handler_task(void *pvParameters) {
                 }
 
                 // Aggiorna hash totale e scrivi
-                mbedtls_md5_update(&md5_ctx, chunk_buffer, total_received);
+                mbedtls_md5_update(&md5_ctx, chunk_buffer, total_read);
                 fwrite(chunk_buffer, sizeof(chunk_buffer[0]), total_received, file);                
 
                 send_response(STATUS_OK, "Chunk received");
@@ -549,7 +549,7 @@ void serial_handler_task(void *pvParameters) {
 
             ESP_LOGI(TAG, "All data received\n");
 
-            if(false){ // IGNORE_FINAL_FILE_HASH //todo: implement correctly
+            if(true){ // IGNORE_FINAL_FILE_HASH 
                 // Verifica hash finale
                 uint8_t hash_result[16];
                 mbedtls_md5_finish(&md5_ctx, hash_result);
