@@ -25,7 +25,7 @@ typedef struct m3_wasi_context_t
     ccstr_t *               argv;
 } m3_wasi_context_t;
 
-    M3Result    m3_LinkEspWASI     (IM3Module io_module);
+M3Result    m3_LinkEspWASI     (IM3Module io_module);
 
 m3_wasi_context_t* m3_GetWasiContext();
 
@@ -86,8 +86,11 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
     IM3Environment env = m3_NewEnvironment ();
     if (!env) FATAL("m3_NewEnvironment failed");
 
-    IM3Runtime runtime = m3_NewRuntime (env, 64*1024, NULL); //todo: WASM_RUNTIME_MEMORY instead of x*1024
+    IM3Runtime runtime = m3_NewRuntime (env, 16*1024, NULL); //todo: WASM_RUNTIME_MEMORY instead of x*1024
     if (!runtime) FATAL("m3_NewRuntime failed");
+
+    runtime->memory.maxPages = 1;  // Limita a una pagina
+    runtime->memory.numPages = 1;
 
     IM3Module module;
     result = m3_ParseModule (env, &module, wasm, fsize);
@@ -96,6 +99,7 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
     result = m3_LoadModule (runtime, module);
     if (result) FATAL("m3_LoadModule: %s", result);
 
+    ESP_LOGI(TAG, "run_wasm: m3_LinkEspWASI");
     result = m3_LinkEspWASI (runtime->modules);
     if (result) FATAL("m3_LinkEspWASI: %s", result);
 

@@ -7,16 +7,15 @@ asc samples/fibonacci.ts -o output/fibonacci.wasm --optimize
 emcc samples/fibonacciPrint.c -o output/fibonacciPrint.wasm \
     -O3 \
     -s WASM=1 \
-    -s SIDE_MODULE=1 \
     -s STANDALONE_WASM=1 \
-    -s EXPORTED_FUNCTIONS=['_main','_print_fibonacci'] \
-    --no-entry \
+    -s IMPORTED_MEMORY=0 \
     -s INITIAL_MEMORY=65536 \
-    -s MAXIMUM_MEMORY=65536 \
+    -s STACK_SIZE=1024 \
     -s ALLOW_MEMORY_GROWTH=0 \
-    -s TOTAL_STACK=2048 \
-    -s TOTAL_MEMORY=65536 \
+    --no-entry \
     
+    #todo: study ALLOW_MEMORY_GROWTH
+
     #-s STANDALONE_WASM=1 \
     #-s EXPORTED_FUNCTIONS='["_main", "_print_fibonacci"]' \
     #-s ERROR_ON_UNDEFINED_SYMBOLS=1 \
