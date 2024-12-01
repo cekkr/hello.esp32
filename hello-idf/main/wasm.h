@@ -110,7 +110,7 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
         ESP_LOGE(TAG, "Failed to link native function: %s", result);
     }*/
 
-    result = m3_LinkRawFunction(module, "env", "esp_printf", "v(**i)", &wasm_esp_printf);
+    result = m3_LinkRawFunction(module, "env", "esp_printf", "v(ii)", &wasm_esp_printf);
     if (result) {
         ESP_LOGE(TAG, "Failed to link native function: %s", result);
     }
