@@ -7,10 +7,10 @@
 #include "esp_log.h"
 
 // Implementazione della funzione printf per WASM
-void wasm_esp_printf(const char* format, int32_t* args, int32_t arg_count) {
+void wasm_esp_printf(uint8_t* format, int32_t* args, int32_t arg_count) { 
     char message[256];
     char* current = message;
-    const char* format_ptr = format;
+    const uint8_t* format_ptr = format;
     int arg_index = 0;
 
     while (*format_ptr && (current - message) < sizeof(message) - 1) {
