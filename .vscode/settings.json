@@ -7,6 +7,9 @@
         "ostream": "cpp",
         "print": "cpp",
         "istream": "cpp",
-        "cmd.h": "c"
+        "cmd.h": "c",
+        "m3_compile.h": "c",
+        "string": "cpp",
+        "string_view": "cpp"
     }
 }
