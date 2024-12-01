@@ -86,7 +86,7 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
     IM3Environment env = m3_NewEnvironment ();
     if (!env) FATAL("m3_NewEnvironment failed");
 
-    IM3Runtime runtime = m3_NewRuntime (env, 16*1024, NULL); //todo: WASM_RUNTIME_MEMORY instead of x*1024
+    IM3Runtime runtime = m3_NewRuntime (env, 64*1024, NULL); //todo: WASM_RUNTIME_MEMORY instead of x*1024
     if (!runtime) FATAL("m3_NewRuntime failed");
 
     runtime->memory.maxPages = 1;  // Limita a una pagina
