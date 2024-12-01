@@ -117,7 +117,7 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
 
     // Execution
     IM3Function f;
-    result = m3_FindFunction(&f, runtime, "main");
+    result = m3_FindFunction(&f, runtime, "__original_main");
     if (result) FATAL("m3_FindFunction: %s", result);
 
     printf("Running WASM...\n");
