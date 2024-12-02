@@ -172,6 +172,12 @@ void init_uart() {
 
 void app_main(void) {
     disable_watchdog();
+    heap_caps_malloc_extmem_enable(20);
+
+    if(false){
+        ESP_ERROR_CHECK(heap_trace_init_standalone(heap_trace_records, HEAP_TRACE_MAX));
+        ESP_ERROR_CHECK(heap_trace_start(HEAP_TRACE_LEAKS));
+    }
 
     // Inizializzazione della seriale
     //setvbuf(stdout, NULL, _IONBF, 0);
