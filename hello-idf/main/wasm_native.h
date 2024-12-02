@@ -360,15 +360,15 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext _ctx, uint64_t* _s
 // Definizione della lookup table entry
 const WasmFunctionEntry functionTable[] = {
     { 
-        .name = "esp_printf",           // Nome della funzione in WASM
+        .name = (const char*)"esp_printf",           // Nome della funzione in WASM
         .func = wasm_esp_printf,    // Puntatore alla funzione
-        .signature = "v(ii)"        // Signature: void (raw_ptr, int32)
+        .signature = (const char*)"v(ii)"        // Signature: void (raw_ptr, int32)
     },
     // Altre funzioni possono essere aggiunte qui
 };
 
 M3Result registerNativeWASMFunctions(IM3Module module){
-    M3Result result = RegisterWasmFunctions(module, functionTable, sizeof(functionTable));
+    M3Result result = RegisterWasmFunctions(module, functionTable, sizeof(functionTable)/sizeof(functionTable[0]));
     if (result) {
         ESP_LOGE(TAG, "Failed to register functions: %s", result);
     }
