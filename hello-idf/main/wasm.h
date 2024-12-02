@@ -51,6 +51,77 @@ typedef struct {
 
 ////////////////////////////////////////////////////////////////
 
+///
+/// Native functions linking
+///
+
+// Prima definiamo la funzione che vogliamo esporre al WASM
+m3ApiRawFunction(wasm_esp_printf) {
+    m3ApiGetArg(int32_t, format_ptr);
+    m3ApiGetArg(int32_t, value);
+    
+    // Ottieni il runtime e il modulo corrente
+    IM3Runtime runtime = runtime;
+    IM3Module module = runtime->module;
+    
+    // Ottieni il puntatore alla memoria lineare
+    uint8_t* mem = m3_GetMemory(runtime, 0, 0);
+    if (!mem) {
+        return m3Err_trapOutOfBoundsMemoryAccess;
+    }
+    
+    // Converti il puntatore format dalla memoria WASM
+    const char* format = (const char*)(mem + format_ptr);
+    
+    // Esegui la printf
+    printf(format, value);
+    
+    m3ApiSuccess();
+}
+
+// Definizione della tabella delle funzioni
+M3Result linkWASMFunctions(IM3Module module) {
+    M3Result result;
+    
+    // Definisci l'ambiente
+    const char* env = "env";
+    
+    // Array delle funzioni da linkare
+    typedef struct {
+        const char* moduleName;
+        const char* functionName;
+        const char* signature;
+        M3RawFunction function;
+    } FunctionToLink;
+    
+    FunctionToLink functionsToLink[] = {
+        { env, "esp_printf", "v(ii)", (M3RawFunction)&wasm_esp_printf },
+        // Aggiungi altre funzioni qui se necessario
+        { NULL, NULL, NULL, NULL }  // Terminatore
+    };
+    
+    // Esegui il linking di tutte le funzioni
+    for (FunctionToLink* f = functionsToLink; f->moduleName != NULL; f++) {
+        result = m3_LinkRawFunction(
+            module, 
+            f->moduleName,
+            f->functionName,
+            f->signature,
+            f->function
+        );
+        
+        if (result) {
+            ESP_LOGE(TAG, "Failed to link %s.%s: %s", 
+                f->moduleName, f->functionName, result);
+            return result;
+        }
+    }
+    
+    return m3Err_none;
+}
+
+////////////////////////////////////////////////////////////////
+
 #define FATAL(msg, ...) { ESP_LOGI(TAG, "ERROR: Fatal: " msg "\n", ##__VA_ARGS__); return; }
 
 bool prepare_wasm_execution(const uint8_t* wasm_data, size_t size) {
@@ -98,26 +169,25 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
 
     result = m3_LoadModule (runtime, module);
     if (result) FATAL("m3_LoadModule: %s", result);
-
-    ESP_LOGI(TAG, "run_wasm: m3_LinkEspWASI");
-    result = m3_LinkEspWASI (runtime->modules);
-    if (result) FATAL("m3_LinkEspWASI: %s", result);
+    
+    if(false){ // WASI linking
+        ESP_LOGI(TAG, "run_wasm: m3_LinkEspWASI"); 
+        result = m3_LinkEspWASI (module); // runtime->modules
+        if (result) FATAL("m3_LinkEspWASI: %s", result);
+    }
 
     // Linking native functions
     // Link delle funzioni native
-    /*result = m3_LinkRawFunction(module, "*", "print", "v(i)", &native_print);
+    result = linkWASMFunctions(module);
+
+    /*result = m3_LinkRawFunction(module, "env", "esp_printf", "v(ii)", &wasm_esp_printf);
     if (result) {
         ESP_LOGE(TAG, "Failed to link native function: %s", result);
     }*/
 
-    result = m3_LinkRawFunction(module, "env", "esp_printf", "v(ii)", &wasm_esp_printf);
-    if (result) {
-        ESP_LOGE(TAG, "Failed to link native function: %s", result);
-    }
-
     // Execution
     IM3Function f;
-    result = m3_FindFunction(&f, runtime, "__original_main");
+    result = m3_FindFunction(&f, runtime, "_main");
     if (result) FATAL("m3_FindFunction: %s", result);
 
     printf("Running WASM...\n");

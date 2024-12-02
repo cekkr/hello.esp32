@@ -5,6 +5,7 @@
 #include "driver/spi_common.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "esp_heap_trace.h"
 
 // Watchdog
 #include "esp_task_wdt.h"
@@ -175,8 +176,8 @@ void app_main(void) {
     heap_caps_malloc_extmem_enable(20);
 
     if(false){
-        ESP_ERROR_CHECK(heap_trace_init_standalone(heap_trace_records, HEAP_TRACE_MAX));
-        ESP_ERROR_CHECK(heap_trace_start(HEAP_TRACE_LEAKS));
+        //ESP_ERROR_CHECK(heap_trace_init_standalone(heap_trace_records, HEAP_TRACE_ALL));
+        //ESP_ERROR_CHECK(heap_trace_start(HEAP_TRACE_LEAKS));
     }
 
     // Inizializzazione della seriale
