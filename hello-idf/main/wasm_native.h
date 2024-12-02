@@ -275,9 +275,10 @@ static const uint8_t import_wasm[] = {
     0x00                        // Type index
 };
 
-M3Result linkWASMFunctions(IM3Environment env, IM3Runtime runtime) {
+M3Result linkWASMFunctions(IM3Environment env, IM3Runtime runtime, IM3Module module) {
     M3Result result;
     
+    /*
     if(HELLO_DEBUG_WASM_NATIVE) ESP_LOGI(TAG, "linkWASMFunctions: m3_ParseModule");
     // Parsa il modulo di import
     IM3Module module;
@@ -286,6 +287,7 @@ M3Result linkWASMFunctions(IM3Environment env, IM3Runtime runtime) {
         ESP_LOGE(TAG, "Failed to parse import module: %s", result);
         return result;
     }
+    */
     
     if(HELLO_DEBUG_WASM_NATIVE) ESP_LOGI(TAG, "linkWASMFunctions: m3_LoadModule");
     // Carica il modulo nel runtime
@@ -318,7 +320,7 @@ M3Result linkWASMFunctions(IM3Environment env, IM3Runtime runtime) {
 ////
 
 // Esempio di utilizzo
-void init_example_linkWASMFunctions() {
+/*void init_example_linkWASMFunctions() {
     IM3Environment env = m3_NewEnvironment();
     IM3Runtime runtime = m3_NewRuntime(env, 8192, NULL);
     
@@ -326,6 +328,6 @@ void init_example_linkWASMFunctions() {
     if (result) {
         ESP_LOGE(TAG, "WASM linking failed: %s", result);
     }
-}
+}*/
 
 #endif // ESP_WASM_BINDINGS_IMPL_H

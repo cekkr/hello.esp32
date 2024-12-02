@@ -100,7 +100,7 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
 
     // Linking native functions
     // Link delle funzioni native
-    result = linkWASMFunctions(env, runtime);
+    result = linkWASMFunctions(env, runtime, module);
 
     /*result = m3_LinkRawFunction(module, "env", "esp_printf", "v(ii)", &wasm_esp_printf);
     if (result) {
