@@ -87,7 +87,9 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
 
     IM3Module module;
     result = m3_ParseModule (env, &module, wasm, fsize);
-    if (result) FATAL(env, "m3_ParseModule: %s", result);    
+    if (result) FATAL(env, "m3_ParseModule: %s", result);  
+
+    module->name = "env";  
     
     if(false){ // WASI linking (old school version)
         ESP_LOGI(TAG, "run_wasm: m3_LinkEspWASI"); 

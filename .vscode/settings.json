@@ -10,6 +10,15 @@
         "cmd.h": "c",
         "m3_compile.h": "c",
         "string": "cpp",
-        "string_view": "cpp"
+        "string_view": "cpp",
+        "__hash_table": "c",
+        "__split_buffer": "c",
+        "array": "c",
+        "bitset": "c",
+        "deque": "c",
+        "initializer_list": "c",
+        "queue": "c",
+        "stack": "c",
+        "unordered_map": "c"
     }
 }
