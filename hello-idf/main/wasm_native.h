@@ -6,6 +6,8 @@
 #include <stdarg.h>
 #include "esp_log.h"
 
+static const bool HELLO_DEBUG_WASM_NATIVE = true;
+
 // Implementazione della funzione printf per WASM
 void wasm_esp_printf__(uint8_t* format, int32_t* args, int32_t arg_count) { // currently not used
     char message[256];
@@ -276,6 +278,7 @@ static const uint8_t import_wasm[] = {
 M3Result linkWASMFunctions(IM3Environment env, IM3Runtime runtime) {
     M3Result result;
     
+    if(HELLO_DEBUG_WASM_NATIVE) ESP_LOGI(TAG, "linkWASMFunctions: m3_ParseModule");
     // Parsa il modulo di import
     IM3Module module;
     result = m3_ParseModule(env, &module, import_wasm, sizeof(import_wasm));
@@ -284,6 +287,7 @@ M3Result linkWASMFunctions(IM3Environment env, IM3Runtime runtime) {
         return result;
     }
     
+    if(HELLO_DEBUG_WASM_NATIVE) ESP_LOGI(TAG, "linkWASMFunctions: m3_LoadModule");
     // Carica il modulo nel runtime
     result = m3_LoadModule(runtime, module);
     if (result) {
@@ -291,6 +295,7 @@ M3Result linkWASMFunctions(IM3Environment env, IM3Runtime runtime) {
         return result;
     }
     
+    if(HELLO_DEBUG_WASM_NATIVE) ESP_LOGI(TAG, "linkWASMFunctions: m3_LinkRawFunction");
     // Link la funzione
     result = m3_LinkRawFunction(
         module,
