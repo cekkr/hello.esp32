@@ -342,27 +342,27 @@ static M3Result justLinkWASMFunctions(IM3Module module) {
 ///
 
 M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext _ctx, uint64_t* _sp, void* _mem) {
-    // Ottieni i puntatori allo stack per gli argomenti
-    const char* format = m3ApiOffsetToPtr(m3ApiReadMem32(_sp));
-    int32_t value = m3ApiReadMem32(_sp + 1);
+    // Leggi i due argomenti i32 dallo stack
+    int32_t arg1 = m3ApiReadMem32(_sp);
+    int32_t arg2 = m3ApiReadMem32(_sp + 1);
     
-    // Verifica la validità del puntatore format
+    // Il primo argomento è un offset nella memoria lineare
+    const char* format = m3ApiOffsetToPtr(arg1);
+    
     if (!format) {
         return "null format string pointer";
     }
     
-    // Esegui la printf
-    printf(format, value);
-    
+    printf(format, arg2);
     return m3Err_none;
 }
 
 // Definizione della lookup table entry
 const WasmFunctionEntry functionTable[] = {
     { 
-        .name = "printf",           // Nome della funzione in WASM
+        .name = "esp_printf",           // Nome della funzione in WASM
         .func = wasm_esp_printf,    // Puntatore alla funzione
-        .signature = "v(ri)"        // Signature: void (raw_ptr, int32)
+        .signature = "v(ii)"        // Signature: void (raw_ptr, int32)
     },
     // Altre funzioni possono essere aggiunte qui
 };
