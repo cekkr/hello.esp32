@@ -1,3 +1,6 @@
+#ifndef HELLOESP_SERIAL_H
+#define HELLOESP_SERIAL_H
+
 #include <stdio.h>
 #include <string.h>
 #include "freertos/FreeRTOS.h"
@@ -792,3 +795,5 @@ esp_err_t start_serial_handler(void) {
     
     return ESP_OK;
 }
+
+#endif

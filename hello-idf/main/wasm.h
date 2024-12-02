@@ -1,5 +1,5 @@
-#ifndef HELLOESP_WASM
-#define HELLOESP_WASM
+#ifndef HELLOESP_WASM_H
+#define HELLOESP_WASM_H
 
 #include <stdio.h>
 #include <time.h>

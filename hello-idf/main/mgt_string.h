@@ -1,3 +1,6 @@
+#ifndef HELLOESP_MGT_STRING_H
+#define HELLOESP_MGT_STRING_H
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -156,3 +159,5 @@ void example_usage_string_printf(void) {
     // Clear buffer if needed
     string_buffer_clear(&str_buf);
 }
+
+#endif  // HELLOESP_MGT_STRING_H

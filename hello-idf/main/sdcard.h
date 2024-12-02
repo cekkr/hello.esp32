@@ -1,3 +1,6 @@
+#ifndef HELLOESP_SDCARD_H
+#define HELLOESP_SDCARD_H
+
 #include <stdio.h>
 #include <string.h>
 #include <sys/unistd.h>
@@ -206,3 +209,5 @@ void mostra_info_sd(const char* mount_point) {
     ESP_LOGI(TAG, "Output string_printf: %s\n", text);
     LCD_ShowString(10,40,WHITE,BLACK,12,"test output",0);
 }
+
+#endif

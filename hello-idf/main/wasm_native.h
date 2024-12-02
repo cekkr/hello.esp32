@@ -1,6 +1,5 @@
-// esp_wasm_bindings_impl.h
-#ifndef ESP_WASM_BINDINGS_IMPL_H
-#define ESP_WASM_BINDINGS_IMPL_H
+#ifndef HELLOESP_NATIVE_H
+#define HELLOESP_NATIVE_H
 
 #include <stdint.h>
 #include <stdarg.h>
@@ -376,4 +375,4 @@ M3Result registerNativeWASMFunctions(IM3Module module){
     return result;
 }
 
-#endif // ESP_WASM_BINDINGS_IMPL_H
+#endif 
