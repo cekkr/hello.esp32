@@ -201,7 +201,7 @@ M3Result generateAndParseImports(IM3Environment env, IM3Module* out_module, cons
 }
 
 // Funzione principale di linking che usa la generazione automatica
-M3Result linkWASMFunctions(IM3Environment env, IM3Runtime runtime) {
+M3Result linkWASMFunctions_gen(IM3Environment env, IM3Runtime runtime) {
     M3Result result;
     
     // Definisci le funzioni da linkare
@@ -239,6 +239,78 @@ M3Result linkWASMFunctions(IM3Environment env, IM3Runtime runtime) {
     
     return m3Err_none;
 }
+
+////
+////
+////
+
+static const uint8_t import_wasm[] = {
+    // Header
+    0x00, 0x61, 0x73, 0x6d,    // Magic number (\0asm)
+    0x01, 0x00, 0x00, 0x00,    // Version 1 (as little-endian)
+    
+    // Type section (1)
+    0x01,                       // Section code
+    0x07,                       // Section size
+    0x01,                       // Number of types
+    0x60,                       // Function type
+    0x02,                       // Number of parameters
+    0x7f,                       // i32
+    0x7f,                       // i32
+    0x00,                       // Number of results (0)
+    
+    // Import section (2)
+    0x02,                       // Section code
+    0x0d,                       // Section size
+    0x01,                       // Number of imports
+    0x03,                       // Length of module name
+    'e', 'n', 'v',             // Module name "env"
+    0x09,                       // Length of function name
+    'e', 's', 'p', '_',        // Function name "esp_printf"
+    'p', 'r', 'i', 'n',
+    't', 'f',
+    0x00,                       // Import kind (function)
+    0x00                        // Type index
+};
+
+M3Result linkWASMFunctions(IM3Environment env, IM3Runtime runtime) {
+    M3Result result;
+    
+    // Parsa il modulo di import
+    IM3Module module;
+    result = m3_ParseModule(env, &module, import_wasm, sizeof(import_wasm));
+    if (result) {
+        ESP_LOGE(TAG, "Failed to parse import module: %s", result);
+        return result;
+    }
+    
+    // Carica il modulo nel runtime
+    result = m3_LoadModule(runtime, module);
+    if (result) {
+        ESP_LOGE(TAG, "Failed to load module: %s", result);
+        return result;
+    }
+    
+    // Link la funzione
+    result = m3_LinkRawFunction(
+        module,
+        "env",
+        "esp_printf",
+        "v(ii)",
+        &wasm_esp_printf
+    );
+    
+    if (result) {
+        ESP_LOGE(TAG, "Failed to link function: %s", result);
+        return result;
+    }
+    
+    return m3Err_none;
+}
+
+////
+////
+////
 
 // Esempio di utilizzo
 void init_example_linkWASMFunctions() {
