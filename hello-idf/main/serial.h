@@ -12,6 +12,8 @@
 #include <dirent.h>
 #include "mbedtls/md5.h"
 
+#include "device.h"
+
 // Definizioni
 #define BUF_SIZE 1024
 #define STACK_SIZE (32768)
@@ -26,6 +28,7 @@
 #define CMD_CHECK_FILE "$$$CHECK_FILE$$$"
 #define CMD_CHUNK "$$$CHUNK$$$"
 #define CMD_CMD "$$$CMD$$$"
+#define CMD_RESET "$$$RESET$$$"
 
 // Codici di risposta
 typedef enum {
@@ -299,6 +302,9 @@ static command_status_t parse_command(const char* command, char* cmd_type, comma
         }
 
         params->cmdline = cmd;
+    } 
+    else if(strncmp(command, CMD_RESET, strlen(CMD_RESET)) == 0) {
+        strcpy(cmd_type, CMD_RESET);
     }
 
     // ... altri comandi ...
@@ -759,6 +765,9 @@ void serial_handler_task(void *pvParameters) {
         }
         else if(strcmp(cmd_type, CMD_CHUNK) == 0){
             send_response(STATUS_ERROR, "Chunk out of context");
+        }
+        else if(strcmp(cmd_type, CMD_RESET) == 0){
+            restart_device();
         }
         else {
             sprintf(text, "Unknown command: %s", cmd_type);                
