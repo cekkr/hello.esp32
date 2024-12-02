@@ -57,21 +57,8 @@ typedef struct {
 
 // Prima definiamo la funzione che vogliamo esporre al WASM
 m3ApiRawFunction(wasm_esp_printf) {
-    m3ApiGetArg(int32_t, format_ptr);
+    m3ApiGetArgMem(const char*, format);    // Questo gestisce automaticamente la conversione della memoria
     m3ApiGetArg(int32_t, value);
-    
-    // Ottieni il runtime e il modulo corrente
-    IM3Runtime runtime = runtime;
-    IM3Module module = runtime->module;
-    
-    // Ottieni il puntatore alla memoria lineare
-    uint8_t* mem = m3_GetMemory(runtime, 0, 0);
-    if (!mem) {
-        return m3Err_trapOutOfBoundsMemoryAccess;
-    }
-    
-    // Converti il puntatore format dalla memoria WASM
-    const char* format = (const char*)(mem + format_ptr);
     
     // Esegui la printf
     printf(format, value);
@@ -91,11 +78,11 @@ M3Result linkWASMFunctions(IM3Module module) {
         const char* moduleName;
         const char* functionName;
         const char* signature;
-        M3RawFunction function;
+        void* function;
     } FunctionToLink;
     
     FunctionToLink functionsToLink[] = {
-        { env, "esp_printf", "v(ii)", (M3RawFunction)&wasm_esp_printf },
+        { env, "esp_printf", "v(ii)", &wasm_esp_printf },
         // Aggiungi altre funzioni qui se necessario
         { NULL, NULL, NULL, NULL }  // Terminatore
     };
