@@ -44,7 +44,7 @@ typedef struct {
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 
-#define FATAL(msg, ...) { ESP_LOGI(TAG, "ERROR: Fatal: " msg "\n", ##__VA_ARGS__); return; }
+#define FATAL(env, msg, ...) { ESP_LOGI(TAG, "ERROR: Fatal: " msg "\n", ##__VA_ARGS__); if(env != NULL) m3_FreeEnvironment(env); return; }
 
 bool prepare_wasm_execution(const uint8_t* wasm_data, size_t size) {
     // Stima della memoria necessaria (questo valore andrà calibrato)
@@ -71,34 +71,35 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
 
     // Prima verifica la disponibilità di memoria
     if (!prepare_wasm_execution(wasm, fsize)) {
-        FATAL("failed to prepare memory for WASM execution");
+        FATAL(NULL, "failed to prepare memory for WASM execution");
         return;
     }
 
     printf("Loading WebAssembly...\n");
     IM3Environment env = m3_NewEnvironment ();
-    if (!env) FATAL("m3_NewEnvironment failed");
+    if (!env) FATAL(env, "m3_NewEnvironment failed");
 
     IM3Runtime runtime = m3_NewRuntime (env, 16*1024, NULL); //todo: WASM_RUNTIME_MEMORY instead of x*1024
-    if (!runtime) FATAL("m3_NewRuntime failed");
+    if (!runtime) FATAL(env, "m3_NewRuntime failed");
 
     runtime->memory.maxPages = 1;  // Limita a una pagina
     runtime->memory.numPages = 1;
 
     IM3Module module;
     result = m3_ParseModule (env, &module, wasm, fsize);
-    if (result) FATAL("m3_ParseModule: %s", result);    
+    if (result) FATAL(env, "m3_ParseModule: %s", result);    
     
     if(false){ // WASI linking (old school version)
         ESP_LOGI(TAG, "run_wasm: m3_LinkEspWASI"); 
         result = m3_LinkEspWASI (module); // runtime->modules
-        if (result) FATAL("m3_LinkEspWASI: %s", result);
+        if (result) FATAL(env, "m3_LinkEspWASI: %s", result);
     }
 
     // Linking native functions
     // Link delle funzioni native
     //result = linkWASMFunctions(env, runtime, module);
-    result = justLinkWASMFunctions(module);
+    //result = justLinkWASMFunctions(module);
+    result = registerNativeWASMFunctions(module);
 
     /*result = m3_LinkRawFunction(module, "env", "esp_printf", "v(ii)", &wasm_esp_printf);
     if (result) {
@@ -107,12 +108,12 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
 
     // Finally, load the module
     result = m3_LoadModule (runtime, module);
-    if (result) FATAL("m3_LoadModule: %s", result);
+    if (result) FATAL(env, "m3_LoadModule: %s", result);
 
     // Execution
     IM3Function f;
     result = m3_FindFunction(&f, runtime, "_main");
-    if (result) FATAL("m3_FindFunction: %s", result);
+    if (result) FATAL(env, "m3_FindFunction: %s", result);
 
     printf("Running WASM...\n");
 
@@ -124,7 +125,7 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
 
     result = m3_CallV(f);
 
-    if (result) FATAL("m3_Call: %s", result);
+    if (result) FATAL(env, "m3_Call: %s", result);    
 }
 
 void app_main_wasm3(void) // just for example

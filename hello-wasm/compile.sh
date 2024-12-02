@@ -1,3 +1,5 @@
+#/bin/bash
+
 # npm install -g assemblyscript # install assemblyscript
 
 asc samples/fibonacci.ts -o output/fibonacci.wasm --optimize
@@ -12,11 +14,10 @@ emcc samples/fibonacciPrint.c -o output/fibonacciPrint.wasm \
     -s INITIAL_MEMORY=65536 \
     -s STACK_SIZE=1024 \
     -s ALLOW_MEMORY_GROWTH=0 \
-    --no-entry \
-    -s EXPORTED_FUNCTIONS=['_main','_print_fibonacci'] \
+    -s EXPORTED_FUNCTIONS='["_start","_print_fibonacci"]' \
+    --no-entry 
     
     #todo: study ALLOW_MEMORY_GROWTH
-
     #-s STANDALONE_WASM=1 \
     #-s EXPORTED_FUNCTIONS='["_main", "_print_fibonacci"]' \
     #-s ERROR_ON_UNDEFINED_SYMBOLS=1 \

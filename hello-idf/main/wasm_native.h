@@ -6,6 +6,8 @@
 #include <stdarg.h>
 #include "esp_log.h"
 
+#include "m3_env.h"
+
 static const bool HELLO_DEBUG_WASM_NATIVE = true;
 
 // Implementazione della funzione printf per WASM
@@ -97,7 +99,7 @@ void wasm_esp_printf__(uint8_t* format, int32_t* args, int32_t arg_count) { // c
 /// Natives
 ///
 
-m3ApiRawFunction(wasm_esp_printf) {
+m3ApiRawFunction(wasm_esp_printf__2) {
     m3ApiGetArgMem(const char*, format);    // Questo gestisce automaticamente la conversione della memoria
     m3ApiGetArg(int32_t, value);
     
@@ -208,7 +210,7 @@ M3Result linkWASMFunctions_gen(IM3Environment env, IM3Runtime runtime) {
     
     // Definisci le funzioni da linkare
     FunctionToLink functions[] = {
-        { "env", "esp_printf", "v(ii)", &wasm_esp_printf },
+        { "env", "esp_printf", "v(ii)", &wasm_esp_printf__2 },
         // Aggiungi altre funzioni qui
         { NULL, NULL, NULL, NULL }  // Terminatore
     };
@@ -304,7 +306,7 @@ M3Result linkWASMFunctions(IM3Environment env, IM3Runtime runtime, IM3Module mod
         "env",
         "esp_printf",
         "v(ii)",
-        &wasm_esp_printf
+        &wasm_esp_printf__2
     );
     
     if (result) {
@@ -317,7 +319,7 @@ M3Result linkWASMFunctions(IM3Environment env, IM3Runtime runtime, IM3Module mod
 
 static M3Result justLinkWASMFunctions(IM3Module module) {
     ESP_LOGI(TAG, "linkWASMFunctions: m3_LinkRawFunction");
-    return m3_LinkRawFunction(module, "env", "esp_printf", "v(ii)", (M3RawFunction)&wasm_esp_printf);
+    return m3_LinkRawFunction(module, "env", "esp_printf", "v(ii)", &wasm_esp_printf__2);
 }
 
 ////
@@ -334,5 +336,44 @@ static M3Result justLinkWASMFunctions(IM3Module module) {
         ESP_LOGE(TAG, "WASM linking failed: %s", result);
     }
 }*/
+
+///
+///
+///
+
+M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext _ctx, uint64_t* _sp, void* _mem) {
+    // Ottieni i puntatori allo stack per gli argomenti
+    const char* format = m3ApiOffsetToPtr(m3ApiReadMem32(_sp));
+    int32_t value = m3ApiReadMem32(_sp + 1);
+    
+    // Verifica la validità del puntatore format
+    if (!format) {
+        return "null format string pointer";
+    }
+    
+    // Esegui la printf
+    printf(format, value);
+    
+    return m3Err_none;
+}
+
+// Definizione della lookup table entry
+const WasmFunctionEntry functionTable[] = {
+    { 
+        .name = "printf",           // Nome della funzione in WASM
+        .func = wasm_esp_printf,    // Puntatore alla funzione
+        .signature = "v(ri)"        // Signature: void (raw_ptr, int32)
+    },
+    // Altre funzioni possono essere aggiunte qui
+};
+
+M3Result registerNativeWASMFunctions(IM3Module module){
+    M3Result result = RegisterWasmFunctions(module, functionTable, sizeof(functionTable)/sizeof(functionTable[0]));
+    if (result) {
+        ESP_LOGE(TAG, "Failed to register functions: %s", result);
+    }
+
+    return result;
+}
 
 #endif // ESP_WASM_BINDINGS_IMPL_H

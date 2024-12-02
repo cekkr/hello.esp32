@@ -2,8 +2,7 @@
 #include <stdint.h>
 #include <emscripten.h>
 
-// Dichiarazione della funzione esterna
-void esp_printf(const char* format, ...) __attribute__((import_module("env"), import_name("esp_printf")));
+#include "../bindings/bindings.c"
 
 // Funzione che calcola l'n-esimo numero di Fibonacci
 uint32_t fib(uint32_t n) {
@@ -32,7 +31,7 @@ void print_fibonacci(uint32_t n) {
 
 // Punto di ingresso
 EMSCRIPTEN_KEEPALIVE
-int main() {
+void start() {
     print_fibonacci(10);
-    return 0;
+    //return 0;
 }
