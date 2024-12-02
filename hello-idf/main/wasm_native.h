@@ -315,6 +315,11 @@ M3Result linkWASMFunctions(IM3Environment env, IM3Runtime runtime, IM3Module mod
     return m3Err_none;
 }
 
+static M3Result justLinkWASMFunctions(IM3Module module) {
+    ESP_LOGI(TAG, "linkWASMFunctions: m3_LinkRawFunction");
+    return m3_LinkRawFunction(module, "env", "esp_printf", "v(ii)", (M3RawFunction)&wasm_esp_printf);
+}
+
 ////
 ////
 ////
