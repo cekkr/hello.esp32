@@ -101,6 +101,9 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
     result = m3_LoadModule (runtime, module);
     if (result) FATAL(env, "m3_LoadModule: %s", result);
 
+    result = m3_LinkEspWASI (runtime->modules);
+    if (result) FATAL(env, "m3_LinkEspWASI: %s", result);
+
     // Linking native functions
     // Link delle funzioni native
     //result = linkWASMFunctions(env, runtime, module);
@@ -114,7 +117,7 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
 
     // Execution
     IM3Function f;
-    result = m3_FindFunction(&f, runtime, "_main");
+    result = m3_FindFunction(&f, runtime, "start");
     if (result) FATAL(env, "m3_FindFunction: %s", result);
 
     printf("Running WASM...\n");
