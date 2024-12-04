@@ -7,6 +7,8 @@
 #include "freertos/task.h"
 #include "esp_heap_trace.h"
 
+#include "esp_exception.h"
+
 // Watchdog
 #include "esp_task_wdt.h"
 #include "rtc_wdt.h"
@@ -173,7 +175,9 @@ void init_uart() {
 
 void app_main(void) {
     disable_watchdog();
-    heap_caps_malloc_extmem_enable(20);
+
+    init_exception_handler();
+    //heap_caps_malloc_extmem_enable(20); // no PSRAM available, ergo useless
 
     if(false){
         //ESP_ERROR_CHECK(heap_trace_init_standalone(heap_trace_records, HEAP_TRACE_ALL));
