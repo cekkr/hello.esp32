@@ -66,6 +66,7 @@ bool prepare_wasm_execution(const uint8_t* wasm_data, size_t size) {
     return true;
 }
 
+static const bool HELLOESP_DEBUG_run_wasm = true;
 static void run_wasm(uint8_t* wasm, uint32_t fsize)
 {
     M3Result result = m3Err_none;
@@ -76,32 +77,38 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
         return;
     }
 
-    printf("Loading WebAssembly...\n");
+    if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "Loading WebAssembly...\n");
+
+    if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "run_wasm: m3_NewEnvironment\n");
     IM3Environment env = m3_NewEnvironment ();
     if (!env) FATAL(env, "m3_NewEnvironment failed");
 
+    if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "run_wasm: m3_NewRuntime\n");
     IM3Runtime runtime = m3_NewRuntime (env, 16*1024, NULL); //todo: WASM_RUNTIME_MEMORY instead of x*1024
     if (!runtime) FATAL(env, "m3_NewRuntime failed");
 
     runtime->memory.maxPages = 1;  // Limita a una pagina
     runtime->memory.numPages = 1;
 
+    if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "run_wasm: m3_ParseModule\n");
     IM3Module module;
     result = m3_ParseModule (env, &module, wasm, fsize);
     if (result) FATAL(env, "m3_ParseModule: %s", result);  
 
     module->name = "env";  
     
-    if(false){ // WASI linking (old school version)
+    /*if(false){ // WASI linking (old school version)
         ESP_LOGI(TAG, "run_wasm: m3_LinkEspWASI"); 
         result = m3_LinkEspWASI (module); // runtime->modules
         if (result) FATAL(env, "m3_LinkEspWASI: %s", result);
-    }
+    }*/
 
     // Finally, load the module
+    if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "run_wasm: m3_LoadModule\n");
     result = m3_LoadModule (runtime, module);
     if (result) FATAL(env, "m3_LoadModule: %s", result);
 
+    if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "run_wasm: m3_LinkEspWASI_Hello\n");
     result = m3_LinkEspWASI_Hello (runtime->modules);
     if (result) FATAL(env, "m3_LinkEspWASI: %s", result);
 
@@ -109,6 +116,8 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
     // Link delle funzioni native
     //result = linkWASMFunctions(env, runtime, module);
     //result = justLinkWASMFunctions(module);
+
+    if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "run_wasm: registerNativeWASMFunctions\n");
     result = registerNativeWASMFunctions(module);
     if (result) FATAL(env, "registerNativeWASMFunctions: %s", result);
 
@@ -118,18 +127,21 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
     }*/
 
     // Execution
+    if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "run_wasm: m3_FindFunction\n");
     IM3Function f;
     result = m3_FindFunction(&f, runtime, "start");
     if (result) FATAL(env, "m3_FindFunction: %s", result);
 
-    printf("Running WASM...\n");
+    ESP_LOGI(TAG, "run_wasm: Starting call\n");
 
     const char* i_argv[] = {"main.wasm", NULL}; //todo: set right wasm name(?)
 
+    if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "run_wasm: m3_GetWasiContext\n");
     m3_wasi_context_t* wasi_ctx = m3_GetWasiContext();
     wasi_ctx->argc = 1;
     wasi_ctx->argv = i_argv;
 
+    if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "run_wasm: m3_CallV\n");
     result = m3_CallV(f);
 
     if (result) FATAL(env, "m3_Call: %s", result);    
