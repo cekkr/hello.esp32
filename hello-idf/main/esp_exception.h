@@ -52,30 +52,31 @@ static void custom_panic_handler(void) {
 
 // Inizializzazione del sistema di gestione errori
 esp_err_t init_error_handling(void) {
-    // Crea il loop di eventi di default se non esiste
+    // Prima creiamo e verifichiamo l'event loop
     esp_err_t ret = esp_event_loop_create_default();
     if (ret != ESP_OK && ret != ESP_ERR_INVALID_STATE) {
+        ESP_LOGE(TAG, "Failed to create event loop: %d", ret);
         return ret;
     }
-    
-    // Registra l'handler per gli eventi di errore
-    ret = esp_event_handler_register_with(
-        ESP_EVENT_ANY_BASE,    // Gestisce eventi da qualsiasi base
-        ESP_EVENT_ANY_ID,      // Gestisce qualsiasi ID evento
-        error_event_handler,    // La funzione handler
-        NULL,                  // Argomenti extra (non necessari)
-        NULL                   // Handle dell'evento (non necessario)
+
+    // Attendiamo un po' per assicurarci che l'event loop sia pronto
+    vTaskDelay(pdMS_TO_TICKS(100));
+
+    // Ora registriamo l'handler
+    ret = esp_event_handler_instance_register(
+        ERROR_EVENTS,          // Event base
+        ESP_EVENT_ANY_ID,      // Event ID
+        error_event_handler,   // Event handler
+        NULL,                  // Handler argument
+        NULL                   // Handler instance (optional)
     );
-    
+
     if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Errore nella registrazione dell'handler: %d", ret);
+        ESP_LOGE(TAG, "Failed to register event handler: %d", ret);
         return ret;
     }
-    
-    // Imposta il panic handler personalizzato
-    esp_register_shutdown_handler(custom_panic_handler);
-    
-    ESP_LOGI(TAG, "Sistema di gestione errori inizializzato");
+
+    ESP_LOGI(TAG, "Error handling system initialized");
     return ESP_OK;
 }
 
