@@ -14,9 +14,9 @@
 
 
 ////////////////////////////////////////////////////////////////////////
-
 #include "m3_core.h"
 
+/*
 d_m3BeginExternC
 
 typedef struct m3_wasi_context_t
@@ -31,6 +31,7 @@ M3Result    m3_LinkEspWASI     (IM3Module io_module);
 m3_wasi_context_t* m3_GetWasiContext();
 
 ////////////////////////////////////////////////////////////////
+*/
 
 // Definizione della task e configurazione
 #define WASM_STACK_SIZE (64*1024)  // Esempio di dimensione stack

@@ -6,6 +6,7 @@ idf_component_register(
     REQUIRES 
         esp_timer 
         esp_system 
+        esp_event
         wasm3-helloesp
         esp_hw_support    # supporto hardware
         vfs               # per il filesystem virtuale

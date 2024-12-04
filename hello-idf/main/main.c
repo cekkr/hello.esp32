@@ -7,8 +7,6 @@
 #include "freertos/task.h"
 #include "esp_heap_trace.h"
 
-#include "esp_exception.h"
-
 // Watchdog
 #include "esp_task_wdt.h"
 #include "rtc_wdt.h"
@@ -26,6 +24,7 @@ static const char *TAG = "HELLOESP";
 
 // General functions
 #include "io.h"
+#include "esp_exception.h"
 
 // CMDs
 #include "cmd.h"
@@ -176,7 +175,7 @@ void init_uart() {
 void app_main(void) {
     disable_watchdog();
 
-    init_exception_handler();
+    init_error_handling();
     //heap_caps_malloc_extmem_enable(20); // no PSRAM available, ergo useless
 
     if(false){
