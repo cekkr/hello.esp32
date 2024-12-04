@@ -101,7 +101,7 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
     result = m3_LoadModule (runtime, module);
     if (result) FATAL(env, "m3_LoadModule: %s", result);
 
-    result = m3_LinkEspWASI (runtime->modules);
+    result = m3_LinkEspWASI_Hello (runtime->modules);
     if (result) FATAL(env, "m3_LinkEspWASI: %s", result);
 
     // Linking native functions
@@ -109,6 +109,7 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
     //result = linkWASMFunctions(env, runtime, module);
     //result = justLinkWASMFunctions(module);
     result = registerNativeWASMFunctions(module);
+    if (result) FATAL(env, "registerNativeWASMFunctions: %s", result);
 
     /*result = m3_LinkRawFunction(module, "env", "esp_printf", "v(ii)", &wasm_esp_printf);
     if (result) {
