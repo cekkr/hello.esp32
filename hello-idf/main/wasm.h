@@ -14,7 +14,7 @@
 
 
 ////////////////////////////////////////////////////////////////////////
-#include "m3_core.h"
+//#include "m3_core.h"
 
 /*
 d_m3BeginExternC
@@ -88,8 +88,8 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
     IM3Runtime runtime = m3_NewRuntime (env, 16*1024, NULL); //todo: WASM_RUNTIME_MEMORY instead of x*1024
     if (!runtime) FATAL(env, "m3_NewRuntime failed");
 
-    runtime->memory.maxPages = 1;  // Limita a una pagina
-    runtime->memory.numPages = 1;
+    //runtime->memory.maxPages = 1;  // Limita a una pagina
+    //runtime->memory.numPages = 1;
 
     if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "run_wasm: m3_ParseModule\n");
     IM3Module module;

@@ -19,6 +19,7 @@
         "initializer_list": "c",
         "queue": "c",
         "stack": "c",
-        "unordered_map": "c"
+        "unordered_map": "c",
+        "m3_exec_defs.h": "c"
     }
 }

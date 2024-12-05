@@ -15,6 +15,13 @@ IDF_PWD=$(pwd)
 cd "$IDF_PWD" 
 cd "$CUR_DIR"
 
+# Reset CMAke clean
+if [ 0 ]; then
+    find . -name CMakeCache.txt -delete
+    find . -name CMakeFiles -type d -exec rm -rf {} +
+    rm -rf build/
+fi
+
 #mkdir -p build
 #cd build
 #cmake ..
@@ -32,6 +39,6 @@ idf.py build
 
 #idf.py -p COM3 flash    # Windows
 #idf.py -p /dev/ttyUSB0 flash    # Linux
-idf.py -p /dev/tty.usbserial-1120 flash -b 115200    # MacOS
+#idf.py -p /dev/tty.usbserial-1120 flash -b 115200    # MacOS
 
 #idf.py monitor
