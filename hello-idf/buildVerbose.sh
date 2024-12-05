@@ -17,6 +17,6 @@ cd "$IDF_PWD"
 cd "$CUR_DIR"
 
 
-idf.py --build-dir build build --no-ccache
-cd build
-make VERBOSE=1
+idf.py --verbose build
+#cd build
+#make VERBOSE=1
