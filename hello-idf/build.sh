@@ -35,7 +35,7 @@ fi
 
 #idf.py set-target esp32
 #idf.py menuconfig
-idf.py build
+idf.py build -DCMAKE_C_FLAGS="-H" > build_output.txt
 
 #idf.py -p COM3 flash    # Windows
 #idf.py -p /dev/ttyUSB0 flash    # Linux

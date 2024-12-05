@@ -1,5 +1,4 @@
 #!/bin/bash
-# Apparently not working (so the _ at the filename beginning)
 
 #export IDF_PATH="/Users/riccardo/Sources/Libs/esp-idf-v5.3.1"
 #alias python=python3
