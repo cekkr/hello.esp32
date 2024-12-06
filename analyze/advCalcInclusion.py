@@ -52,6 +52,165 @@ def sanitize_filename(name: str) -> str:
     return name
 
 class EnhancedHeaderDependencyAnalyzer(HeaderDependencyAnalyzer):
+    def update_source_files(self) -> List[str]:
+        """Aggiorna i file sorgente per utilizzare i nuovi header."""
+        modified_files = []
+        
+        # Crea una directory di backup
+        backup_dir = self.project_path / 'source_backups'
+        backup_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Per ogni file generato, trova le dichiarazioni da rimuovere
+        for header_path in self.generated_headers:
+            header_content = self._load_header_content(header_path)
+            if not header_content:
+                continue
+                
+            # Trova i tipi definiti in questo header
+            types_in_header = set()
+            for type_name, type_info in self.type_declarations.items():
+                if any(self._is_type_in_content(type_name, header_content)):
+                    types_in_header.add(type_name)
+            
+            # Aggiorna i file originali
+            for type_name in types_in_header:
+                type_info = self.type_declarations[type_name]
+                source_file = type_info.file_path
+                
+                if self._update_source_file(source_file, type_info, Path(header_path)):
+                    if source_file not in modified_files:
+                        modified_files.append(source_file)
+        
+        return modified_files
+
+    def _load_header_content(self, header_path: str) -> str:
+        """Carica il contenuto di un header file."""
+        try:
+            with open(header_path, 'r', encoding='utf-8') as f:
+                return f.read()
+        except Exception as e:
+            print(f"Errore nel caricamento del header {header_path}: {e}")
+            return ""
+
+    def _is_type_in_content(self, type_name: str, content: str) -> bool:
+        """Verifica se un tipo è definito nel contenuto."""
+        patterns = [
+            f"struct\\s+{type_name}\\s*{{",
+            f"class\\s+{type_name}\\s*{{",
+            f"enum\\s+{type_name}\\s*{{",
+            f"typedef\\s+.*\\s+{type_name}\\s*;"
+        ]
+        return any(re.search(pattern, content, re.MULTILINE) for pattern in patterns)
+
+    def _create_backup(self, file_path: str) -> bool:
+        """Crea un backup del file prima di modificarlo."""
+        try:
+            backup_path = self.project_path / 'source_backups' / Path(file_path).name
+            import shutil
+            shutil.copy2(file_path, backup_path)
+            return True
+        except Exception as e:
+            print(f"Errore nella creazione del backup per {file_path}: {e}")
+            return False
+
+    def _update_source_file(self, source_file: str, type_info: TypeInfo, new_header_path: Path) -> bool:
+        """Aggiorna un file sorgente sostituendo le dichiarazioni con include."""
+        try:
+            # Crea backup
+            if not self._create_backup(source_file):
+                return False
+
+            with open(source_file, 'r', encoding='utf-8') as f:
+                lines = f.readlines()
+
+            # Trova l'inizio e la fine della dichiarazione
+            start_line, end_line = self._find_declaration_bounds(lines, type_info)
+            if start_line is None or end_line is None:
+                return False
+
+            # Genera il percorso relativo per l'include
+            relative_header = self._get_relative_include_path(source_file, new_header_path)
+            
+            # Prepara le nuove linee
+            new_lines = (
+                lines[:start_line] +
+                [f'#include "{relative_header}"  // Generated header\n'] +
+                lines[end_line + 1:]
+            )
+
+            # Scrivi il file aggiornato
+            with open(source_file, 'w', encoding='utf-8') as f:
+                f.writelines(new_lines)
+
+            return True
+
+        except Exception as e:
+            print(f"Errore nell'aggiornamento del file {source_file}: {e}")
+            return False
+
+    def _find_declaration_bounds(self, lines: List[str], type_info: TypeInfo) -> Tuple[int, int]:
+        """Trova l'inizio e la fine di una dichiarazione di tipo."""
+        start_line = type_info.line_number - 1
+        
+        # Trova l'inizio effettivo della dichiarazione
+        while start_line > 0:
+            if any(keyword in lines[start_line].strip() 
+                  for keyword in ['struct', 'class', 'typedef', 'enum']):
+                break
+            start_line -= 1
+
+        # Trova la fine della dichiarazione
+        end_line = start_line
+        brace_count = 0
+        in_declaration = False
+
+        while end_line < len(lines):
+            line = lines[end_line]
+            
+            if '{' in line:
+                in_declaration = True
+                brace_count += line.count('{')
+            if '}' in line:
+                brace_count -= line.count('}')
+            
+            if in_declaration and brace_count == 0 and ';' in line:
+                break
+                
+            end_line += 1
+
+        return start_line, end_line
+
+    def _get_relative_include_path(self, source_file: str, header_file: Path) -> str:
+        """Genera un percorso relativo per l'include."""
+        source_path = Path(source_file)
+        try:
+            relative_path = os.path.relpath(header_file, source_path.parent)
+            return str(Path(relative_path)).replace('\\', '/')
+        except ValueError:
+            # Se non è possibile creare un percorso relativo, usa il percorso assoluto
+            return str(header_file).replace('\\', '/')
+
+    def run_full_update(self) -> str:
+        """Esegue l'analisi completa e aggiorna i file."""
+        report = []
+        
+        # Prima analizza il progetto
+        analysis_report = self.analyze_project()
+        report.append(analysis_report)
+        
+        # Poi aggiorna i file sorgente
+        modified_files = self.update_source_files()
+        
+        if modified_files:
+            report.append("\nFile sorgente modificati:")
+            for file in modified_files:
+                report.append(f"- {file}")
+            report.append("\nBackup dei file originali salvati in: source_backups/")
+        else:
+            report.append("\nNessun file sorgente è stato modificato.")
+            
+        return "\n".join(report)
+    
     def __init__(self, project_path: str):
         super().__init__(project_path)
         self.type_dependencies: Dict[str, Set[str]] = {}
@@ -345,7 +504,8 @@ def main():
         
     try:
         analyzer = EnhancedHeaderDependencyAnalyzer(sys.argv[1])
-        report = analyzer.analyze_project()
+        #report = analyzer.analyze_project()
+        report = analyzer.run_full_update()
         print("\nRisultati dell'analisi:")
         print(report)
     except Exception as e:
