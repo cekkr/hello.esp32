@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/analyze.py", line 154, in <module>
+    main()
+  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/analyze.py", line 147, in main
+    analyzer.print_analysis()
+    ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'CircularDependencyAnalyzer' object has no attribute 'print_analysis'
