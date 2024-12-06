@@ -1,7 +1,7 @@
 import os
 from typing import Dict, Set, List, Generator
 import clang.cindex
-from dataclasses import dataclass
+from dataclasses import dataclass, field  
 from pathlib import Path
 import networkx as nx
 import platform
@@ -13,6 +13,13 @@ class TypeInfo:
     file_path: str
     line_number: int
     used_in: str
+    dependencies: Set[str] = field(default_factory=set)  # Inizializzazione corretta
+
+    def add_dependency(self, dep: str):
+        """Aggiunge una dipendenza al tipo."""
+        if self.dependencies is None:
+            self.dependencies = set()
+        self.dependencies.add(dep)
 
 def find_libclang():
     """Trova il percorso di libclang basato sul sistema operativo."""
@@ -69,39 +76,83 @@ class HeaderDependencyAnalyzer:
 
     def analyze_file(self, file_path: Path):
         try:
+            # Aggiungi percorsi di include specifici per wasm3
+            include_paths = [
+                '-I' + str(self.project_path),
+                '-I' + str(self.project_path / 'components'),
+                '-I/Users/$USER/esp/esp-idf/components',
+                '-I' + str(Path.home() / 'esp/esp-idf/components'),
+                # Aggiungi percorsi specifici per wasm3
+                '-I' + str(self.project_path / 'components/wasm3-helloesp/platforms/embedded/esp32-idf-wasi/wasm3/wasm3'),
+                '-I' + str(self.project_path / 'components/wasm3-helloesp/platforms/embedded/esp32-idf-wasi'),
+            ]
+            
             tu = self.index.parse(
                 str(file_path),
-                args=[
-                    '-x', 'c++',
-                    '-I' + str(self.project_path),
-                    '-I' + str(self.project_path / 'components'),
-                    '-I/Users/$USER/esp/esp-idf/components',
-                    '-I' + str(Path.home() / 'esp/esp-idf/components')
-                ]
+                args=['-x', 'c++'] + include_paths
             )
-        except Exception as e:
-            print(f"Errore nel parsing di {file_path}: {e}")
-            return
+            
+            if not tu:
+                print(f"Errore: Impossibile parsare {file_path}")
+                return
 
-        self.analyze_declarations(tu.cursor, str(file_path))
-        self.analyze_includes(file_path)
+            self.analyze_declarations(tu.cursor, str(file_path))
+            self.analyze_includes(file_path)
+            
+        except Exception as e:
+            print(f"Errore dettagliato nell'analisi di {file_path}: {str(e)}")
+            raise
 
     def analyze_declarations(self, cursor: clang.cindex.Cursor, file_path: str):
-        for node in cursor.walk_preorder():
-            if node.location.file and str(node.location.file) == file_path:
-                if node.kind in [
-                    clang.cindex.CursorKind.STRUCT_DECL,
-                    clang.cindex.CursorKind.CLASS_DECL,
-                    clang.cindex.CursorKind.TYPEDEF_DECL,
-                    clang.cindex.CursorKind.ENUM_DECL
+        """Analizza le dichiarazioni nel file con gestione migliorata degli errori."""
+        try:
+            for node in cursor.walk_preorder():
+                if node.location.file and str(node.location.file) == file_path:
+                    if node.kind in [
+                        clang.cindex.CursorKind.STRUCT_DECL,
+                        clang.cindex.CursorKind.CLASS_DECL,
+                        clang.cindex.CursorKind.TYPEDEF_DECL,
+                        clang.cindex.CursorKind.ENUM_DECL
+                    ]:
+                        # Analizza dipendenze del tipo corrente
+                        dependencies = self._analyze_type_dependencies(node)
+                        
+                        type_info = TypeInfo(
+                            name=node.spelling,
+                            file_path=file_path,
+                            line_number=node.location.line,
+                            used_in=file_path,
+                            dependencies=dependencies
+                        )
+
+                        # Poi analizza e aggiungi le dipendenze
+                        dependencies = self._analyze_type_dependencies(node)
+                        for dep in dependencies:
+                            type_info.add_dependency(dep)
+
+                        self.type_declarations[node.spelling] = type_info
+                        
+        except Exception as e:
+            print(f"Errore nell'analisi delle dichiarazioni in {file_path}: {str(e)}")
+            raise
+
+    def _analyze_type_dependencies(self, node: clang.cindex.Cursor) -> Set[str]:
+        """Analizza le dipendenze di un tipo specifico."""
+        dependencies = set()
+        try:
+            for child in node.walk_preorder():
+                if child.kind in [
+                    clang.cindex.CursorKind.TYPE_REF,
+                    clang.cindex.CursorKind.DECL_REF_EXPR
                 ]:
-                    type_info = TypeInfo(
-                        name=node.spelling,
-                        file_path=file_path,
-                        line_number=node.location.line,
-                        used_in=file_path
-                    )
-                    self.type_declarations[node.spelling] = type_info
+                    referenced_type = child.spelling
+                    if referenced_type and referenced_type != node.spelling:
+                        dependencies.add(referenced_type)
+                        
+        except Exception as e:
+            print(f"Errore nell'analisi delle dipendenze per {node.spelling}: {str(e)}")
+            
+        return dependencies
 
     def analyze_includes(self, file_path: Path):
         includes = set()
