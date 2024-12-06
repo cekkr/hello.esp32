@@ -197,7 +197,7 @@ class HeaderDependencyAnalyzer:
             'build', '.git', '.svn', '.hg',
             'node_modules', 'venv', 'env',
             '__pycache__', '.pytest_cache',
-            '.vscode', '.idea', '.vs'
+            '.vscode', '.idea', '.vs', 'generated_headers'
         }
         
         def debug_directory_structure(path: Path, level=0):

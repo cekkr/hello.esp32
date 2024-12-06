@@ -6,6 +6,7 @@ from pathlib import Path
 import networkx as nx
 import platform
 import subprocess
+import re
 
 from calculateInclusions import *
 
@@ -69,7 +70,8 @@ class EnhancedHeaderDependencyAnalyzer(HeaderDependencyAnalyzer):
             # Trova i tipi definiti in questo header
             types_in_header = set()
             for type_name, type_info in self.type_declarations.items():
-                if any(self._is_type_in_content(type_name, header_content)):
+                # Rimosso any() poiché _is_type_in_content restituisce già un booleano
+                if self._is_type_in_content(type_name, header_content):
                     types_in_header.add(type_name)
             
             # Aggiorna i file originali
@@ -83,15 +85,6 @@ class EnhancedHeaderDependencyAnalyzer(HeaderDependencyAnalyzer):
         
         return modified_files
 
-    def _load_header_content(self, header_path: str) -> str:
-        """Carica il contenuto di un header file."""
-        try:
-            with open(header_path, 'r', encoding='utf-8') as f:
-                return f.read()
-        except Exception as e:
-            print(f"Errore nel caricamento del header {header_path}: {e}")
-            return ""
-
     def _is_type_in_content(self, type_name: str, content: str) -> bool:
         """Verifica se un tipo è definito nel contenuto."""
         patterns = [
@@ -101,6 +94,15 @@ class EnhancedHeaderDependencyAnalyzer(HeaderDependencyAnalyzer):
             f"typedef\\s+.*\\s+{type_name}\\s*;"
         ]
         return any(re.search(pattern, content, re.MULTILINE) for pattern in patterns)
+
+    def _load_header_content(self, header_path: str) -> str:
+        """Carica il contenuto di un header file."""
+        try:
+            with open(header_path, 'r', encoding='utf-8') as f:
+                return f.read()
+        except Exception as e:
+            print(f"Errore nel caricamento del header {header_path}: {e}")
+            return ""
 
     def _create_backup(self, file_path: str) -> bool:
         """Crea un backup del file prima di modificarlo."""
