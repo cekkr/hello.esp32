@@ -1,5 +1,4 @@
 #!/bin/bash
-
-./build.sh 
-
-python analyzeBuildOutput.py > analyze.sh
+./build.sh
+exit
+python3 analyzeBuildOutput.py > analyze.txt 2>&1
