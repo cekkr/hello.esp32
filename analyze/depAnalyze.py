@@ -1,319 +1,373 @@
 from dataclasses import dataclass
-from typing import Dict, Set, List, Optional, Tuple
-from collections import defaultdict
-import re
+from typing import Dict, Set, List, Optional
 from pathlib import Path
 import os
+import re
+import networkx as nx
+from collections import defaultdict
+
+def check_directory(directory_path: str):
+    """Verifica dettagliatamente una directory e mostra il suo contenuto"""
+    # Converti in percorso assoluto
+    abs_path = os.path.abspath(directory_path)
+    print(f"\nVerifica directory: {abs_path}")
+    
+    # Informazioni sul percorso corrente di esecuzione
+    print(f"Directory corrente di esecuzione: {os.getcwd()}")
+    
+    if not os.path.exists(abs_path):
+        print(f"ERRORE: Il percorso {abs_path} non esiste!")
+        return
+    
+    print("\nContenuto directory:")
+    for root, dirs, files in os.walk(abs_path):
+        level = root.replace(abs_path, '').count(os.sep)
+        indent = '  ' * level
+        print(f"{indent}{os.path.basename(root)}/")
+        sub_indent = '  ' * (level + 1)
+        
+        # Prima stampa le directory
+        for d in dirs:
+            print(f"{sub_indent}[DIR] {d}")
+        
+        # Poi stampa i file
+        for f in files:
+            full_path = os.path.join(root, f)
+            size = os.path.getsize(full_path)
+            print(f"{sub_indent}[FILE] {f} ({size} bytes)")
+            
+            # Se è un file .h, mostra le prime righe
+            if f.endswith('.h'):
+                try:
+                    with open(full_path, 'r', encoding='utf-8') as file:
+                        first_lines = file.readlines()[:3]
+                        print(f"{sub_indent}  Prime righe:")
+                        for line in first_lines:
+                            print(f"{sub_indent}    {line.rstrip()}")
+                except Exception as e:
+                    print(f"{sub_indent}  Errore lettura: {e}")
 
 @dataclass
-class TypeInfo:
+class TypeDefinition:
+    """Rappresenta un tipo definito (struct/class/enum)"""
     name: str
-    defined_in: str
-    used_in: Set[str]
-    forward_declared_in: Set[str]
-    dependencies: Set[str]
-    definition_line: int
+    kind: str  # 'struct', 'class', 'enum'
+    file_path: str
+    line_number: int
+    dependencies: Set[str]  # altri tipi da cui dipende
+    forward_declarations: Set[str]  # file dove è forward-declared
 
 @dataclass
-class FileInfo:
-    path: str
-    types_defined: Set[str]
-    types_used: Set[str]
-    includes: Set[str]
-    forward_declarations: Set[str]
+class HeaderFile:
+    """Rappresenta un file header e il suo contenuto"""
+    path: Path
+    includes: List[str]
+    types_defined: Dict[str, TypeDefinition]  # nome tipo -> definizione
+    types_used: Set[str]  # tipi usati ma non definiti qui
+    forward_declarations: Set[str]  # tipi forward-declared qui
 
-class HeaderDependencyAnalyzer:
-    def __init__(self):
-        self.files: Dict[str, FileInfo] = {}
-        self.types: Dict[str, TypeInfo] = {}
-        self.include_graph: Dict[str, Set[str]] = defaultdict(set)
-        self.reverse_include_graph: Dict[str, Set[str]] = defaultdict(set)
-        self.excluded_dirs = {'build', 'builds', '.git', '.svn', '__pycache__'}
-    
-    def print_directory_structure(self, startpath: str, level: int = 0):
-        """Stampa la struttura completa della directory in formato ad albero"""
-        print(f'{"  " * level}+ {os.path.basename(startpath)}/')
+class HeaderAnalyzer:
+    def __init__(self, base_path: str):
+        self.base_path = Path(base_path).resolve()
+        self.headers: Dict[Path, HeaderFile] = {}
+        self.dependency_graph = nx.DiGraph()
         
+        # Directory da escludere
+        self.excluded_dirs = {
+            'build', 'builds', '.git', '.svn', '__pycache__', 
+            'sdkconfig', 'bootloader'
+        }
+    
+    def find_headers(self) -> List[Path]:
+        """Trova tutti i file .h ricorsivamente usando multiple strategie"""
+        headers = set()  # Usa un set per evitare duplicati
+        print(f"\nCercando header files in: {self.base_path}")
+
+        # Converti il percorso base in assoluto
+        abs_base_path = self.base_path.resolve()
+        print(f"Percorso assoluto: {abs_base_path}")
+
+        def is_excluded(path: Path) -> bool:
+            """Verifica se un percorso deve essere escluso"""
+            return any(excluded in path.parts for excluded in self.excluded_dirs)
+
+        def add_header(path: Path):
+            """Aggiunge un header alla lista se non è già presente e non è escluso"""
+            if not is_excluded(path):
+                abs_path = path.resolve()
+                headers.add(abs_path)
+                print(f"Trovato header: {abs_path}")
+
+        # Strategia 1: Usa Path.rglob
         try:
-            items = sorted(os.listdir(startpath))
-            for item in items:
-                if item in self.excluded_dirs:
-                    print(f'{"  " * (level + 1)}+ {item}/ [excluded]')
-                    continue
-                    
-                path = os.path.join(startpath, item)
-                if os.path.isdir(path):
-                    self.print_directory_structure(path, level + 1)
-                elif path.endswith(('.h', '.hpp', '.hxx', '.h++')):
-                    print(f'{"  " * (level + 1)}- {item}')
-        except PermissionError:
-            print(f'{"  " * (level + 1)}! Permission denied')
+            for pattern in ['*.h', '*.hpp', '*.hxx']:
+                for file_path in abs_base_path.rglob(pattern):
+                    add_header(file_path)
         except Exception as e:
-            print(f'{"  " * (level + 1)}! Error: {str(e)}')
+            print(f"Errore durante rglob: {e}")
 
-    def find_header_files(self, start_path: str, verbose: bool = True) -> List[Path]:
-        """Trova ricorsivamente tutti i file header in una directory"""
-        abs_start_path = os.path.abspath(start_path)
-        if verbose:
-            print(f"\nCercando header files in: {abs_start_path}")
-            print("\nStruttura directory:")
-            self.print_directory_structure(abs_start_path)
-            print("\nLista dei file trovati:")
-        
-        header_files = []
-        
-        for root, dirs, files in os.walk(abs_start_path):
-            # Modifica dirs in-place per escludere le directory non desiderate
-            dirs[:] = [d for d in dirs if d not in self.excluded_dirs]
+        # Strategia 2: Usa os.walk con gestione symlink
+        try:
+            for root, dirs, files in os.walk(abs_base_path, followlinks=True):
+                # Filtra le directory da escludere
+                dirs[:] = [d for d in dirs if d not in self.excluded_dirs]
+                
+                root_path = Path(root)
+                
+                # Gestisce i file
+                for file in files:
+                    if file.endswith(('.h', '.hpp', '.hxx')):
+                        file_path = root_path / file
+                        try:
+                            add_header(file_path)
+                        except Exception as e:
+                            print(f"Errore nell'aggiunta del file {file_path}: {e}")
+                
+                # Verifica symlink nelle directory
+                for dir_name in dirs:
+                    dir_path = root_path / dir_name
+                    if dir_path.is_symlink():
+                        try:
+                            real_path = dir_path.resolve()
+                            if real_path != dir_path:
+                                print(f"Seguendo symlink: {dir_path} -> {real_path}")
+                                # Cerca ricorsivamente nel target del symlink
+                                for pattern in ['*.h', '*.hpp', '*.hxx']:
+                                    for linked_file in real_path.rglob(pattern):
+                                        add_header(linked_file)
+                        except Exception as e:
+                            print(f"Errore nel seguire symlink {dir_path}: {e}")
+
+        except Exception as e:
+            print(f"Errore durante walk: {e}")
+
+        # Strategia 3: Cerca anche nella directory corrente e parent
+        try:
+            current_dir = Path.cwd()
+            parent_dir = current_dir.parent
             
-            if verbose:
-                print(f"\nEsplorando directory: {root}")
-            
-            for file in files:
-                if file.endswith(('.h', '.hpp', '.hxx', '.h++')):
-                    full_path = Path(os.path.join(root, file))
-                    header_files.append(full_path)
-                    if verbose:
-                        print(f"Trovato header: {full_path}")
+            for search_dir in [current_dir, parent_dir]:
+                for pattern in ['*.h', '*.hpp', '*.hxx']:
+                    for file_path in search_dir.glob(pattern):
+                        if abs_base_path in file_path.resolve().parents:
+                            add_header(file_path)
+        except Exception as e:
+            print(f"Errore durante la ricerca nelle directory parent: {e}")
+
+        # Converti il set in lista e ordina per path
+        header_list = sorted(list(headers))
         
-        return header_files
-    
-    def analyze_file(self, filepath: str) -> None:
+        # Stampa statistiche finali
+        print(f"\nStatistiche di ricerca:")
+        print(f"Totale header trovati: {len(header_list)}")
+        print(f"Directory esplorate: {len({h.parent for h in header_list})}")
+        
+        return header_list
+
+    def analyze_file(self, file_path: Path) -> HeaderFile:
         """Analizza un singolo file header"""
-        with open(filepath, 'r') as f:
-            content = f.read()
-            
-        file_info = FileInfo(
-            path=filepath,
-            types_defined=set(),
+        print(f"\nAnalizzando file: {file_path}")
+        
+        header = HeaderFile(
+            path=file_path,
+            includes=[],
+            types_defined={},
             types_used=set(),
-            includes=set(),
             forward_declarations=set()
         )
         
-        # Trova gli include
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            # Trova gli #include
+            header.includes = self._find_includes(content)
+            print(f"Include trovati: {header.includes}")
+            
+            # Trova le definizioni di tipo
+            header.types_defined = self._find_type_definitions(content, str(file_path))
+            print(f"Tipi definiti: {list(header.types_defined.keys())}")
+            
+            # Trova i forward declarations
+            header.forward_declarations = self._find_forward_declarations(content)
+            print(f"Forward declarations: {header.forward_declarations}")
+            
+            # Trova i tipi usati
+            header.types_used = self._find_used_types(content)
+            print(f"Tipi usati: {header.types_used}")
+            
+        except Exception as e:
+            print(f"Errore nell'analisi del file {file_path}: {e}")
+        
+        return header
+
+    def _find_includes(self, content: str) -> List[str]:
+        """Trova tutti gli #include nel file"""
+        includes = []
         for match in re.finditer(r'#include\s*[<"]([^>"]+)[>"]', content):
-            included_file = match.group(1)
-            file_info.includes.add(included_file)
-            self.include_graph[filepath].add(included_file)
-            self.reverse_include_graph[included_file].add(filepath)
+            includes.append(match.group(1))
+        return includes    
+
+    def _find_forward_declarations(self, content: str) -> Set[str]:
+        """Trova tutte le forward declarations nel file"""
+        declarations = set()
+        pattern = r'(?:struct|class|enum)\s+(\w+)\s*;'
         
-        # Trova le definizioni di tipo (struct/class/enum)
-        for match in re.finditer(r'(struct|class|enum)\s+(\w+)\s*{([^}]+)}', content):
-            type_kind, type_name, definition = match.groups()
-            file_info.types_defined.add(type_name)
-            
-            # Analizza le dipendenze nella definizione
-            dependencies = set()
-            for dep_match in re.finditer(r'(struct|class|enum)\s+(\w+)', definition):
-                dep_type = dep_match.group(2)
-                if dep_type != type_name:  # Ignora auto-riferimenti
-                    dependencies.add(dep_type)
-                    file_info.types_used.add(dep_type)
-            
-            self.types[type_name] = TypeInfo(
-                name=type_name,
-                defined_in=filepath,
-                used_in=set(),
-                forward_declared_in=set(),
-                dependencies=dependencies,
-                definition_line=content[:match.start()].count('\n') + 1
-            )
+        for match in re.finditer(pattern, content):
+            declarations.add(match.group(1))
         
-        # Trova le forward declarations
-        for match in re.finditer(r'(struct|class|enum)\s+(\w+)\s*;', content):
-            type_name = match.group(2)
-            file_info.forward_declarations.add(type_name)
-            if type_name in self.types:
-                self.types[type_name].forward_declared_in.add(filepath)
+        return declarations
+
+    def _find_used_types(self, content: str) -> Set[str]:
+        """Trova tutti i tipi usati nel file"""
+        used_types = set()
+        # Cerca riferimenti a struct/class/enum
+        pattern = r'(?:struct|class|enum)\s+(\w+)(?:\s+|\*|\&)'
         
-        self.files[filepath] = file_info
-    
+        for match in re.finditer(pattern, content):
+            used_types.add(match.group(1))
+        
+        return used_types
+
+    def build_dependency_graph(self):
+        """Costruisce il grafo delle dipendenze tra i tipi"""
+        for header in self.headers.values():
+            for type_name, type_def in header.types_defined.items():
+                for dep in type_def.dependencies:
+                    self.dependency_graph.add_edge(type_name, dep)
+
     def find_circular_dependencies(self) -> List[List[str]]:
-        """Trova tutti i cicli di dipendenze usando DFS"""
-        def dfs(node: str, visited: Set[str], path: List[str]) -> List[List[str]]:
-            cycles = []
-            if node in path:
-                cycle_start = path.index(node)
-                cycles.append(path[cycle_start:])
-                return cycles
-            
-            if node in visited:
-                return cycles
-            
-            visited.add(node)
-            path.append(node)
-            
-            for neighbor in self.include_graph[node]:
-                cycles.extend(dfs(neighbor, visited.copy(), path.copy()))
-            
-            return cycles
-        
-        all_cycles = []
-        for file in self.files:
-            cycles = dfs(file, set(), [])
-            all_cycles.extend(cycles)
-        
-        return [cycle for cycle in all_cycles if len(cycle) > 1]
-    
-    def optimize_includes(self) -> Dict[str, Dict[str, str]]:
-        """
-        Calcola l'ordine ottimale delle inclusioni e suggerisce modifiche
-        Returns: Dict[file_path, Dict[suggestion_type, suggestion]]
-        """
-        suggestions = defaultdict(dict)
+        """Trova tutte le dipendenze circolari"""
+        return list(nx.simple_cycles(self.dependency_graph))
+
+    def generate_suggestions(self) -> Dict[str, List[str]]:
+        """Genera suggerimenti per risolvere le dipendenze circolari"""
+        suggestions = defaultdict(list)
         cycles = self.find_circular_dependencies()
         
-        # Analizza ogni ciclo di dipendenze
         for cycle in cycles:
-            # Trova i tipi coinvolti nel ciclo
-            cycle_types = set()
-            for file in cycle:
-                file_info = self.files[file]
-                cycle_types.update(file_info.types_defined)
-                cycle_types.update(file_info.types_used)
-            
-            # Per ogni file nel ciclo
-            for i, file in enumerate(cycle):
-                file_info = self.files[file]
-                next_file = cycle[(i + 1) % len(cycle)]
-                next_file_info = self.files[next_file]
+            # Analizza ogni ciclo
+            for type_name in cycle:
+                # Trova il file dove è definito il tipo
+                definition_file = None
+                for header in self.headers.values():
+                    if type_name in header.types_defined:
+                        definition_file = header.path
+                        break
                 
-                # Trova i tipi che causano la dipendenza circolare
-                problematic_types = file_info.types_used.intersection(
-                    next_file_info.types_defined
-                )
-                
-                if problematic_types:
-                    # Decidi se fare forward declaration o creare nuovo header
-                    if len(problematic_types) <= 2:
-                        # Suggerisci forward declarations
-                        forward_decls = "\n".join(
-                            f"struct {t};" for t in problematic_types
-                        )
-                        suggestions[file]["forward_declarations"] = (
-                            f"// Add these forward declarations at the top:\n{forward_decls}"
-                        )
-                    else:
-                        # Suggerisci nuovo file di dichiarazioni
-                        new_header = f"{Path(file).stem}_fwd.h"
-                        declarations = "\n".join(
-                            f"struct {t};" for t in problematic_types
-                        )
-                        suggestions[file]["new_header"] = {
-                            "name": new_header,
-                            "content": f"#pragma once\n\n{declarations}",
-                            "message": f"Create new header {new_header} with forward declarations"
-                        }
-                        
-                    # Suggerisci riordinamento degli include
-                    current_includes = list(file_info.includes)
-                    optimized_includes = self._optimize_include_order(
-                        file, current_includes, problematic_types
-                    )
-                    if current_includes != optimized_includes:
-                        suggestions[file]["reorder_includes"] = {
-                            "message": "Reorder includes as follows:",
-                            "order": optimized_includes
-                        }
+                if definition_file:
+                    # Genera suggerimenti
+                    suggestions[str(definition_file)].extend([
+                        f"Ciclo trovato: {' -> '.join(cycle)}",
+                        f"Considerare di creare forward declaration per '{type_name}'",
+                        "Possibili soluzioni:",
+                        f"1. Sposta la definizione di '{type_name}' in un nuovo file",
+                        "2. Usa puntatori o riferimenti invece di inclusione diretta",
+                        f"3. Crea un header '{type_name}_fwd.h' con forward declarations"
+                    ])
         
         return suggestions
-    
-    def _optimize_include_order(
-        self, file: str, current_includes: List[str], 
-        problematic_types: Set[str]
-    ) -> List[str]:
-        """Ottimizza l'ordine degli include per un file"""
-        # Separa gli include in tre gruppi
-        system_includes = []
-        dependent_includes = []
-        other_includes = []
+
+    def analyze(self):
+        """Esegue l'analisi completa"""
+        # Trova tutti i file header
+        print("=== Ricerca file header ===")
+        header_files = self.find_headers()
         
-        for inc in current_includes:
-            if inc.startswith('<'):
-                system_includes.append(inc)
-            elif any(t in self.files.get(inc, FileInfo("", set(), set(), set(), set())).types_defined 
-                    for t in problematic_types):
-                dependent_includes.append(inc)
-            else:
-                other_includes.append(inc)
+        # Analizza ogni file
+        print("\n=== Analisi dei file ===")
+        for file_path in header_files:
+            self.headers[file_path] = self.analyze_file(file_path)
         
-        # Riordina mettendo prima gli include non dipendenti
-        return (
-            system_includes +
-            other_includes +
-            dependent_includes
-        )
-    
-    def print_analysis(self):
-        """Stampa l'analisi completa e i suggerimenti"""
-        print("\nAnalisi delle dipendenze circolari:")
-        for cycle in self.find_circular_dependencies():
-            print(f"\nCiclo trovato: {' -> '.join(cycle)}")
+        # Costruisci il grafo delle dipendenze
+        print("\n=== Costruzione grafo dipendenze ===")
+        self.build_dependency_graph()
+        
+        # Trova le dipendenze circolari
+        print("\n=== Analisi dipendenze circolari ===")
+        cycles = self.find_circular_dependencies()
+        if cycles:
+            print("Dipendenze circolari trovate:")
+            for cycle in cycles:
+                print(f"  {' -> '.join(cycle)}")
+        else:
+            print("Nessuna dipendenza circolare trovata")
+        
+        # Genera suggerimenti
+        print("\n=== Suggerimenti ===")
+        suggestions = self.generate_suggestions()
+        for file_path, file_suggestions in suggestions.items():
+            print(f"\nPer il file {file_path}:")
+            for suggestion in file_suggestions:
+                print(f"  {suggestion}")
+
+    def _find_type_definitions(self, content: str, file_path: str) -> Dict[str, TypeDefinition]:
+        """Trova tutte le definizioni di tipo nel file"""
+        definitions = {}
+        
+        # Rimuovi i commenti per semplificare il parsing
+        content_no_comments = re.sub(r'/\*.*?\*/', '', content, flags=re.DOTALL)
+        content_no_comments = re.sub(r'//.*$', '', content_no_comments, flags=re.MULTILINE)
+        
+        # Pattern più robusto per le definizioni di tipo
+        type_pattern = r'''
+            # Tipo di definizione
+            (struct|class|enum)\s+
+            # Template opzionale
+            (?:template\s*<[^>]*>\s*)?
+            # Nome del tipo
+            (\w+)\s*
+            # Eredità opzionale
+            (?::\s*(?:public|private|protected)\s+\w+(?:\s*,\s*(?:public|private|protected)\s+\w+)*\s*)?
+            # Attributi opzionali
+            (?:__attribute__\s*\(\([^)]*\)\)\s*)*
+            # Corpo della definizione
+            {([^{}]*(?:{[^{}]*}[^{}]*)*)}
+        '''
+        
+        for match in re.finditer(type_pattern, content_no_comments, re.VERBOSE):
+            kind, name, body = match.groups()
+            line_number = content[:match.start()].count('\n') + 1
             
-        print("\nSuggerimenti per ottimizzazione:")
-        suggestions = self.optimize_includes()
-        for file, file_suggestions in suggestions.items():
-            print(f"\nPer il file {file}:")
+            # Pattern migliorato per trovare le dipendenze
+            dependencies = set()
             
-            if "forward_declarations" in file_suggestions:
-                print("\nAggiungere forward declarations:")
-                print(file_suggestions["forward_declarations"])
+            # Trova riferimenti a struct/class/enum
+            dep_pattern = r'''
+                # Tipi di base
+                (?:struct|class|enum)\s+(\w+)|
+                # Template parameters
+                (?:typename|class)\s+(\w+)|
+                # Tipi usati come membri
+                (?:^|[^:\w])(\w+)(?:\s*[*&]|\s+\w+\s*[;{])
+            '''
             
-            if "new_header" in file_suggestions:
-                new_header = file_suggestions["new_header"]
-                print(f"\nCreare nuovo file {new_header['name']}:")
-                print(new_header["content"])
+            for dep_match in re.finditer(dep_pattern, body, re.VERBOSE | re.MULTILINE):
+                dep_name = next(g for g in dep_match.groups() if g)
+                if dep_name != name and not dep_name.startswith('_'):  # Ignora auto-riferimenti e tipi interni
+                    dependencies.add(dep_name)
             
-            if "reorder_includes" in file_suggestions:
-                reorder = file_suggestions["reorder_includes"]
-                print("\nRiordinare gli include:")
-                for inc in reorder["order"]:
-                    print(f"#include {inc}")
+            definitions[name] = TypeDefinition(
+                name=name,
+                kind=kind,
+                file_path=file_path,
+                line_number=line_number,
+                dependencies=dependencies,
+                forward_declarations=set()
+            )
+        
+        return definitions
 
 def main():
-    analyzer = HeaderDependencyAnalyzer()
-    
+    # Imposta il percorso base
     base_path = '../hello-idf/components/wasm3-helloesp/platforms/embedded/esp32-idf-wasi'
-    abs_base_path = os.path.abspath(base_path)
     
-    print(f"\nPercorso di base: {base_path}")
-    print(f"Percorso assoluto: {abs_base_path}")
-    
-    # Verifica l'esistenza della directory main
-    if False:
-        main_path = os.path.join(abs_base_path, 'wasm3')
-        if os.path.exists(main_path):
-            print(f"\nLa directory main esiste in: {main_path}")
-            print("Contenuto della directory main:")
-            try:
-                for item in os.listdir(main_path):
-                    print(f" - {item}")
-            except Exception as e:
-                print(f"Errore nel leggere la directory main: {e}")
-        else:
-            print(f"\nLa directory main NON esiste in: {main_path}")
-            print("Directory genitore contiene:")
-            try:
-                for item in os.listdir(abs_base_path):
-                    print(f" - {item}")
-            except Exception as e:
-                print(f"Errore nel leggere la directory: {e}")
-        
-    # Trova e analizza i file header
-    header_files = analyzer.find_header_files(abs_base_path, verbose=True)
-    
-    print(f"\nTrovati {len(header_files)} file header")
-    
-    for file in header_files:
-        try:
-            analyzer.analyze_file(str(file))
-        except Exception as e:
-            print(f"Errore nell'analisi di {file}: {e}")
-    
-    analyzer.print_analysis()
-
-
+    try:
+        # Crea e esegui l'analizzatore
+        analyzer = HeaderAnalyzer(base_path)
+        analyzer.analyze()
+    except Exception as e:
+        print(f"Errore durante l'analisi: {e}")
 
 if __name__ == "__main__":
     main()
