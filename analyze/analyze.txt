@@ -1,7 +1,702 @@
-Traceback (most recent call last):
-  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/analyze.py", line 154, in <module>
-    main()
-  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/analyze.py", line 147, in main
-    analyzer.print_analysis()
-    ^^^^^^^^^^^^^^^^^^^^^^^
-AttributeError: 'CircularDependencyAnalyzer' object has no attribute 'print_analysis'
+
+Analyzing error: undefined struct 'M3Module' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Module non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Module' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Module non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Runtime' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Runtime non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Runtime' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Runtime non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Runtime' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Runtime non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Runtime' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Runtime non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Module' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Module non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Module' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Module non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Runtime' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Runtime non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Runtime' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Runtime non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Runtime' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Runtime non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Runtime' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Runtime non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Module' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Module non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Module' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Module non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Runtime' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Runtime non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Runtime' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Runtime non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Runtime' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Runtime non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Runtime' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Runtime non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Module' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Module non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Module' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Module non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Runtime' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Runtime non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Runtime' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Runtime non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Runtime' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Runtime non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Runtime' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Runtime non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Module' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Module non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Module' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Module non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Runtime' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Runtime non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Runtime' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Runtime non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Runtime' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Runtime non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Runtime' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Runtime non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Module' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Module non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Module' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Module non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Runtime' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Runtime non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Runtime' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Runtime non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Runtime' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Runtime non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Runtime' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Runtime non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Module' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Module non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Module' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Module non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Runtime' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Runtime non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Runtime' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Runtime non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Runtime' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Runtime non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Runtime' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Runtime non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Module' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Module non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Module' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Module non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Runtime' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Runtime non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Runtime' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Runtime non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Runtime' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Runtime non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Runtime' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Runtime non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Module' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Module non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Module' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Module non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Runtime' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Runtime non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Runtime' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Runtime non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Runtime' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Runtime non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
+
+Analyzing error: undefined struct 'M3Runtime' in m3_exec.h
+
+Struct definition not found in analyzed files
+
+Circular dependencies detected:
+  m3_compile.h -> m3_exec.h -> m3_compile.h
+  ieeefp.h -> _ansi.h -> m3_code.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> math.h -> ieeefp.h
+  m3_env.h -> m3_compile.h -> m3_exec.h -> m3_env.h
+  ieeefp.h -> _ansi.h -> m3_env.h -> m3_compile.h -> m3_exec.h -> m3_math_utils.h -> limits.h -> syslimits.h -> math.h -> ieeefp.h
+
+Suggested solutions:
+La struct M3Runtime non è definita in nessun file analizzato. Verifica che la definizione esista e sia inclusa.
