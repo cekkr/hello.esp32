@@ -20,6 +20,8 @@
         "queue": "c",
         "stack": "c",
         "unordered_map": "c",
-        "m3_exec_defs.h": "c"
+        "m3_exec_defs.h": "c",
+        "m3_function.h": "c",
+        "m3_segmented_memory.h": "c"
     }
 }
