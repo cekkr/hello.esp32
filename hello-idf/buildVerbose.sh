@@ -16,6 +16,6 @@ cd "$IDF_PWD"
 cd "$CUR_DIR"
 
 
-idf.py --verbose build
+idf.py build -DCMAKE_C_FLAGS="-H" 2>&1 | tee build_output.txt
 #cd build
 #make VERBOSE=1
