@@ -1,168 +1,369 @@
 import re
 from pathlib import Path
-from collections import defaultdict, deque
-from typing import Dict, Set, List, Tuple
+from collections import defaultdict
+from typing import Dict, Set, List, Tuple, NamedTuple, Optional
+from dataclasses import dataclass
+import sys
+from enum import Enum, auto
+import os
+
+class TypeKind(Enum):
+    STRUCT = auto()
+    CLASS = auto()
+    TYPEDEF = auto()
+    ENUM = auto()
+    DEFINE = auto()
+    UNKNOWN = auto()
+
+@dataclass
+class TypeDefinition:
+    name: str
+    kind: TypeKind
+    line: int
+    content: str
+    
+@dataclass
+class Include:
+    path: Path
+    line: int
+    is_system: bool  # True per <>, False per ""
+
+@dataclass
+class HeaderFile:
+    path: Path
+    types: List[TypeDefinition]
+    includes: List[Include]
+    included_by: Set[Path]
+    raw_content: Optional[str] = None
+    
+    def __hash__(self):
+        return hash(self.path)
+        
+    def add_include(self, include: Include):
+        self.includes.append(include)
+        
+    def add_type(self, type_def: TypeDefinition):
+        self.types.append(type_def)
+        
+    def find_type(self, name: str) -> Optional[TypeDefinition]:
+        return next((t for t in self.types if t.name == name), None)
+
+class CompilationIssue(NamedTuple):
+    file: Path
+    line: int
+    type: str
+    message: str
+    symbol: str = None
 
 class HeaderAnalyzer:
-    def __init__(self):
+    MAX_RECURSION_DEPTH = 100
+    HEADER_EXTENSIONS = {'.h', '.hpp', '.hxx', '.h++'}
+    
+    def __init__(self, project_paths: List[str]):
+        if isinstance(project_paths, str):
+            project_paths = [project_paths]
+            
+        self.project_paths = [Path(p).resolve() for p in project_paths]
+        print("Directory di progetto normalizzate:")
+        for path in self.project_paths:
+            print(f"  - {path}")
+            
+        self.files: Dict[Path, HeaderFile] = {}
         self.include_graph = defaultdict(set)
         self.reverse_graph = defaultdict(set)
-        self.processed_files = set()
-        self.undefined_symbols = defaultdict(set)
-        self.symbol_definitions = defaultdict(set)
+        self.includes_order = defaultdict(list)
+        self.type_definitions = defaultdict(list)
+        self.type_usages = defaultdict(list)
+        self._initialize_files()
+    
+    def _get_include_path(self, included_path: str, current_file: Path) -> Optional[Path]:
+        """Risolve il path completo di un file incluso."""
+        try:
+            # Prova prima il path relativo al file corrente
+            relative_path = (current_file.parent / included_path).resolve()
+            if self.is_project_file(relative_path):
+                return relative_path
+                
+            # Poi prova nelle directory del progetto
+            for project_path in self.project_paths:
+                potential_path = (project_path / included_path).resolve()
+                if self.is_project_file(potential_path):
+                    return potential_path
+            
+            return None
+            
+        except Exception:
+            return None
 
-    def parse_build_log(self, log_content: str) -> None:
-        """Analizza il log di build per estrarre le inclusioni e gli errori."""
-        current_file = None
-        include_pattern = re.compile(r'\.+\s(/[^:\n]+)')
-        error_pattern = re.compile(r'error:.*undefined reference to [`\']([^`\']+)[`\']')
+    def _parse_header_file(self, file_path: Path) -> Optional[HeaderFile]:
+        """Analizza un file header e crea un oggetto HeaderFile."""
+        if file_path in self.files:
+            return self.files[file_path]
+            
+        try:
+            if not self.is_project_file(file_path) or not file_path.is_file():
+                return None
+            
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+            except UnicodeDecodeError:
+                print(f"Errore di codifica in {file_path.name}")
+                return None
+            
+            header = HeaderFile(
+                path=file_path,
+                types=[],
+                includes=[],
+                included_by=set(),
+                raw_content=content
+            )
+            
+            # Analizza le inclusioni
+            include_pattern = re.compile(r'#include\s*[<"]([^>"]+)[>"]')
+            for match in include_pattern.finditer(content):
+                included_path = match.group(1)
+                is_system = match.group(0).strip().endswith('>')
+                line_num = content[:match.start()].count('\n') + 1
+                
+                resolved_path = self._get_include_path(included_path, file_path)
+                if resolved_path:
+                    include = Include(resolved_path, line_num, is_system)
+                    header.add_include(include)
+                    self.include_graph[file_path].add(resolved_path)
+                    self.reverse_graph[resolved_path].add(file_path)
+            
+            self._parse_type_definitions(header, content)
+            self.files[file_path] = header
+            return header
+            
+        except Exception as e:
+            print(f"Errore analizzando {file_path}: {e}")
+            return None
+
+    def is_header_file(self, file_path: Path) -> bool:
+        return file_path.suffix.lower() in self.HEADER_EXTENSIONS
+
+    def is_project_file(self, file_path: Path) -> bool:
+        try:
+            if not file_path or not self.is_header_file(file_path):
+                return False
+                
+            file_path = file_path.resolve()
+            
+            if not file_path.is_absolute():
+                return False
+            
+            is_in_project = any(
+                str(file_path).startswith(str(proj_path))
+                for proj_path in self.project_paths
+            )
+            
+            if not is_in_project:
+                return False
+            
+            system_dirs = {'System', 'Library', 'usr', 'include', 'frameworks'}
+            if any(part.lower() in system_dirs for part in file_path.parts):
+                return False
+            
+            return True
+            
+        except Exception as e:
+            print(f"Errore verificando il path {file_path}: {e}")
+            return False
+
+    def _initialize_files(self):
+        found_files = set()
         
-        for line in log_content.splitlines():
+        for path in self.project_paths:
+            if not path.is_dir():
+                print(f"ATTENZIONE: {path} non è una directory valida")
+                continue
+            
+            print(f"\nScansione directory: {path}")
+            try:
+                for file_path in path.rglob('*'):
+                    if self.is_project_file(file_path):
+                        found_files.add(file_path)
+            except Exception as e:
+                print(f"Errore durante la scansione di {path}: {e}")
+        
+        print(f"\nTrovati {len(found_files)} file header nel progetto:")
+        for file_path in sorted(found_files):
+            try:
+                rel_path = file_path.relative_to(file_path.parent.parent)
+                print(f"  - {rel_path}")
+                self._parse_header_file(file_path)
+            except Exception as e:
+                print(f"Errore nel parsing di {file_path}: {e}")
+
+    def _parse_type_definitions(self, header: HeaderFile, content: str):
+        """Analizza il contenuto per trovare definizioni di tipi."""
+        # Struct e Class
+        for match in re.finditer(r'(struct|class)\s+(\w+)\s*\{', content):
+            kind = TypeKind.STRUCT if match.group(1) == 'struct' else TypeKind.CLASS
+            name = match.group(2)
+            line = content[:match.start()].count('\n') + 1
+            header.add_type(TypeDefinition(name, kind, line, match.group(0)))
+            
+        # Typedef
+        for match in re.finditer(r'typedef\s+.*?\s+(\w+)\s*;', content):
+            name = match.group(1)
+            line = content[:match.start()].count('\n') + 1
+            header.add_type(TypeDefinition(name, TypeKind.TYPEDEF, line, match.group(0)))
+            
+        # Enum
+        for match in re.finditer(r'enum\s+(\w+)\s*\{', content):
+            name = match.group(1)
+            line = content[:match.start()].count('\n') + 1
+            header.add_type(TypeDefinition(name, TypeKind.ENUM, line, match.group(0)))
+            
+        # Define
+        for match in re.finditer(r'#define\s+(\w+)\s+', content):
+            name = match.group(1)
+            line = content[:match.start()].count('\n') + 1
+            header.add_type(TypeDefinition(name, TypeKind.DEFINE, line, match.group(0)))
+
+    def parse_build_log(self, log_content: str) -> List[CompilationIssue]:
+        """Analizza il log di compilazione per trovare errori."""
+        issues = []
+        include_stack = []
+        
+        include_pattern = re.compile(r'\.+\s(/[^:\n]+)')
+        error_pattern = re.compile(r'([^:]+):(\d+)(?::\d+)?: (error|warning): (.+)')
+        type_error_pattern = re.compile(r'unknown type name [\'"]([^\'\"]+)[\'"]|forward declaration of [\'"]struct ([^\'\"]+)[\'"]')
+        
+        for i, line in enumerate(log_content.splitlines()):
             include_match = include_pattern.match(line)
             if include_match:
                 included_file = Path(include_match.group(1))
-                if current_file:
-                    self.include_graph[current_file].add(included_file)
-                    self.reverse_graph[included_file].add(current_file)
-            elif 'In file included from' in line:
-                current_file = Path(line.split(':')[0].split('from ')[-1].strip())
-            elif 'error:' in line or 'warning:' in line:
-                error_match = error_pattern.search(line)
-                if error_match and current_file:
-                    symbol = error_match.group(1)
-                    self.undefined_symbols[current_file].add(symbol)
-
-    def scan_header_content(self, file_path: Path) -> Set[str]:
-        """Scansiona il contenuto di un header file per trovare definizioni."""
-        definitions = set()
-        try:
-            with open(file_path, 'r') as f:
-                content = f.read()
-                macro_pattern = re.compile(r'#\s*define\s+(\w+)')
-                function_pattern = re.compile(r'\w+\s+(\w+)\s*\([^)]*\)\s*{?')
-                type_pattern = re.compile(r'typedef\s+[^;]+\s+(\w+)\s*;')
+                if not self.is_project_file(included_file):
+                    continue
+                    
+                dots_count = len(line) - len(line.lstrip('.'))
+                while len(include_stack) > dots_count:
+                    include_stack.pop()
                 
-                definitions.update(macro_pattern.findall(content))
-                definitions.update(function_pattern.findall(content))
-                definitions.update(type_pattern.findall(content))
-        except Exception as e:
-            print(f"Errore nella lettura del file {file_path}: {e}")
-        return definitions
-
-    def find_circular_dependencies(self) -> List[List[Path]]:
-        """Trova le dipendenze circolari usando l'algoritmo di Tarjan."""
-        # Creiamo una copia statica dei nodi all'inizio
-        nodes = list(self.include_graph.keys())
-        index_counter = [0]
-        index = {}
-        lowlink = {}
-        on_stack = set()
-        stack = []
-        cycles = []
-
-        def strongconnect(node: Path):
-            index[node] = index_counter[0]
-            lowlink[node] = index_counter[0]
-            index_counter[0] += 1
-            stack.append(node)
-            on_stack.add(node)
-
-            # Creiamo una copia statica dei successori
-            successors = list(self.include_graph[node])
-            for successor in successors:
-                if successor not in index:
-                    strongconnect(successor)
-                    lowlink[node] = min(lowlink[node], lowlink[successor])
-                elif successor in on_stack:
-                    lowlink[node] = min(lowlink[node], index[successor])
-
-            if lowlink[node] == index[node]:
-                cycle = []
-                while True:
-                    w = stack.pop()
-                    on_stack.remove(w)
-                    cycle.append(w)
-                    if w == node:
-                        break
-                if len(cycle) > 1:
-                    cycles.append(cycle)
-
-        for node in nodes:  # Usiamo la lista statica invece del dizionario
-            if node not in index:
-                strongconnect(node)
-
-        return cycles
-
-    def analyze_and_print(self, base_path: Path = None):
-        """Analizza e stampa un report completo."""
-        print("\n=== Report Analisi Header ===")
+                if include_stack:
+                    parent = include_stack[-1]
+                    if self.is_project_file(parent):
+                        self.include_graph[parent].add(included_file)
+                        self.reverse_graph[included_file].add(parent)
+                        self.includes_order[parent].append((included_file, i))
+                
+                include_stack.append(included_file)
+                continue
+            
+            error_match = error_pattern.match(line)
+            if error_match and include_stack:
+                file_path = Path(error_match.group(1))
+                if not self.is_project_file(file_path):
+                    continue
+                    
+                line_num = int(error_match.group(2))
+                issue_type = error_match.group(3)
+                message = error_match.group(4)
+                
+                type_match = type_error_pattern.search(message)
+                if type_match:
+                    type_name = type_match.group(1) or type_match.group(2)
+                    issue = CompilationIssue(
+                        file=file_path,
+                        line=line_num,
+                        type=issue_type,
+                        message=message,
+                        symbol=type_name
+                    )
+                    issues.append(issue)
+                    self.type_usages[type_name].append((file_path, line_num))
         
-        # Analisi dipendenze circolari
-        try:
-            cycles = self.find_circular_dependencies()
-            if cycles:
-                print("\nDipendenze Circolari Trovate:")
-                for cycle in cycles:
-                    print(" -> ".join(str(f) for f in cycle))
-            else:
-                print("\nNessuna dipendenza circolare trovata.")
-        except Exception as e:
-            print(f"\nErrore durante l'analisi delle dipendenze circolari: {e}")
-        
-        # Analisi simboli non definiti
-        if self.undefined_symbols:
-            print("\nSimboli Non Definiti:")
-            for file, symbols in self.undefined_symbols.items():
-                print(f"\nFile: {file}")
-                for symbol in symbols:
-                    print(f"  - {symbol}")
-                    if base_path:
-                        found_in = []
-                        # Creiamo una copia statica dei file da analizzare
-                        headers_to_check = list(self.include_graph.keys())
-                        for header in headers_to_check:
-                            full_path = base_path / header
-                            if full_path.exists() and symbol in self.scan_header_content(full_path):
-                                found_in.append(header)
-                        if found_in:
-                            print(f"    Potenzialmente definito in: {', '.join(str(f) for f in found_in)}")
-        
-        # Statistiche generali
-        print("\nStatistiche:")
-        print(f"Totale file analizzati: {len(self.include_graph)}")
-        print(f"Totale inclusioni: {sum(len(deps) for deps in self.include_graph.values())}")
-        print(f"Totale simboli non definiti: {sum(len(syms) for syms in self.undefined_symbols.values())}")
+        return issues
 
-def analyze_build_log(log_path: str, project_base_path: str = None):
-    """Funzione principale per l'analisi."""
+    def analyze_type_issue(self, issue: CompilationIssue):
+        """Analizza un problema di tipo non trovato."""
+        print(f"\n=== Analisi del tipo '{issue.symbol}' non trovato in {issue.file.name}:{issue.line} ===\n")
+        
+        defining_files = []
+        for header in self.files.values():
+            if any(t.name == issue.symbol for t in header.types):
+                defining_files.append(header)
+        
+        if defining_files:
+            print(f"Il tipo '{issue.symbol}' è definito in:")
+            for header in defining_files:
+                type_def = header.find_type(issue.symbol)
+                print(f"  {header.path.name}:{type_def.line} -> {type_def.content}")
+            
+            print("\nAnalisi dei percorsi di inclusione:")
+            for header in defining_files:
+                paths = self.find_type_definition_paths(issue.file, issue.symbol)
+                if paths:
+                    print(f"\nPercorsi da {issue.file.name} a {header.path.name}:")
+                    for path in sorted(paths, key=len):
+                        print("  " + " -> ".join(p.name for p in path))
+                else:
+                    print(f"\nNessun percorso di inclusione trovato verso {header.path.name}")
+        else:
+            print(f"Il tipo '{issue.symbol}' non è definito in nessun header del progetto")
+
+    def find_type_definition_paths(self, from_file: Path, type_name: str, depth=0) -> List[List[Path]]:
+        """Trova tutti i percorsi possibili alla definizione di un tipo."""
+        if depth > self.MAX_RECURSION_DEPTH:
+            return []
+            
+        def dfs(current: Path, visited: Set[Path], path: List[Path], current_depth: int) -> List[List[Path]]:
+            if current_depth > self.MAX_RECURSION_DEPTH:
+                return []
+                
+            if current in visited:
+                return []
+                
+            visited.add(current)
+            paths = []
+            
+            if current in self.files:
+                header = self.files[current]
+                if any(t.name == type_name for t in header.types):
+                    return [path + [current]]
+            
+            for next_file in self.include_graph[current]:
+                if next_file not in visited:
+                    for new_path in dfs(next_file, visited.copy(), path + [current], current_depth + 1):
+                        paths.append(new_path)
+            
+            return paths
+            
+        return dfs(from_file, set(), [], 0)
+
+def main():
+    if len(sys.argv) < 2:
+        print("Uso: python cHeaderAnalyzer.py <log_file> [project_path]")
+        sys.exit(1)
+
+    log_path = sys.argv[1]
+    project_path = sys.argv[2] if len(sys.argv) > 2 else os.path.dirname(log_path)
+
     try:
-        analyzer = HeaderAnalyzer()
-        
         with open(log_path, 'r') as f:
             log_content = f.read()
         
-        analyzer.parse_build_log(log_content)
+        analyzer = HeaderAnalyzer([project_path])
+        issues = analyzer.parse_build_log(log_content)
         
-        if project_base_path:
-            base_path = Path(project_base_path)
-            analyzer.analyze_and_print(base_path)
-        else:
-            analyzer.analyze_and_print()
-        
-        return analyzer
+        type_issues = [issue for issue in issues if issue.symbol]
+        if not type_issues:
+            print("Nessun problema di tipo non trovato nel log.")
+            return
+            
+        for issue in type_issues:
+            analyzer.analyze_type_issue(issue)
+            input("\nPremi Enter per analizzare il prossimo problema...")
+            
     except Exception as e:
         print(f"Errore durante l'analisi: {e}")
-        return None
-
+        raise
 
 if __name__ == "__main__":
-    import sys
-    
-    log_path = '../hello-idf/build_output.txt'
-    project_base_path = '../hello-idf/'
+    main()
 
-    if len(sys.argv) > 2:
-        log_path = sys.argv[1]
-        project_base_path = sys.argv[2] if len(sys.argv) > 2 else None
-    
-    analyze_build_log(log_path, project_base_path)
+# python3 cHeaderAnalyzer.py ../hello-idf/build_output.txt
