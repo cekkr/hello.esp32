@@ -210,6 +210,7 @@ class HeaderAnalyzer:
         for match in re.finditer(r'typedef\s+.*?\s+(\w+)\s*;', content):
             name = match.group(1)
             line = content[:match.start()].count('\n') + 1
+
             header.add_type(TypeDefinition(name, TypeKind.TYPEDEF, line, match.group(0)))
             
         # Enum

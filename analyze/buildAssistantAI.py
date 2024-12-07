@@ -3,196 +3,226 @@ import subprocess
 import json
 import re
 import time
-from typing import Dict, List, Optional, Tuple
-import google.generativeai as genai
-from pathlib import Path
 import logging
-from google.api_core import retry
+from pathlib import Path
+import google.generativeai as genai
 
-class ESPBuildAssistant:
+import os
+import subprocess
+import json
+import re
+import time
+import logging
+from pathlib import Path
+from typing import Dict, Set, List, Optional, Tuple
+from dataclasses import dataclass
+import google.generativeai as genai
+
+@dataclass
+class SourceDefinition:
+    name: str
+    type: str
+    line: int
+    content: str
+    file: Path
+
+@dataclass
+class SourceFile:
+    path: Path
+    definitions: List[SourceDefinition]
+    includes: List[Path]
+    raw_content: Optional[str] = None
+
+class BuildAssistant:
     def __init__(self, esp_idf_path: str, gemini_api_key: str):
-        """
-        Inizializza l'assistente di build ESP-IDF con integrazione Gemini.
+        # Setup logging
+        self.logger = logging.getLogger('BuildAssistant')
+        self.logger.setLevel(logging.DEBUG)
         
-        Args:
-            esp_idf_path: Percorso alla directory ESP-IDF
-            gemini_api_key: API key per Gemini
-        """
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        self.logger.addHandler(handler)
+        
+        # Init paths and API
         self.esp_idf_path = Path(esp_idf_path)
-        self.logger = self._setup_logging()
-        
-        # Configurazione Gemini
         genai.configure(api_key=gemini_api_key)
         self.model = genai.GenerativeModel('gemini-pro')
         
-        # Rate limiting
-        self.last_request_time = 0
-        self.min_request_interval = 1.0  # Minimo 1 secondo tra le richieste
+        # Source analysis
+        self.source_files: Dict[Path, SourceFile] = {}
+        self.definitions_map: Dict[str, List[SourceDefinition]] = {}
         
-        # Regex comuni per il parsing degli errori
+        # Error patterns
         self.error_patterns = {
             'compilation': r'error: (.*)',
             'linking': r'undefined reference to `(.*)`',
             'cmake': r'CMake Error at (.*)',
+            'fatal error': r'fatal error: (.*)',
+            'undefined reference': r'undefined reference to `(.*)`',
+            'failed': r'(?:make|ninja): \*\*\* (.*?) Error \d+'
         }
         
-    def _setup_logging(self) -> logging.Logger:
-        """Configura il logging system con output verboso."""
-        logger = logging.getLogger('ESPBuildAssistant')
-        logger.setLevel(logging.DEBUG)  # Impostato a DEBUG per massima verbosità
+        # Code patterns
+        self.code_patterns = {
+            'function': r'(?:static\s+)?(?:void|int|char|float|double|bool|size_t|uint\w+_t|int\w+_t|\w+_t|\w+)\s+(\w+)\s*\([^)]*\)\s*{',
+            'struct': r'struct\s+(\w+)\s*{',
+            'typedef': r'typedef\s+(?:struct\s+)?(?:enum\s+)?(?:\w+\s+)?(\w+);',
+            'define': r'#define\s+(\w+)',
+            'variable': r'(?:static\s+)?(?:const\s+)?(?:volatile\s+)?(?:\w+(?:\s*\*)?)\s+(\w+)\s*(?:=|;)',
+        }
         
-        # Handler per console con formattazione dettagliata
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(logging.DEBUG)
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
-        console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
+        self._scan_source_files()
+    
+    def _scan_source_files(self):
+        """Scansiona i file sorgente del progetto e analizza il loro contenuto."""
+        self.logger.info("Scansione dei file sorgente...")
         
-        # Handler per file di log
-        file_handler = logging.FileHandler('esp_build_assistant.log')
-        file_handler.setLevel(logging.DEBUG)
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-        
-        return logger
+        extensions = {'.c', '.cpp', '.h', '.hpp'}
+        for ext in extensions:
+            for file_path in self.esp_idf_path.rglob(f'*{ext}'):
+                try:
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                        
+                    definitions = []
+                    includes = []
+                    
+                    # Analizza include
+                    for match in re.finditer(r'#include\s*[<"]([^>"]+)[>"]', content):
+                        inc_path = match.group(1)
+                        full_path = self.esp_idf_path / inc_path
+                        if full_path.exists():
+                            includes.append(full_path)
+                    
+                    # Analizza definizioni
+                    for pattern_type, pattern in self.code_patterns.items():
+                        for match in re.finditer(pattern, content):
+                            name = match.group(1)
+                            line = content[:match.start()].count('\n') + 1
+                            def_content = content[match.start():match.end()]
+                            
+                            definition = SourceDefinition(
+                                name=name,
+                                type=pattern_type,
+                                line=line,
+                                content=def_content,
+                                file=file_path
+                            )
+                            definitions.append(definition)
+                            
+                            if name not in self.definitions_map:
+                                self.definitions_map[name] = []
+                            self.definitions_map[name].append(definition)
+                    
+                    self.source_files[file_path] = SourceFile(
+                        path=file_path,
+                        definitions=definitions,
+                        includes=includes,
+                        raw_content=content
+                    )
+                    
+                except Exception as e:
+                    self.logger.error(f"Errore analizzando {file_path}: {e}")
 
-    def _rate_limit_wait(self):
-        """Implementa rate limiting per le richieste API."""
-        current_time = time.time()
-        time_since_last_request = current_time - self.last_request_time
-        
-        if time_since_last_request < self.min_request_interval:
-            wait_time = self.min_request_interval - time_since_last_request
-            self.logger.debug(f"Rate limiting: waiting {wait_time:.2f} seconds")
-            time.sleep(wait_time)
-        
-        self.last_request_time = time.time()
-
-    @retry.Retry(predicate=retry.if_exception_type(Exception))
-    async def analyze_build_output(self, build_output: str) -> Dict:
-        """
-        Analizza l'output della build per identificare errori.
-        
-        Args:
-            build_output: Output grezzo della build
-            
-        Returns:
-            Dict con analisi strutturata degli errori
-        """
-        self.logger.info("Iniziando analisi dell'output della build")
-        self.logger.debug(f"Output completo della build:\n{build_output}")
-        
-        errors = []
-        for line in build_output.split('\n'):
-            for error_type, pattern in self.error_patterns.items():
-                if match := re.search(pattern, line):
-                    error = {
-                        'type': error_type,
-                        'message': match.group(1),
-                        'context': line
-                    }
-                    self.logger.debug(f"Trovato errore: {error}")
-                    errors.append(error)
-        
-        result = {'errors': errors}
-        self.logger.info(f"Analisi completata. Trovati {len(errors)} errori")
-        return result
-
-    async def get_ai_assistance(self, error_info: Dict) -> Dict:
-        """
-        Ottiene assistenza da Gemini per risolvere gli errori.
-        Implementa rate limiting e logging verboso.
-        
-        Args:
-            error_info: Informazioni strutturate sull'errore
-            
-        Returns:
-            Risposta strutturata da Gemini
-        """
-        self.logger.info("Preparazione richiesta a Gemini")
-        prompt = self._build_prompt(error_info)
-        self.logger.debug(f"Prompt generato:\n{prompt}")
-        
-        # Applica rate limiting
-        self._rate_limit_wait()
+    def get_context_for_error(self, error_info: Dict) -> Dict:
+        """Trova informazioni di contesto relative all'errore."""
+        context = {"relevant_definitions": [], "related_files": [], "includes": []}
         
         try:
-            self.logger.info("Invio richiesta a Gemini")
-            response = await self.model.generate_content(
-                prompt,
-                generation_config={
-                    'temperature': 0.7,
-                    'top_p': 0.8,
-                    'top_k': 40,
-                    'max_output_tokens': 1024
-                }
-            )
-            
-            self.logger.debug(f"Risposta ricevuta da Gemini:\n{response.text}")
-            
-            try:
-                parsed_response = json.loads(response.text)
-                self.logger.info("Risposta JSON parsata con successo")
-                self.logger.debug(f"Risposta parsata:\n{json.dumps(parsed_response, indent=2)}")
-                return parsed_response
-            except json.JSONDecodeError as e:
-                self.logger.error(f"Errore nel parsing della risposta JSON: {e}")
-                return {
-                    "error": "Formato risposta non valido",
-                    "raw_response": response.text
-                }
+            # Cerca definizioni correlate
+            for error in error_info['errors']:
+                message = error['message']
                 
+                # Estrai possibili identificatori dall'errore
+                identifiers = re.findall(r'\b\w+\b', message)
+                
+                for identifier in identifiers:
+                    if identifier in self.definitions_map:
+                        for definition in self.definitions_map[identifier]:
+                            context['relevant_definitions'].append({
+                                'name': definition.name,
+                                'type': definition.type,
+                                'file': str(definition.file.relative_to(self.esp_idf_path)),
+                                'line': definition.line,
+                                'content': definition.content
+                            })
+                            
+                            # Aggiungi file correlati
+                            source_file = self.source_files[definition.file]
+                            context['related_files'].append(str(definition.file.relative_to(self.esp_idf_path)))
+                            context['includes'].extend([
+                                str(inc.relative_to(self.esp_idf_path)) 
+                                for inc in source_file.includes
+                            ])
+            
+            # Rimuovi duplicati
+            context['related_files'] = list(set(context['related_files']))
+            context['includes'] = list(set(context['includes']))
+            
         except Exception as e:
-            self.logger.error(f"Errore nella richiesta a Gemini: {e}")
-            raise
+            self.logger.error(f"Errore nell'analisi del contesto: {e}")
+        
+        return context
 
-    def _build_prompt(self, error_info: Dict) -> str:
-        """
-        Costruisce il prompt per Gemini con istruzioni dettagliate.
-        """
+    def get_solution(self, errors):
+        """Ottiene una soluzione da Gemini con contesto arricchito."""
+        if not errors:
+            self.logger.warning("Nessun errore da analizzare")
+            return None
+            
+        self.logger.info("Richiesta soluzione a Gemini")
+        
+        # Ottieni contesto aggiuntivo
+        context = self.get_context_for_error({'errors': errors})
+        
         prompt = f"""
-        Analizza il seguente errore di compilazione ESP-IDF e fornisci una soluzione dettagliata in formato JSON.
+        Analizza i seguenti errori di compilazione ESP-IDF e fornisci una soluzione dettagliata in formato JSON.
         
-        Errore: {json.dumps(error_info, indent=2)}
+        Errori:
+        {json.dumps(errors, indent=2)}
         
-        Rispondi con un JSON che include:
+        Contesto del codice:
+        {json.dumps(context, indent=2)}
+        
+        Rispondi SOLO con un JSON valido nel seguente formato:
         {{
-            "problema": "descrizione dettagliata del problema riscontrato",
-            "causa_probabile": "analisi approfondita della causa",
-            "soluzione": {{
-                "passi": [
-                    "lista ordinata di passi da seguire",
-                    "con spiegazioni dettagliate"
-                ],
-                "comandi": [
-                    "eventuali comandi da eseguire"
-                ]
-            }},
-            "codice_esempio": "esempio di codice corretto se applicabile",
-            "riferimenti": [
-                "link alla documentazione",
-                "riferimenti utili"
+            "analisi": "breve descrizione del problema",
+            "causa": "causa probabile dell'errore",
+            "contesto": "analisi del contesto fornito",
+            "soluzione": [
+                "passo 1",
+                ...
+            ],
+            "suggerimenti": [
+                "suggerimento 1",
+                ...
+            ],
+            "richiesta_dettagli": [
+                "informazioni riguardo alla struttura X",
+                ...
             ]
         }}
         """
-        return prompt
-
-    async def execute_build(self, build_script: str) -> Tuple[str, bool]:
-        """
-        Esegue lo script di build e cattura l'output.
-        
-        Args:
-            build_script: Percorso allo script di build
-            
-        Returns:
-            Tuple con (output, success_status)
-        """
-        self.logger.info(f"Avvio build con script: {build_script}")
         
         try:
-            self.logger.debug(f"Esecuzione comando in directory: {self.esp_idf_path}")
+            response = self.model.generate_content(prompt)
+            self.logger.debug(f"Risposta ricevuta: {response.text}")
+            
+            try:
+                return json.loads(response.text)
+            except json.JSONDecodeError:
+                self.logger.error("Impossibile parsare la risposta come JSON")
+                return {"error": "Formato risposta non valido", "raw": response.text}
+                
+        except Exception as e:
+            self.logger.error(f"Errore durante la richiesta a Gemini: {e}")
+            return {"error": str(e)}
+    
+    def execute_build(self, build_script: str):
+        """Esegue lo script di build"""
+        self.logger.info(f"Esecuzione build script: {build_script}")
+        try:
             result = subprocess.run(
                 build_script,
                 shell=True,
@@ -200,81 +230,97 @@ class ESPBuildAssistant:
                 text=True,
                 cwd=self.esp_idf_path
             )
-            
-            self.logger.debug(f"Output build:\n{result.stdout}")
-            if result.stderr:
-                self.logger.debug(f"Stderr build:\n{result.stderr}")
-            
-            success = result.returncode == 0
-            self.logger.info(f"Build completata {'con successo' if success else 'con errori'}")
-            
-            return result.stdout + result.stderr, success
-            
+            return result.stdout + result.stderr, result.returncode == 0
         except Exception as e:
-            self.logger.error(f"Errore nell'esecuzione della build: {e}")
+            self.logger.error(f"Errore durante la build: {e}")
             return str(e), False
-
-    async def run(self, build_script: str):
-        """
-        Esegue l'intero processo di build e analisi in modo controllato.
+    
+    def parse_errors(self, output: str):
+        """Analizza l'output per trovare errori"""
+        self.logger.info("Analisi degli errori")
+        errors = []
         
-        Args:
-            build_script: Script di build da eseguire
+        for line in output.split('\n'):
+            for error_type, pattern in self.error_patterns.items():
+                if match := re.search(pattern, line):
+                    errors.append({
+                        'type': error_type,
+                        'message': match.group(1),
+                        'context': line.strip()
+                    })
+                    self.logger.debug(f"Trovato errore: {error_type} - {match.group(1)}")
+        
+        return errors
+
+    def get_solution(self, errors):
+        """Ottiene una soluzione da Gemini"""
+        if not errors:
+            self.logger.warning("Nessun errore da analizzare")
+            return None
+            
+        self.logger.info("Richiesta soluzione a Gemini")
+        
+        prompt = f"""
+        Analizza i seguenti errori di compilazione ESP-IDF e fornisci una soluzione dettagliata in formato JSON:
+        
+        {json.dumps(errors, indent=2)}
+        
+        Rispondi SOLO con un JSON valido nel seguente formato:
+        {{
+            "analisi": "breve descrizione del problema",
+            "causa": "causa probabile dell'errore",
+            "soluzione": [
+                "passo 1",
+                ...
+            ],
+            "suggerimenti": [
+                "suggerimento 1",
+                ...
+            ],
+            "richiesta_dettagli":[
+                "informazioni riguardo alla struttura X",
+                ...
+            ]
+        }}
         """
-        self.logger.info("Avvio processo di assistenza build")
+        
+        try:
+            response = self.model.generate_content(prompt)
+            self.logger.debug(f"Risposta ricevuta: {response.text}")
+            
+            # Prova a parsare la risposta come JSON
+            try:
+                return json.loads(response.text)
+            except json.JSONDecodeError:
+                self.logger.error("Impossibile parsare la risposta come JSON")
+                return {"error": "Formato risposta non valido", "raw": response.text}
+                
+        except Exception as e:
+            self.logger.error(f"Errore durante la richiesta a Gemini: {e}")
+            return {"error": str(e)}
+
+    def run(self, build_script: str):
+        """Esegue l'intero processo"""
+        self.logger.info("Avvio analisi build")
         
         # Esegui build
-        output, success = await self.execute_build(build_script)
+        output, success = self.execute_build(build_script)
         
         if success:
-            self.logger.info("Build completata con successo!")
+            print("Build completata con successo!")
+            return
+        
+        # Trova errori
+        errors = self.parse_errors(output)
+        if not errors:
+            print("Build fallita ma nessun errore riconosciuto")
             return
             
-        # Analizza errori
-        error_analysis = await self.analyze_build_output(output)
-        
-        if not error_analysis['errors']:
-            self.logger.warning("Build fallita ma nessun errore riconosciuto nel pattern")
-            return
-            
-        # Ottieni assistenza
-        self.logger.info("Richiesta assistenza per la risoluzione")
-        assistance = await self.get_ai_assistance(error_analysis)
-        
-        # Stampa risultati
-        print("\nAnalisi dell'errore:")
-        print(json.dumps(assistance, indent=2, ensure_ascii=False))
-
-
-    async def interactive_assistance(self, build_script: str):
-        """
-        Fornisce assistenza interattiva durante il processo di build.
-        
-        Args:
-            build_script: Script di build da eseguire
-        """
-        self.logger.info("Avvio processo di build...")
-        output, success = await self.execute_build(build_script)
-        
-        if success:
-            self.logger.info("Build completata con successo!")
-            return
-            
-        error_analysis = await self.analyze_build_output(output)
-        detail_level = 1
-        
-        while True:
-            assistance = await self.get_ai_assistance(error_analysis, detail_level)
+        # Ottieni e mostra soluzione
+        solution = self.get_solution(errors)
+        if solution:
             print("\nAnalisi dell'errore:")
-            print(json.dumps(assistance, indent=2, ensure_ascii=False))
-            
-            user_input = input("\nVuoi maggiori dettagli? (s/n/q per uscire): ").lower()
-            if user_input == 'q':
-                break
-            elif user_input == 's' and detail_level < 3:
-                detail_level += 1
-            elif user_input == 'n':
-                break
+            print(json.dumps(solution, indent=2, ensure_ascii=False))
 
 
 def load_gemini_key(file_path):
@@ -285,20 +331,19 @@ def load_gemini_key(file_path):
     return None
 
 # Esempio di utilizzo
-async def main():
+def main():
     # Specifica il percorso del file geminiConfig.env
     config_file = 'geminiConfig.env'
 
     # Carica la chiave GEMINI_KEY dal file
     gemini_key = load_gemini_key(config_file)
 
-    assistant = ESPBuildAssistant(
+    assistant = BuildAssistant(
         esp_idf_path="../hello-idf",
         gemini_api_key=gemini_key
     )
     
-    await assistant.interactive_assistance("./build.sh")
+    assistant.run("./build.sh")
 
 if __name__ == "__main__":
-    import asyncio
-    asyncio.run(main())
+    main()
