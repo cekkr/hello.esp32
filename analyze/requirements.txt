@@ -1,2 +1,4 @@
 libclang
 networkx
+dotenv
+google.generativeai
