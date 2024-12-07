@@ -203,7 +203,8 @@ def main():
         necessary = [inc for inc, nec in includes.items() if nec]
         if necessary:
             for include in sorted(necessary):
-                print(f"  ✓ {include}")
+                #print(f"  ✓ {include}")
+                print(f"#include \"{include}\"")
         else:
             print("  (nessuno)")
             
@@ -219,3 +220,5 @@ if __name__ == "__main__":
     main()
 
 #pip install clang
+
+# clear & python3 checkProjectIncludes.py
