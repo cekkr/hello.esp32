@@ -283,16 +283,47 @@ class HeaderAnalyzer:
         """Analizza un problema di tipo non trovato."""
         print(f"\n=== Analisi del tipo '{issue.symbol}' non trovato in {issue.file.name}:{issue.line} ===\n")
         
+        # Mostra le inclusioni del file con l'errore
+        if issue.file in self.files:
+            current_file = self.files[issue.file]
+            print(f"File con l'errore ({issue.file.name}) include:")
+            for inc in current_file.includes:
+                print(f"  - {inc.path.name} (linea {inc.line})")
+        else:
+            print(f"ATTENZIONE: File con l'errore {issue.file.name} non trovato nel progetto")
+        
+        # Trova i file che definiscono il tipo
         defining_files = []
         for header in self.files.values():
             if any(t.name == issue.symbol for t in header.types):
                 defining_files.append(header)
         
         if defining_files:
-            print(f"Il tipo '{issue.symbol}' è definito in:")
+            print(f"\nIl tipo '{issue.symbol}' è definito in:")
             for header in defining_files:
                 type_def = header.find_type(issue.symbol)
                 print(f"  {header.path.name}:{type_def.line} -> {type_def.content}")
+                
+                # Mostra chi include questo file di definizione
+                if header.path in self.reverse_graph:
+                    included_by = self.reverse_graph[header.path]
+                    if included_by:
+                        print(f"  {header.path.name} è incluso da:")
+                        for including_file in included_by:
+                            if including_file in self.files:
+                                inc_file = self.files[including_file]
+                                for inc in inc_file.includes:
+                                    if inc.path == header.path:
+                                        print(f"    - {including_file.name} (linea {inc.line})")
+                    else:
+                        print(f"  {header.path.name} non è incluso da nessun file nel progetto")
+                
+                # Cerca cicli di inclusione che potrebbero interferire
+                cycles = self._find_cycles_between_files(issue.file, header.path)
+                if cycles:
+                    print(f"\nATTENZIONE: Trovati cicli di inclusione tra {issue.file.name} e {header.path.name}:")
+                    for cycle in cycles:
+                        print("  " + " -> ".join(p.name for p in cycle))
             
             print("\nAnalisi dei percorsi di inclusione:")
             for header in defining_files:
@@ -304,8 +335,30 @@ class HeaderAnalyzer:
                 else:
                     print(f"\nNessun percorso di inclusione trovato verso {header.path.name}")
         else:
-            print(f"Il tipo '{issue.symbol}' non è definito in nessun header del progetto")
+            print(f"\nIl tipo '{issue.symbol}' non è definito in nessun header del progetto")
 
+    def _find_cycles_between_files(self, file1: Path, file2: Path, max_depth=10) -> List[List[Path]]:
+        """Trova tutti i cicli di inclusione tra due file."""
+        cycles = []
+        visited = set()
+        
+        def dfs(current: Path, target: Path, path: List[Path], depth: int = 0):
+            if depth > max_depth:
+                return
+                
+            if current == target and len(path) > 1:
+                cycles.append(path + [current])
+                return
+                
+            if current in path:
+                return
+                
+            for next_file in self.include_graph[current]:
+                if next_file not in visited:
+                    visited.add(next_file)
+                    dfs(next_file, target, path + [current], depth + 1)
+                    visited.remove(next_file)
+        
     def find_type_definition_paths(self, from_file: Path, type_name: str, depth=0) -> List[List[Path]]:
         """Trova tutti i percorsi possibili alla definizione di un tipo."""
         if depth > self.MAX_RECURSION_DEPTH:
