@@ -292,11 +292,13 @@ class SourceAnalyzer:
             print("Nessun ciclo di inclusione trovato.")
 
 def main():
-    if len(sys.argv) < 2:
-        print("Uso: python sourceAnalyzer.py <project_path> [additional_paths...]")
-        sys.exit(1)
+    project_paths = "../../hello-idf/components/wasm3-helloesp/platforms/embedded/esp32-idf-wasi/wasm3/wasm3"
 
-    project_paths = sys.argv[1:]
+    if len(sys.argv) >= 2:
+        project_paths = sys.argv[1:]
+    
+    project_paths = os.path.abspath(project_paths)
+
     analyzer = SourceAnalyzer(project_paths)
     
     print("Analisi del progetto in corso...")
