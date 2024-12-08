@@ -5,18 +5,9 @@ import re
 import time
 import logging
 from pathlib import Path
-import google.generativeai as genai
-
-import os
-import subprocess
-import json
-import re
-import time
-import logging
-from pathlib import Path
 from typing import Dict, Set, List, Optional, Tuple
 from dataclasses import dataclass
-import google.generativeai as genai
+import requests
 
 @dataclass
 class SourceDefinition:
@@ -46,8 +37,8 @@ class BuildAssistant:
         
         # Init paths and API
         self.esp_idf_path = Path(esp_idf_path)
-        genai.configure(api_key=gemini_api_key)
-        self.model = genai.GenerativeModel('gemini-pro')
+        self.gemini_api_key = gemini_api_key
+        self.gemini_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent"
         
         # Source analysis
         self.source_files: Dict[Path, SourceFile] = {}
@@ -73,10 +64,40 @@ class BuildAssistant:
         }
         
         self._scan_source_files()
+
+    def _call_gemini_api(self, prompt: str) -> dict:
+        """Makes a direct API call to Gemini."""
+        headers = {
+            "Content-Type": "application/json",
+        }
+        
+        data = {
+            "contents": [{
+                "parts": [{
+                    "text": prompt
+                }]
+            }]
+        }
+        
+        url = f"{self.gemini_url}?key={self.gemini_api_key}"
+        
+        try:
+            response = requests.post(url, headers=headers, json=data)
+            response.raise_for_status()
+            
+            result = response.json()
+            if 'candidates' in result and result['candidates']:
+                return result['candidates'][0]['content']['parts'][0]['text']
+            else:
+                raise ValueError("No valid response from Gemini API")
+                
+        except requests.exceptions.RequestException as e:
+            self.logger.error(f"API request failed: {e}")
+            return {"error": str(e)}
     
     def _scan_source_files(self):
-        """Scansiona i file sorgente del progetto e analizza il loro contenuto."""
-        self.logger.info("Scansione dei file sorgente...")
+        """Scans project source files and analyzes their content."""
+        self.logger.info("Scanning source files...")
         
         extensions = {'.c', '.cpp', '.h', '.hpp'}
         for ext in extensions:
@@ -88,14 +109,14 @@ class BuildAssistant:
                     definitions = []
                     includes = []
                     
-                    # Analizza include
+                    # Analyze includes
                     for match in re.finditer(r'#include\s*[<"]([^>"]+)[>"]', content):
                         inc_path = match.group(1)
                         full_path = self.esp_idf_path / inc_path
                         if full_path.exists():
                             includes.append(full_path)
                     
-                    # Analizza definizioni
+                    # Analyze definitions
                     for pattern_type, pattern in self.code_patterns.items():
                         for match in re.finditer(pattern, content):
                             name = match.group(1)
@@ -123,18 +144,18 @@ class BuildAssistant:
                     )
                     
                 except Exception as e:
-                    self.logger.error(f"Errore analizzando {file_path}: {e}")
+                    self.logger.error(f"Error analyzing {file_path}: {e}")
 
     def get_context_for_error(self, error_info: Dict) -> Dict:
-        """Trova informazioni di contesto relative all'errore."""
+        """Finds context information related to the error."""
         context = {"relevant_definitions": [], "related_files": [], "includes": []}
         
         try:
-            # Cerca definizioni correlate
+            # Look for related definitions
             for error in error_info['errors']:
                 message = error['message']
                 
-                # Estrai possibili identificatori dall'errore
+                # Extract possible identifiers from error
                 identifiers = re.findall(r'\b\w+\b', message)
                 
                 for identifier in identifiers:
@@ -148,7 +169,7 @@ class BuildAssistant:
                                 'content': definition.content
                             })
                             
-                            # Aggiungi file correlati
+                            # Add related files
                             source_file = self.source_files[definition.file]
                             context['related_files'].append(str(definition.file.relative_to(self.esp_idf_path)))
                             context['includes'].extend([
@@ -156,72 +177,72 @@ class BuildAssistant:
                                 for inc in source_file.includes
                             ])
             
-            # Rimuovi duplicati
+            # Remove duplicates
             context['related_files'] = list(set(context['related_files']))
             context['includes'] = list(set(context['includes']))
             
         except Exception as e:
-            self.logger.error(f"Errore nell'analisi del contesto: {e}")
+            self.logger.error(f"Error in context analysis: {e}")
         
         return context
 
     def get_solution(self, errors):
-        """Ottiene una soluzione da Gemini con contesto arricchito."""
+        """Gets a solution from Gemini with enriched context."""
         if not errors:
-            self.logger.warning("Nessun errore da analizzare")
+            self.logger.warning("No errors to analyze")
             return None
             
-        self.logger.info("Richiesta soluzione a Gemini")
+        self.logger.info("Requesting solution from Gemini")
         
-        # Ottieni contesto aggiuntivo
+        # Get additional context
         context = self.get_context_for_error({'errors': errors})
         
         prompt = f"""
-        Analizza i seguenti errori di compilazione ESP-IDF e fornisci una soluzione dettagliata in formato JSON.
+        Analyze the following ESP-IDF compilation errors and provide a detailed solution in JSON format.
         
-        Errori:
+        Errors:
         {json.dumps(errors, indent=2)}
         
-        Contesto del codice:
+        Code context:
         {json.dumps(context, indent=2)}
         
-        Rispondi SOLO con un JSON valido nel seguente formato:
+        Respond ONLY with a valid JSON in the following format:
         {{
-            "analisi": "breve descrizione del problema",
-            "causa": "causa probabile dell'errore",
-            "contesto": "analisi del contesto fornito",
-            "soluzione": [
-                "passo 1",
+            "analysis": "brief problem description",
+            "cause": "probable error cause",
+            "context": "provided context analysis",
+            "solution": [
+                "step 1",
                 ...
             ],
-            "suggerimenti": [
-                "suggerimento 1",
+            "suggestions": [
+                "suggestion 1",
                 ...
             ],
-            "richiesta_dettagli": [
-                "informazioni riguardo alla struttura X",
+            "request_details": [
+                "information about structure X",
                 ...
             ]
         }}
         """
         
         try:
-            response = self.model.generate_content(prompt)
-            self.logger.debug(f"Risposta ricevuta: {response.text}")
+            response = self._call_gemini_api(prompt)
+            self.logger.debug(f"Response received: {response}")
             
             try:
-                return json.loads(response.text)
+                return json.loads(response)
             except json.JSONDecodeError:
-                self.logger.error("Impossibile parsare la risposta come JSON")
-                return {"error": "Formato risposta non valido", "raw": response.text}
+                self.logger.error("Unable to parse response as JSON")
+                return {"error": "Invalid response format", "raw": response}
                 
         except Exception as e:
-            self.logger.error(f"Errore durante la richiesta a Gemini: {e}")
+            self.logger.error(f"Error during Gemini request: {e}")
             return {"error": str(e)}
     
     def execute_build(self, build_script: str):
-        """Esegue lo script di build"""
-        self.logger.info(f"Esecuzione build script: {build_script}")
+        """Executes the build script"""
+        self.logger.info(f"Executing build script: {build_script}")
         try:
             result = subprocess.run(
                 build_script,
@@ -232,12 +253,12 @@ class BuildAssistant:
             )
             return result.stdout + result.stderr, result.returncode == 0
         except Exception as e:
-            self.logger.error(f"Errore durante la build: {e}")
+            self.logger.error(f"Error during build: {e}")
             return str(e), False
     
     def parse_errors(self, output: str):
-        """Analizza l'output per trovare errori"""
-        self.logger.info("Analisi degli errori")
+        """Analyzes output for errors"""
+        self.logger.info("Analyzing errors")
         errors = []
         
         for line in output.split('\n'):
@@ -248,78 +269,31 @@ class BuildAssistant:
                         'message': match.group(1),
                         'context': line.strip()
                     })
-                    self.logger.debug(f"Trovato errore: {error_type} - {match.group(1)}")
+                    self.logger.debug(f"Found error: {error_type} - {match.group(1)}")
         
         return errors
 
-    def get_solution(self, errors):
-        """Ottiene una soluzione da Gemini"""
-        if not errors:
-            self.logger.warning("Nessun errore da analizzare")
-            return None
-            
-        self.logger.info("Richiesta soluzione a Gemini")
-        
-        prompt = f"""
-        Analizza i seguenti errori di compilazione ESP-IDF e fornisci una soluzione dettagliata in formato JSON:
-        
-        {json.dumps(errors, indent=2)}
-        
-        Rispondi SOLO con un JSON valido nel seguente formato:
-        {{
-            "analisi": "breve descrizione del problema",
-            "causa": "causa probabile dell'errore",
-            "soluzione": [
-                "passo 1",
-                ...
-            ],
-            "suggerimenti": [
-                "suggerimento 1",
-                ...
-            ],
-            "richiesta_dettagli":[
-                "informazioni riguardo alla struttura X",
-                ...
-            ]
-        }}
-        """
-        
-        try:
-            response = self.model.generate_content(prompt)
-            self.logger.debug(f"Risposta ricevuta: {response.text}")
-            
-            # Prova a parsare la risposta come JSON
-            try:
-                return json.loads(response.text)
-            except json.JSONDecodeError:
-                self.logger.error("Impossibile parsare la risposta come JSON")
-                return {"error": "Formato risposta non valido", "raw": response.text}
-                
-        except Exception as e:
-            self.logger.error(f"Errore durante la richiesta a Gemini: {e}")
-            return {"error": str(e)}
-
     def run(self, build_script: str):
-        """Esegue l'intero processo"""
-        self.logger.info("Avvio analisi build")
+        """Executes the entire process"""
+        self.logger.info("Starting build analysis")
         
-        # Esegui build
+        # Execute build
         output, success = self.execute_build(build_script)
         
         if success:
-            print("Build completata con successo!")
+            print("Build completed successfully!")
             return
         
-        # Trova errori
+        # Find errors
         errors = self.parse_errors(output)
         if not errors:
-            print("Build fallita ma nessun errore riconosciuto")
+            print("Build failed but no recognized errors")
             return
             
-        # Ottieni e mostra soluzione
+        # Get and show solution
         solution = self.get_solution(errors)
         if solution:
-            print("\nAnalisi dell'errore:")
+            print("\nError analysis:")
             print(json.dumps(solution, indent=2, ensure_ascii=False))
 
 
