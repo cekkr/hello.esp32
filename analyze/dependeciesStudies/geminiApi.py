@@ -172,35 +172,3 @@ class GeminiClient:
                 "newest_entry": stats[2]
             }
         
-'''
-# Inizializzazione del client
-client = GeminiClient(api_key="your_api_key")
-
-# Generazione di testo semplice
-response = client.generate_text(
-    prompt="Scrivi una poesia sulla primavera",
-    temperature=0.8
-)
-
-# Generazione con istruzioni di sistema
-response = client.generate_text(
-    prompt="Analizza questo testo",
-    system_instructions="Sei un esperto di analisi letteraria"
-)
-
-# Output strutturato in JSON
-response = client.generate_text(
-    prompt="Analizza il sentiment di questo testo",
-    structured_output={
-        "type": "object",
-        "properties": {
-            "sentiment": {"type": "string"},
-            "score": {"type": "number"}
-        }
-    }
-)
-
-# Statistiche della cache
-stats = client.get_cache_stats()
-print(f"Totale entry in cache: {stats['total_entries']}")
-'''
