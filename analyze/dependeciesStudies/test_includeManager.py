@@ -91,7 +91,7 @@ def load_gemini_key(file_path):
 
 def main():
     global client
-    client = GeminiClient(api_key=load_gemini_key("../geminiConfig.env"))
+    client = GeminiClient(api_key=load_gemini_key("../geminiConfig.env"))    
 
     # Uso del resolver
     resolver = IncludeResolver(source_files, askAI)

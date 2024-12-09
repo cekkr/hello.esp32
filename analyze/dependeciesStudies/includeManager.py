@@ -5,6 +5,8 @@ from collections import defaultdict
 import json
 import re
 
+from readCLib import *
+
 @dataclass
 class SymbolContext:
     name: str
@@ -41,14 +43,44 @@ class IncludeResolver:
     source_files: Dict[Path, SourceFile]
     ai_prompt: Callable[[str, str], dict]
     
-    def __init__(self, source_files, ai_prompt_call):
-        pass
+    def __init__(self, sources_path, ai_prompt_call):
+        self.ai_prompt = ai_prompt_call
+        self.source_path = sources_path
+        self.analyzer = None
 
     def __post_init__(self):
         self.dependency_graph: Dict[Path, DependencyNode] = {}
         self.symbol_dependencies: Dict[str, Set[str]] = defaultdict(set)
         self._build_dependency_graph()
         self._analyze_symbol_dependencies()
+
+    def analyzeSources(self):
+        project_paths = os.path.abspath(self.source_path)
+        
+        try:
+            self.analyzer = analyzer = SourceAnalyzer(project_paths)
+            print("Analisi del progetto in corso...")
+            analyzer.analyze()
+            
+            printAndDive = True
+            if printAndDive:
+                analyzer.print_dependencies()
+                analyzer.print_symbols()
+                analyzer.find_cycles()
+                analyzer.suggest_missing_includes()
+                
+                # Opzionale: analisi dettagliata di simboli specifici
+                while True:
+                    symbol = input("\nInserisci il nome di un simbolo da analizzare (o premi Invio per terminare): ")
+                    if not symbol:
+                        break
+                    analyzer.analyze_symbol(symbol)
+            else:
+                pass # analyze dependencies
+        
+        except Exception as e:
+            print(f"Errore durante l'analisi: {e}")
+            raise
 
     def _build_dependency_graph(self):
         """Costruisce il grafo delle dipendenze con contesto dei simboli"""
