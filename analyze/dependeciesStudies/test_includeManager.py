@@ -69,8 +69,8 @@ def askAI(instruction, prompt):
     global client
 
     response = client.generate_text(
-            system_instructions="Scomponi questo testo in una struttura di analisi grammaticale e logica",
-            prompt="La mia gatta si chiama Neve perchè è bianca",
+            system_instructions=instruction,
+            prompt=prompt,
             structured_output={
                 "type": "object",
                 "properties": {
@@ -79,6 +79,8 @@ def askAI(instruction, prompt):
                 }
             }
         )
+    
+    return response
 
 def load_gemini_key(file_path):
     with open(file_path, 'r') as file:
