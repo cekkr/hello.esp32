@@ -70,16 +70,17 @@ class GeminiClient:
     def generate_text(
         self,
         prompt: str,
-        model: str = "gemini-pro",
+        model: str = "gemini-1.5-pro",
         temperature: float = 0.7,
         top_p: float = 0.95,
         top_k: int = 40,
-        max_tokens: Optional[int] = None,
+        max_tokens: Optional[int] = 8096,
         stop_sequences: Optional[list] = None,
         safety_settings: Optional[list] = None,
         structured_output: Optional[Dict] = None,
         system_instructions: Optional[str] = None,
-        use_cache: bool = True
+        use_cache: bool = True,
+        as_json = False
     ) -> Dict[str, Any]:
         """
         Generate text using the Gemini API.
@@ -102,42 +103,38 @@ class GeminiClient:
         """
         parameters = {
             "temperature": temperature,
-            "top_p": top_p,
-            "top_k": top_k,
-            "max_output_tokens": max_tokens,
-            "stop_sequences": stop_sequences or [],
-            "safety_settings": safety_settings or []
+            "topP": top_p,
+            "topK": top_k,
+            "maxOutputTokens": max_tokens
         }
-        
-        if structured_output:
-            parameters["structured_output"] = structured_output
-        
-        # Prepare the request payload
+
         payload = {
             "contents": [{
+                "role": "user",
                 "parts": [{"text": prompt}]
             }],
             "generationConfig": parameters
         }
-        
+
         if system_instructions:
-            payload["contents"][0]["role"] = "user"
-            payload.setdefault("safetySettings", [])
-            payload["systemInstructions"] = {"content": system_instructions}
+            payload["contents"].insert(0, {
+                "role": "user",
+                "parts": [{"text": system_instructions}]
+            })
         
         # Check cache first if enabled
         cache_key = self._generate_cache_key(prompt, model, parameters)
         if use_cache:
             cached_response = self._get_cached_response(cache_key)
             if cached_response:
-                return json.loads(cached_response)
+                return json.loads(cached_response)            
         
         # Make API request
         url = f"{self.base_url}/{model}:generateContent?key={self.api_key}"
         response = requests.post(url, json=payload)
         
         if response.status_code != 200:
-            raise Exception(f"API request failed: {response.text}")
+            raise Exception(f"API request failed: ", response.text)
         
         result = response.json()
         
