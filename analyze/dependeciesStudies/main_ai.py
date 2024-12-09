@@ -13,7 +13,7 @@ def main():
         print("Analisi del progetto in corso...")
         analyzer.analyze()
         
-        printAndDive = True
+        printAndDive = False
         if printAndDive:
             analyzer.print_dependencies()
             analyzer.print_symbols()
