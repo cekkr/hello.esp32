@@ -48,11 +48,83 @@ class IncludeResolver:
         self.source_path = sources_path
         self.analyzer = None
 
-    def __post_init__(self):
+        ###
         self.dependency_graph: Dict[Path, DependencyNode] = {}
         self.symbol_dependencies: Dict[str, Set[str]] = defaultdict(set)
+        self.analyzeSources()
+
+    def __post_init__(self):
         self._build_dependency_graph()
-        self._analyze_symbol_dependencies()
+        #self._analyze_symbol_dependencies()
+
+    def convert_analysis_format(self) -> tuple[Dict[Path, DependencyNode], Dict[str, Set[str]]]:
+        dependency_graph: Dict[Path, DependencyNode] = {}
+        symbol_dependencies: Dict[str, Set[str]] = defaultdict(set)
+        
+        def extract_type_dependencies(symbol: Symbol) -> Set[str]:
+            """Estrae i tipi usati nella definizione di un simbolo"""
+            deps = set()
+            if symbol.cursor_kind:
+                # Analizza il context solo per tipi e variabili
+                if symbol.kind in ('type', 'variable'):
+                    for def_symbol in self.symbol_definitions:
+                        if def_symbol in symbol.context:
+                            deps.add(def_symbol)
+            return deps
+
+        # Costruisci i nodi di dipendenza
+        for path, source_file in self.analyzer.files.items():
+            if source_file.is_header:
+                # Raccogli simboli definiti con il loro contesto
+                symbols_provided = {}
+                for symbol in source_file.definitions:
+                    required = extract_type_dependencies(symbol)
+                    symbols_provided[symbol.name] = SymbolContext(
+                        name=symbol.name,
+                        kind=symbol.kind,
+                        required_symbols=required
+                    )
+                    symbol_dependencies[symbol.name].update(required)
+                
+                # Raccogli simboli usati con il loro contesto
+                symbols_required = {}
+                for symbol in source_file.usages:
+                    required = extract_type_dependencies(symbol)
+                    symbols_required[symbol.name] = SymbolContext(
+                        name=symbol.name,
+                        kind=symbol.kind,
+                        required_symbols=required
+                    )
+                    symbol_dependencies[symbol.name].update(required)
+                
+                # Crea nodo dipendenza
+                dependency_graph[path] = DependencyNode(
+                    header=path,
+                    symbols_provided=symbols_provided,
+                    symbols_required=symbols_required,
+                    direct_includes=self.include_graph[path],
+                    indirect_includes=set()  # Sarà calcolato dopo
+                )
+        
+        # Calcola include indiretti
+        changed = True
+        while changed:
+            changed = False
+            for node in dependency_graph.values():
+                old_size = len(node.indirect_includes)
+                
+                for inc in node.direct_includes:
+                    if inc in dependency_graph:
+                        node.indirect_includes.update(
+                            dependency_graph[inc].all_includes
+                        )
+                
+                if len(node.indirect_includes) > old_size:
+                    changed = True
+        
+        self.dependency_graph = dependency_graph
+        self.symbol_dependencies = symbol_dependencies
+        return dependency_graph, symbol_dependencies
 
     def analyzeSources(self):
         project_paths = os.path.abspath(self.source_path)
@@ -75,9 +147,9 @@ class IncludeResolver:
                     if not symbol:
                         break
                     analyzer.analyze_symbol(symbol)
-            else:
-                pass # analyze dependencies
-        
+
+            
+
         except Exception as e:
             print(f"Errore durante l'analisi: {e}")
             raise

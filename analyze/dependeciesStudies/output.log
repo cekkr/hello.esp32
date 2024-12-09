@@ -1,0 +1,25 @@
+2024-12-09 20:36:33,781 - INFO - Output dello script 'test_includeManager.py':
+2024-12-09 20:36:33,781 - INFO - 
+2024-12-09 20:36:33,781 - ERROR - Errori dello script 'test_includeManager.py':
+2024-12-09 20:36:33,781 - ERROR - pyenv: python: command not found
+
+The `python' command exists in these Python versions:
+  2.7.18
+
+Note: See 'pyenv help global' for tips on allowing both
+      python2 and python3 to be found.
+
+2024-12-09 20:37:37,128 - INFO - Output dello script 'test_includeManager.py':
+2024-12-09 20:37:37,129 - INFO - 
+2024-12-09 20:37:37,129 - ERROR - Errori dello script 'test_includeManager.py':
+2024-12-09 20:37:37,129 - ERROR - Traceback (most recent call last):
+  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/test_includeManager.py", line 112, in <module>
+    main()
+  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/test_includeManager.py", line 98, in main
+    result = resolver.verify_and_resolve()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/includeManager.py", line 221, in verify_and_resolve
+    for path, file in self.source_files.items():
+                      ^^^^^^^^^^^^^^^^^
+AttributeError: 'IncludeResolver' object has no attribute 'source_files'
+

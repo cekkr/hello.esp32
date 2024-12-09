@@ -10,6 +10,8 @@ logger.setLevel(logging.DEBUG)
 file_handler = logging.FileHandler('output.log')
 file_handler.setLevel(logging.DEBUG)
 
+logger.info(f"\n\n================================================\n\n New execution:\n\n")
+
 # Crea uno stream handler per stampare i log sul terminale
 stream_handler = logging.StreamHandler(sys.stdout)
 stream_handler.setLevel(logging.DEBUG)
@@ -34,7 +36,7 @@ args = sys.argv[2:]
 
 # Esegui il file Python con gli argomenti forniti
 try:
-    result = subprocess.run(['python', python_file] + args, capture_output=True, text=True)
+    result = subprocess.run(['/Library/Frameworks/Python.framework/Versions/3.12/bin/python3', python_file] + args, capture_output=True, text=True)
     stdout = result.stdout
     stderr = result.stderr
 

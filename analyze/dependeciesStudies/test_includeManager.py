@@ -94,7 +94,8 @@ def main():
     client = GeminiClient(api_key=load_gemini_key("../geminiConfig.env"))    
 
     # Uso del resolver
-    resolver = IncludeResolver(source_files, askAI)
+    project_paths = "../../hello-idf/components/wasm3-helloesp/platforms/embedded/esp32-idf-wasi/wasm3/wasm3"
+    resolver = IncludeResolver(project_paths, askAI)
     result = resolver.verify_and_resolve()
 
     # Stampa risultati
