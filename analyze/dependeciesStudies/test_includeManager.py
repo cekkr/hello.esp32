@@ -39,6 +39,7 @@ def main():
     print("GeminiClient loaded successfully")
 
     project_paths = "../../hello-idf/components/wasm3-helloesp/platforms/embedded/esp32-idf-wasi/wasm3/wasm3"
+    project_paths = os.path.abspath(project_paths)
 
     # Uso del resolver
     if False:
@@ -59,6 +60,7 @@ def main():
         print(custom_json_serializer(result['include_orders']))
 
     analyzer = SourceAnalyzer([project_paths])
+    analyzer.analyze()
     result = optimize_includes(analyzer.files)
 
     # Salva l'oggetto come JSON nel file "result.json"
