@@ -68,7 +68,7 @@ class IncludeResolver:
         project_paths = os.path.abspath(self.source_path)
         
         try:
-            self.analyzer = analyzer = SourceAnalyzer(project_paths)
+            self.analyzer = analyzer = SourceAnalyzer([project_paths])
             analyzer.analyze()
             
             self._initialize_dependency_graph()

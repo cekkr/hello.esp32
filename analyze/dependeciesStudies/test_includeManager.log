@@ -3,7 +3,7 @@ GeminiClient loaded successfully
 analyzeSources()
 
 Trovati 51 file sorgente nel progetto:
-  - source/esp_try.h
+  - wasm3/esp_try.h
   - extensions/m3_extensions.c
   - extensions/wasm3_ext.h
   - extra/coremark_minimal.wasm.h
@@ -11,46 +11,46 @@ Trovati 51 file sorgente nel progetto:
   - extra/fib32_tail.wasm.h
   - extra/fib64.wasm.h
   - extra/wasi_core.h
-  - source/m3_api_esp_wasi.c
-  - source/m3_api_esp_wasi.h
-  - source/m3_api_libc.c
-  - source/m3_api_libc.h
-  - source/m3_api_meta_wasi.c
-  - source/m3_api_tracer.c
-  - source/m3_api_tracer.h
-  - source/m3_api_uvwasi.c
-  - source/m3_api_wasi.c
-  - source/m3_api_wasi.h
-  - source/m3_bind.c
-  - source/m3_bind.h
-  - source/m3_code.c
-  - source/m3_code.h
-  - source/m3_compile.c
-  - source/m3_compile.h
-  - source/m3_config.h
-  - source/m3_config_platforms.h
-  - source/m3_core.c
-  - source/m3_core.h
-  - source/m3_env.c
-  - source/m3_env.h
-  - source/m3_exception.c
-  - source/m3_exception.h
-  - source/m3_exec.c
-  - source/m3_exec.h
-  - source/m3_exec_defs.h
-  - source/m3_function.c
-  - source/m3_function.h
-  - source/m3_includes.h
-  - source/m3_info.c
-  - source/m3_info.h
-  - source/m3_math_utils.h
-  - source/m3_module.c
-  - source/m3_module.h
-  - source/m3_parse.c
-  - source/m3_parse.h
-  - source/m3_pointers.c
-  - source/m3_pointers.h
-  - source/m3_segmented_memory.c
-  - source/m3_segmented_memory.h
-  - source/wasm3.h
-  - source/wasm3_defs.h
+  - wasm3/m3_api_esp_wasi.c
+  - wasm3/m3_api_esp_wasi.h
+  - wasm3/m3_api_libc.c
+  - wasm3/m3_api_libc.h
+  - wasm3/m3_api_meta_wasi.c
+  - wasm3/m3_api_tracer.c
+  - wasm3/m3_api_tracer.h
+  - wasm3/m3_api_uvwasi.c
+  - wasm3/m3_api_wasi.c
+  - wasm3/m3_api_wasi.h
+  - wasm3/m3_bind.c
+  - wasm3/m3_bind.h
+  - wasm3/m3_code.c
+  - wasm3/m3_code.h
+  - wasm3/m3_compile.c
+  - wasm3/m3_compile.h
+  - wasm3/m3_config.h
+  - wasm3/m3_config_platforms.h
+  - wasm3/m3_core.c
+  - wasm3/m3_core.h
+  - wasm3/m3_env.c
+  - wasm3/m3_env.h
+  - wasm3/m3_exception.c
+  - wasm3/m3_exception.h
+  - wasm3/m3_exec.c
+  - wasm3/m3_exec.h
+  - wasm3/m3_exec_defs.h
+  - wasm3/m3_function.c
+  - wasm3/m3_function.h
+  - wasm3/m3_includes.h
+  - wasm3/m3_info.c
+  - wasm3/m3_info.h
+  - wasm3/m3_math_utils.h
+  - wasm3/m3_module.c
+  - wasm3/m3_module.h
+  - wasm3/m3_parse.c
+  - wasm3/m3_parse.h
+  - wasm3/m3_pointers.c
+  - wasm3/m3_pointers.h
+  - wasm3/m3_segmented_memory.c
+  - wasm3/m3_segmented_memory.h
+  - wasm3/wasm3.h
+  - wasm3/wasm3_defs.h

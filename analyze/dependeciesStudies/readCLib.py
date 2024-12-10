@@ -74,7 +74,7 @@ class SourceAnalyzer:
         if isinstance(project_paths, str):
             project_paths = [project_paths]
             
-        self.project_paths = [Path(p).resolve() for p in project_paths]
+        self.project_paths = [Path(p) for p in project_paths] # Path(p).resolve()
         self.files: Dict[Path, SourceFile] = {}
         self.include_graph = defaultdict(set)
         self.reverse_graph = defaultdict(set)
