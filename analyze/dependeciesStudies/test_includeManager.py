@@ -2,6 +2,7 @@ from includeManager import *
 from geminiApi import *
 import json
 from optimizeIncludesFuncs import *
+from includesManager2 import *
 
 client = None
 
@@ -42,7 +43,8 @@ def main():
     project_paths = os.path.abspath(project_paths)
 
     # Uso del resolver
-    if True:
+    result = {}
+    if False:
         resolver = IncludeResolver(project_paths, askAI)
 
         print("resolver.verify_and_resolve()")
@@ -61,7 +63,25 @@ def main():
     else:
         analyzer = SourceAnalyzer([project_paths])
         analyzer.analyze()
-        result = optimize_includes(analyzer.files)
+        
+        #result = optimize_includes(analyzer.files)
+        # Create resolver
+        resolver = ImprovedIncludeResolver(analyzer.files)
+
+        # Run analysis
+        resolver.analyze()
+
+        sources = {}
+        # Get include order for a file
+        for path, source in analyzer.files:
+            order = resolver.get_include_order(path.str)
+            sources[path.str] = order
+
+        # Verify includes
+        issues = resolver.verify_includes()
+
+        result['sources'] = sources 
+        result['issues'] = issues
 
     # Salva l'oggetto come JSON nel file "result.json"
     saveTo = "result_includeManager.json"
