@@ -47,19 +47,20 @@ def main():
     # Stampa risultati
     print("Analisi delle inclusioni:")
     print("\nProblemi rilevati:")
-    print(json.dumps(result['verification'], indent=2))
+    print(custom_json_serializer(result['verification']))
 
     print("\nSuggerimenti AI:")
-    print(json.dumps(result['fixes'], indent=2))
+    print(custom_json_serializer(result['fixes']))
 
     print("\nOrdine include suggerito:")
-    print(json.dumps(result['include_orders'], indent=2))
+    print(custom_json_serializer(result['include_orders']))
 
     # Salva l'oggetto come JSON nel file "result.json"
     saveTo = "result_includeManager.json"
     print("Saving result in: ", saveTo)
     with open(saveTo, "w") as file:
-        json.dump(result, file, indent=4)
+        file.write(custom_json_serializer(result))
+        #json.dump(result, file, indent=4)
 
 if __name__ == "__main__":
     main()
