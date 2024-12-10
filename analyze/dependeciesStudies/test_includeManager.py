@@ -90,8 +90,11 @@ def load_gemini_key(file_path):
     return None
 
 def main():
-    global client
+    print("Starting IncludeManager...")
+
+    global client    
     client = GeminiClient(api_key=load_gemini_key("../geminiConfig.env"))    
+    print("GeminiClient loaded successfully")
 
     # Uso del resolver
     project_paths = "../../hello-idf/components/wasm3-helloesp/platforms/embedded/esp32-idf-wasi/wasm3/wasm3"
