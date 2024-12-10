@@ -96,6 +96,8 @@ def main():
     # Uso del resolver
     project_paths = "../../hello-idf/components/wasm3-helloesp/platforms/embedded/esp32-idf-wasi/wasm3/wasm3"
     resolver = IncludeResolver(project_paths, askAI)
+
+    print("resolver.verify_and_resolve()")
     result = resolver.verify_and_resolve()
 
     # Stampa risultati

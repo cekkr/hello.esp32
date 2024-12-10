@@ -49,6 +49,7 @@ class IncludeResolver:
         self.analyzer = None
 
         ###
+        print("analyzeSources()")
         self.dependency_graph: Dict[Path, DependencyNode] = {}
         self.symbol_dependencies: Dict[str, Set[str]] = defaultdict(set)
         self.analyzeSources()
