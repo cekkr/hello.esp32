@@ -34,9 +34,15 @@ class SymbolTable:
     dependencies: Dict[str, Set[str]] = field(default_factory=lambda: defaultdict(set))
 
     def __init__(self):
-        self.dependenciesCache: Dict[str, object] = []
+        self.dependencies = {}
+        self.usages = {}
+        self.definitions = {}
+        self.dependenciesCache: Dict[str, object] = {}
 
     def add_definition(self, symbol: SymbolDefinition):
+        if symbol.name not in self.definitions:
+            self.definitions[symbol.name] = []
+
         self.definitions[symbol.name].append(symbol)
         
     def add_usage(self, usage: SymbolUsage):
