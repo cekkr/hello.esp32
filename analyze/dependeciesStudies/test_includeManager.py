@@ -1,5 +1,6 @@
 from includeManager import *
 from geminiApi import *
+import json
 
 client = None
 
@@ -53,6 +54,12 @@ def main():
 
     print("\nOrdine include suggerito:")
     print(json.dumps(result['include_orders'], indent=2))
+
+    # Salva l'oggetto come JSON nel file "result.json"
+    saveTo = "result_includeManager.json"
+    print("Saving result in: ", saveTo)
+    with open(saveTo, "w") as file:
+        json.dump(result, file, indent=4)
 
 if __name__ == "__main__":
     main()

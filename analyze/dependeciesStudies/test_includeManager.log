@@ -65,24 +65,21 @@ Traceback (most recent call last):
     self.analyzeSources()
   File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/includeManager.py", line 136, in analyzeSources
     analyzer.analyze()
-  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/readCLib.py", line 94, in analyze
-    self._analyze_file(file_path, first_pass=True)
-  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/readCLib.py", line 148, in _analyze_file
-    self._analyze_definitions(translation_unit.cursor, source_file)
-  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/readCLib.py", line 201, in _analyze_definitions
-    self._analyze_definitions(child, source_file)
-  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/readCLib.py", line 201, in _analyze_definitions
-    self._analyze_definitions(child, source_file)
-  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/readCLib.py", line 169, in _analyze_definitions
+  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/readCLib.py", line 98, in analyze
+    self._analyze_file(file_path, first_pass=False)
+  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/readCLib.py", line 150, in _analyze_file
+    self._analyze_usages(translation_unit.cursor, source_file)
+  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/readCLib.py", line 228, in _analyze_usages
+    self._analyze_usages(child, source_file)
+  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/readCLib.py", line 228, in _analyze_usages
+    self._analyze_usages(child, source_file)
+  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/readCLib.py", line 228, in _analyze_usages
+    self._analyze_usages(child, source_file)
+  [Previous line repeated 6 more times]
+  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/readCLib.py", line 205, in _analyze_usages
     if cursor.location.file and Path(cursor.location.file.name) == source_file.path:
                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 522, in __eq__
     return self._str_normcase == other._str_normcase and self._flavour is other._flavour
            ^^^^^^^^^^^^^^^^^^
-  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 491, in _str_normcase
-    self._str_normcase_cached = str(self)
-                                ^^^^^^^^^
-  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py", line 443, in __str__
-    self._str = self._format_parsed_parts(self.drive, self.root,
-                                          ^^^^^^^^^^
 KeyboardInterrupt
