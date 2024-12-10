@@ -840,6 +840,145 @@ class ImprovedIncludeResolver:
         
         return issues
     
+    def analyze(self):
+        """Main analysis workflow"""
+        self._build_symbol_table()
+        self._analyze_dependencies()
+        self._resolve_include_order()  # Ora usa la nuova logica di risoluzione dei tipi
+        
+        # Calcola i tipi disponibili per tutti i file
+        for path in self.source_files:
+            self._calculate_available_types(path)
+
+    def get_source_analysis(self) -> Dict[str, dict]:
+        """
+        Get comprehensive analysis for all source files including type information.
+        """
+        sources = {}
+        
+        for path, source in self.source_files.items():
+            str_path = str(path)
+            header_deps = self.header_deps.get(path)
+            
+            # Base source info
+            source_info = {
+                'path': str_path,
+                'is_header': source.is_header,
+                'symbols': {
+                    'provided': [],
+                    'required': [],
+                    'types': {
+                        'available': list(source.available_types),
+                        'required': list(self._check_type_dependencies(source))
+                    }
+                },
+                'includes': {
+                    'optimal_order': [str(p) for p in self.get_include_order(path)],
+                    'current': [str(p) for p in source.includes],
+                    'direct': [],
+                    'transitive': [],
+                    'unnecessary': []
+                },
+                'dependencies': {
+                    'dependent_files': [],
+                    'dependency_chain': self._get_dependency_chain(path),
+                    'type_dependencies': self._get_type_dependency_chain(path)
+                },
+                'analysis': {
+                    'has_circular_deps': False,
+                    'missing_symbols': [],
+                    'missing_types': [],
+                    'symbol_overlap': [],
+                    'include_suggestions': []
+                }
+            }
+            
+            # Add symbol information
+            if header_deps:
+                # Provided symbols with details
+                for symbol in header_deps.provided_symbols:
+                    symbol_info = self._get_symbol_info(symbol, path)
+                    source_info['symbols']['provided'].append(symbol_info)
+                
+                # Required symbols with details
+                for symbol in header_deps.required_symbols:
+                    symbol_info = self._get_symbol_info(symbol, path)
+                    source_info['symbols']['required'].append(symbol_info)
+                
+                # Include relationships
+                source_info['includes']['direct'] = [
+                    str(p) for p in header_deps.direct_includes
+                ]
+                source_info['includes']['transitive'] = [
+                    str(p) for p in header_deps.transitive_includes
+                ]
+                source_info['dependencies']['dependent_files'] = [
+                    str(p) for p in header_deps.dependents
+                ]
+            
+            # Add analysis information with type checks
+            self._add_analysis_info(source_info, path)
+            
+            sources[str_path] = source_info
+            
+        return sources
+
+    def _get_type_dependency_chain(self, path: Path) -> List[dict]:
+        """Get dependency chain based on type requirements"""
+        chain = []
+        source = self.source_files[path]
+        required_types = self._check_type_dependencies(source)
+        
+        for type_name in required_types:
+            providers = []
+            for inc_path in source.includes:
+                if inc_path in self.source_files:
+                    inc_types = self._calculate_available_types(inc_path)
+                    if type_name in inc_types:
+                        providers.append({
+                            'file': str(inc_path),
+                            'direct_provider': type_name in self.source_files[inc_path].available_types
+                        })
+            
+            if providers:
+                chain.append({
+                    'type': type_name,
+                    'providers': providers
+                })
+        
+        return chain
+
+    def _add_analysis_info(self, source_info: dict, path: Path):
+        """Add analysis information including type analysis to source info"""
+        # Existing checks (circular deps, etc.)
+        super()._add_analysis_info(source_info, path)
+        
+        # Add type-specific analysis
+        source = self.source_files[path]
+        required_types = self._check_type_dependencies(source)
+        available_types = self._calculate_available_types(path)
+        
+        # Find missing types
+        missing_types = required_types - available_types
+        if missing_types:
+            source_info['analysis']['missing_types'] = list(missing_types)
+        
+        # Update include suggestions based on type dependencies
+        suggestions = source_info['analysis']['include_suggestions']
+        
+        # Check for better include ordering based on types
+        current_order = [str(p) for p in source.includes]
+        optimal_order = [str(p) for p in self.get_include_order(path)]
+        
+        if current_order != optimal_order:
+            suggestions.append({
+                'type': 'reorder',
+                'message': 'Consider reordering includes to resolve type dependencies properly',
+                'current_order': current_order,
+                'suggested_order': optimal_order,
+                'affected_types': list(required_types)
+            })
+    
     def usage():
         project_paths = "c-project/"
         
