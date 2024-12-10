@@ -687,30 +687,198 @@ class ImprovedIncludeResolver:
         self.header_deps: Dict[Path, HeaderDependencies] = {}
         self.include_order: Dict[Path, List[Path]] = {}
         self.available_types: Dict[Path, Set[str]] = {}  # Cache dei tipi disponibili per file
+        self.type_declarations: Dict[str, Set[Path]] = defaultdict(set)  # Dove ogni tipo è dichiarato
+        self.type_dependencies: Dict[Path, Dict[str, Set[str]]] = defaultdict(lambda: defaultdict(set))  # Dipendenze tra tipi per file
         
+    def _analyze_type_declarations(self):
+        """Analizza dove ogni tipo è dichiarato"""
+        self.type_declarations.clear()
+        for path, source in self.source_files.items():
+            for def_ in source.definitions:
+                if def_.kind == 'type':
+                    self.type_declarations[def_.name].add(path)
+    
+    def _analyze_type_dependencies_in_file(self, file_path: Path):
+        """Analizza le dipendenze tra tipi in un file"""
+        source = self.source_files[file_path]
+        file_deps = self.type_dependencies[file_path]
+        
+        # Analizza le definizioni per trovare dipendenze nei tipi composti
+        for def_ in source.definitions:
+            if def_.kind == 'type':
+                deps = self._extract_type_refs_from_context(def_.context)
+                if deps:
+                    file_deps[def_.name].update(deps)
+        
+        # Analizza gli usi per trovare dipendenze nelle dichiarazioni di variabili e funzioni
+        for usage in source.usages:
+            context_types = self._extract_type_refs_from_context(usage.context)
+            if context_types:
+                # Se l'uso è parte di una definizione di tipo, aggiungi la dipendenza
+                defining_type = self._find_defining_type(usage.line, source.definitions)
+                if defining_type:
+                    file_deps[defining_type].update(context_types)
+    
+    def _extract_type_refs_from_context(self, context: str) -> Set[str]:
+        """Estrae riferimenti a tipi dal contesto, considerando pattern comuni in C/C++"""
+        type_refs = set()
+        
+        # Pattern comuni per riferimenti a tipi in C/C++
+        patterns = [
+            r'\bstruct\s+(\w+)',  # struct declarations
+            r'\bunion\s+(\w+)',   # union declarations
+            r'\benum\s+(\w+)',    # enum declarations
+            r'\bclass\s+(\w+)',   # class declarations
+            r'(\w+)\s*[*&]',      # pointer/reference types
+            r'(\w+)\s*\w+\s*[;,)]',  # variable/parameter declarations
+            r'(\w+)\s*<',         # template usage
+        ]
+        
+        for pattern in patterns:
+            matches = re.finditer(pattern, context)
+            for match in matches:
+                type_name = match.group(1)
+                if type_name in self.type_declarations:
+                    type_refs.add(type_name)
+        
+        return type_refs
+    
+    def _find_defining_type(self, line: int, definitions: List[Symbol]) -> Optional[str]:
+        """Trova il tipo che sta venendo definito a una determinata linea"""
+        for def_ in definitions:
+            if def_.kind == 'type' and def_.line == line:
+                return def_.name
+        return None
+    
     def _calculate_available_types(self, file_path: Path, visited: Optional[Set[Path]] = None) -> Set[str]:
-        """Calcola ricorsivamente i tipi disponibili per un file"""
+        """Calcola ricorsivamente i tipi disponibili per un file, considerando l'ordine di inclusione"""
         if visited is None:
             visited = set()
             
-        if file_path in self.available_types:
-            return self.available_types[file_path]
-            
         if file_path in visited:
-            return set()
+            return set()  # Evita cicli infiniti
             
         visited.add(file_path)
         source = self.source_files[file_path]
+        
+        # Parti con i tipi definiti direttamente nel file
         available = set(source.available_types)
         
-        # Aggiungi i tipi dagli include in ordine
-        for include in source.includes:
-            if include in self.source_files:
-                available.update(self._calculate_available_types(include, visited))
+        # Aggiungi i tipi dagli include nell'ordine corretto
+        include_order = self.get_include_order(file_path)
+        if not include_order:  # Se non abbiamo ancora calcolato l'ordine, usa l'ordine attuale
+            include_order = source.includes
+            
+        for include in include_order:
+            if include in self.source_files and include not in visited:
+                # Aggiungi i tipi disponibili dall'include
+                include_types = self._calculate_available_types(include, visited)
+                available.update(include_types)
                 
-        self.available_types[file_path] = available
+                # Verifica se questo include fornisce tipi necessari per le definizioni locali
+                local_deps = self.type_dependencies[file_path]
+                for local_type, deps in local_deps.items():
+                    if not (deps - available):  # Se tutte le dipendenze sono disponibili
+                        available.add(local_type)
+        
+        visited.remove(file_path)
         return available
     
+    def _resolve_include_order(self):
+        """Determina l'ordine ottimale di inclusione basato sulle dipendenze dei tipi"""
+        def calculate_score(include: Path, required: Set[str], available: Set[str]) -> int:
+            """Calcola un punteggio per un include basato su quanti tipi richiesti fornisce"""
+            include_types = self._calculate_available_types(include, set())
+            needed_types = required & include_types
+            blocking_types = set()
+            
+            # Controlla se questo include fornisce tipi necessari per altri tipi
+            for type_name, deps in self.type_dependencies[include].items():
+                if deps - available:  # Se ci sono dipendenze non ancora disponibili
+                    blocking_types.add(type_name)
+            
+            return len(needed_types) - len(blocking_types)
+        
+        def process_header(path: Path, visited: Set[Path]) -> List[Path]:
+            if path in visited:
+                return []
+                
+            if path in self.include_order:
+                return self.include_order[path]
+                
+            visited.add(path)
+            source = self.source_files[path]
+            order = []
+            available_types = set(source.available_types)
+            remaining_includes = set(source.includes)
+            
+            while remaining_includes:
+                best_score = float('-inf')
+                best_include = None
+                
+                for inc in remaining_includes:
+                    if inc in self.source_files:
+                        score = calculate_score(inc, self._get_required_types(path), available_types)
+                        if score > best_score:
+                            best_score = score
+                            best_include = inc
+                
+                if best_include:
+                    # Aggiungi gli include necessari per questo include
+                    order.extend(process_header(best_include, visited.copy()))
+                    order.append(best_include)
+                    remaining_includes.remove(best_include)
+                    available_types.update(self._calculate_available_types(best_include, set()))
+                else:
+                    # Aggiungi i rimanenti in ordine arbitrario
+                    for inc in sorted(remaining_includes):
+                        if inc in self.source_files:
+                            order.extend(process_header(inc, visited.copy()))
+                            order.append(inc)
+                    break
+            
+            visited.remove(path)
+            self.include_order[path] = order
+            return order
+        
+        # Processa tutti gli header
+        self.include_order.clear()
+        for path in self.source_files:
+            if path not in self.include_order and self.source_files[path].is_header:
+                process_header(path, set())
+    
+    def _get_required_types(self, file_path: Path) -> Set[str]:
+        """Ottiene tutti i tipi richiesti da un file, incluse le dipendenze indirette"""
+        required = set()
+        source = self.source_files[file_path]
+        
+        # Aggiungi dipendenze dirette dai tipi definiti
+        for type_name, deps in self.type_dependencies[file_path].items():
+            required.update(deps)
+        
+        # Aggiungi tipi usati nel file
+        for usage in source.usages:
+            context_types = self._extract_type_refs_from_context(usage.context)
+            required.update(context_types)
+        
+        return required
+    
+    def analyze(self):
+        """Main analysis workflow con analisi migliorata dei tipi"""
+        self._analyze_type_declarations()
+        
+        # Analizza le dipendenze dei tipi per ogni file
+        for path in self.source_files:
+            self._analyze_type_dependencies_in_file(path)
+        
+        self._build_symbol_table()
+        self._analyze_dependencies()
+        self._resolve_include_order()
+        
+        # Calcola i tipi disponibili per tutti i file
+        for path in self.source_files:
+            self._calculate_available_types(path)
+
     def _check_type_dependencies(self, source: SourceFile) -> Set[str]:
         """Verifica le dipendenze dei tipi per un file"""
         required_types = set()
@@ -740,72 +908,7 @@ class ImprovedIncludeResolver:
                 type_deps.add(word)
                 
         return type_deps
-    
-    def _resolve_include_order(self):
-        """Determina l'ordine ottimale di inclusione considerando le dipendenze dei tipi"""
-        # Resetta l'ordine e la cache
-        self.include_order.clear()
-        self.available_types.clear()
-        
-        def process_header(path: Path, visited: Set[Path]) -> List[Path]:
-            if path in visited:
-                return []  # Previeni cicli
-                
-            if path in self.include_order:
-                return self.include_order[path]
-                
-            visited.add(path)
-            source = self.source_files[path]
-            order = []
-            
-            # Calcola i tipi richiesti
-            required_types = self._check_type_dependencies(source)
-            
-            # Determina quali include forniscono i tipi necessari
-            available = set()
-            remaining_includes = set(source.includes)
-            
-            while required_types and remaining_includes:
-                best_include = None
-                best_types = set()
-                
-                for inc in remaining_includes:
-                    if inc not in self.source_files:
-                        continue
-                        
-                    # Calcola i tipi forniti da questo include
-                    inc_types = self._calculate_available_types(inc)
-                    needed_types = required_types & inc_types
-                    
-                    if needed_types and (not best_include or len(needed_types) > len(best_types)):
-                        best_include = inc
-                        best_types = needed_types
-                
-                if not best_include:
-                    break
-                    
-                # Aggiungi l'include migliore all'ordine
-                order.extend(process_header(best_include, visited.copy()))
-                order.append(best_include)
-                remaining_includes.remove(best_include)
-                available.update(best_types)
-                required_types -= best_types
-            
-            # Aggiungi gli include rimanenti
-            for inc in remaining_includes:
-                if inc in self.source_files:
-                    order.extend(process_header(inc, visited.copy()))
-                    order.append(inc)
-            
-            visited.remove(path)
-            self.include_order[path] = order
-            return order
-        
-        # Processa tutti gli header
-        for path in self.source_files:
-            if path not in self.include_order and self.source_files[path].is_header:
-                process_header(path, set())
-    
+
     def verify_includes(self) -> dict:
         """Verifica le relazioni di inclusione e identifica i problemi"""
         issues = {
@@ -839,16 +942,6 @@ class ImprovedIncludeResolver:
                     issues['unnecessary_includes'][str(path)].add(str(inc))
         
         return issues
-    
-    def analyze(self):
-        """Main analysis workflow"""
-        self._build_symbol_table()
-        self._analyze_dependencies()
-        self._resolve_include_order()  # Ora usa la nuova logica di risoluzione dei tipi
-        
-        # Calcola i tipi disponibili per tutti i file
-        for path in self.source_files:
-            self._calculate_available_types(path)
 
     def _build_symbol_table(self):
         """Build global symbol table from source files"""
@@ -1157,26 +1250,26 @@ class ImprovedIncludeResolver:
                 'affected_types': list(required_types)
             })
     
-    def usage():
-        project_paths = "c-project/"
-        
-        analyzer = SourceAnalyzer([project_paths])
-        analyzer.analyze()
-        
-        #result = optimize_includes(analyzer.files)
-        # Create resolver
-        resolver = ImprovedIncludeResolver(analyzer.files)
+def usage():
+    project_paths = "c-project/"
 
-        # Run analysis
-        resolver.analyze()
+    analyzer = SourceAnalyzer([project_paths])
+    analyzer.analyze()
 
-        # Get comprehensive source analysis
-        sources = resolver.get_source_analysis()
+    #result = optimize_includes(analyzer.files)
+    # Create resolver
+    resolver = ImprovedIncludeResolver(analyzer.files)
 
-        # Verify includes
-        issues = resolver.verify_includes()
+    # Run analysis
+    resolver.analyze()
 
-        result = {}
-        result['sources'] = sources 
-        result['issues'] = issues
-        return result
+    # Get comprehensive source analysis
+    sources = resolver.get_source_analysis()
+
+    # Verify includes
+    issues = resolver.verify_includes()
+
+    result = {}
+    result['sources'] = sources
+    result['issues'] = issues
+    return result
