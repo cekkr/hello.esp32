@@ -850,6 +850,90 @@ class ImprovedIncludeResolver:
         for path in self.source_files:
             self._calculate_available_types(path)
 
+    def _build_symbol_table(self):
+        """Build global symbol table from source files"""
+        for path, source in self.source_files.items():
+            # Process definitions
+            for def_ in source.definitions:
+                symbol_def = SymbolDefinition(
+                    name=def_.name,
+                    kind=def_.kind,
+                    file=path,
+                    line=def_.line,
+                    scope=def_.context,
+                    dependencies=self._extract_dependencies(def_.context)
+                )
+                self.symbol_table.add_definition(symbol_def)
+
+            # Process usages
+            for usage in source.usages:
+                symbol_usage = SymbolUsage(
+                    name=usage.name,
+                    file=path,
+                    line=usage.line,
+                    context=usage.context,
+                    required_symbols=self._extract_dependencies(usage.context)
+                )
+                self.symbol_table.add_usage(symbol_usage)
+
+    def _extract_dependencies(self, context: str) -> Set[str]:
+        """Extract symbol dependencies from context"""
+        deps = set()
+        words = re.findall(r'\b\w+\b', context)
+        for word in words:
+            if word in self.symbol_table.definitions:
+                deps.add(word)
+        return deps
+
+    def _analyze_dependencies(self):
+        """Analyze header dependencies and build dependency graph"""
+        for path, source in self.source_files.items():
+            if not source.is_header:
+                continue
+
+            deps = HeaderDependencies(path)
+
+            # Add symbols provided by this header
+            for def_ in source.definitions:
+                deps.add_provided_symbol(def_.name)
+
+            # Add symbols required by this header
+            for usage in source.usages:
+                deps.add_required_symbol(usage.name)
+
+            # Add direct includes
+            for include in source.includes:
+                deps.add_include(include)
+
+            self.header_deps[path] = deps
+
+        # Build transitive includes and dependents
+        self._build_transitive_relations()
+
+    def _build_transitive_relations(self):
+        """Build transitive include relationships"""
+        changed = True
+        while changed:
+            changed = False
+            for deps in self.header_deps.values():
+                old_size = len(deps.transitive_includes)
+
+                # Add includes from direct includes
+                for direct in deps.direct_includes:
+                    if direct in self.header_deps:
+                        deps.transitive_includes.update(
+                            self.header_deps[direct].transitive_includes
+                        )
+
+                if len(deps.transitive_includes) > old_size:
+                    changed = True
+
+        # Build dependent relationships
+        for path, deps in self.header_deps.items():
+            for inc in deps.direct_includes:
+                if inc in self.header_deps:
+                    self.header_deps[inc].dependents.add(path)
+
     def get_source_analysis(self) -> Dict[str, dict]:
         """
         Get comprehensive analysis for all source files including type information.
