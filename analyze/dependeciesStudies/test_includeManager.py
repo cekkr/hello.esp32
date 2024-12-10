@@ -73,9 +73,10 @@ def main():
 
         sources = {}
         # Get include order for a file
-        for path, source in analyzer.files:
-            order = resolver.get_include_order(path.str)
-            sources[path.str] = order
+        for path, source in analyzer.files.items():
+            strPath = str(path)
+            order = resolver.get_include_order(path)
+            sources[strPath] = order
 
         # Verify includes
         issues = resolver.verify_includes()

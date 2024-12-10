@@ -3,6 +3,7 @@ from typing import Dict, List, Set, NamedTuple, Optional, Callable
 from pathlib import Path
 from collections import defaultdict
 import re
+from readCLib import *
 
 @dataclass
 class SymbolDefinition:
