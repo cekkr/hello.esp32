@@ -3,6 +3,7 @@ from typing import Dict, List, Set, NamedTuple, Optional, Callable
 from pathlib import Path
 from collections import defaultdict
 import re
+import contextlib
 from readCLib import *
 
 @dataclass
@@ -44,16 +45,87 @@ class SymbolTable:
     def get_symbol_providers(self, symbol_name: str) -> List[Path]:
         """Get all files that provide a given symbol"""
         return [def_.file for def_ in self.definitions.get(symbol_name, [])]
-    
-    def get_symbol_dependencies(self, symbol_name: str) -> Set[str]:
-        """Get all symbols that a given symbol depends on"""
+
+    def get_symbol_dependencies(self, symbol_name: str, visited: Optional[Set[str]] = None) -> Set[str]:
+        """
+        Get all symbols that a given symbol depends on, avoiding circular dependencies.
+
+        Args:
+            symbol_name: Name of the symbol to analyze
+            visited: Set of already visited symbols in the current recursion path
+
+        Returns:
+            Set of all dependent symbols
+        """
+        # Initialize visited set on first call
+        if visited is None:
+            visited = set()
+
+        # Check for circular dependency
+        if symbol_name in visited:
+            return set()  # Break the cycle
+
+        # Mark current symbol as visited
+        visited.add(symbol_name)
+
+        # Get direct dependencies
         direct_deps = self.dependencies.get(symbol_name, set())
         all_deps = set(direct_deps)
-        
+
         # Recursively get transitive dependencies
         for dep in direct_deps:
-            all_deps.update(self.get_symbol_dependencies(dep))
-            
+            # Only recurse if we haven't seen this dependency yet
+            if dep not in visited:
+                # Pass the visited set to track the full recursion path
+                all_deps.update(self.get_symbol_dependencies(dep, visited))
+
+        # Remove current symbol from visited when backtracking
+        visited.remove(symbol_name)
+
+        return all_deps
+
+    # Alternative implementation using a context manager for better readability
+    @contextlib.contextmanager
+    def _track_dependency_path(self, symbol: str, path: Set[str]):
+        """Context manager to track dependency path and handle cleanup"""
+        path.add(symbol)
+        try:
+            yield
+        finally:
+            path.remove(symbol)
+
+    def get_symbol_dependencies_alt(self, symbol_name: str, _path: Optional[Set[str]] = None) -> Set[str]:
+        """
+        Alternative implementation using a context manager for cleaner recursion tracking.
+
+        Args:
+            symbol_name: Name of the symbol to analyze
+            _path: Internal parameter to track recursion path
+
+        Returns:
+            Set of all dependent symbols
+        """
+        # Initialize tracking set on first call
+        if _path is None:
+            _path = set()
+
+        # Check for circular dependency
+        if symbol_name in _path:
+            return set()  # Break the cycle
+
+        all_deps = set()
+
+        # Use context manager to track current symbol in path
+        with self._track_dependency_path(symbol_name, _path):
+            # Get direct dependencies
+            direct_deps = self.dependencies.get(symbol_name, set())
+            all_deps.update(direct_deps)
+
+            # Recursively get transitive dependencies
+            for dep in direct_deps:
+                if dep not in _path:  # Only recurse if not creating a cycle
+                    all_deps.update(self.get_symbol_dependencies_alt(dep, _path))
+
         return all_deps
 
 @dataclass
