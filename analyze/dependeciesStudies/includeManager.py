@@ -4,38 +4,63 @@ from typing import Dict, List, Optional, Set, Callable
 from collections import defaultdict
 import json
 import re
-
 from readCLib import *
 
 @dataclass
 class SymbolContext:
     name: str
     kind: str
-    required_symbols: Set[str]  # Simboli necessari per definire questo simbolo
+    required_symbols: Set[str]
+
+@dataclass
+class FileIncludeOrder:
+    file_path: Path
+    direct_includes: Set[Path]
+    required_symbols: Set[str]
+    provided_symbols: Set[str]
+    optimal_include_order: List[Path] = field(default_factory=list)
+    missing_symbols: Set[str] = field(default_factory=set)
+    cyclic_dependencies: List[List[Path]] = field(default_factory=list)
+
+@dataclass
+class HeaderFile:
+    path: Path
+    symbols_provided: Dict[str, SymbolContext]
+    symbols_required: Dict[str, SymbolContext]
+    direct_includes: Set[Path]
+    indirect_includes: Set[Path] = field(default_factory=set)
+    dependents: Set[Path] = field(default_factory=set)
+    include_order: Optional[FileIncludeOrder] = None
+
+@dataclass
+class SourceFile:
+    path: Path
+    required_symbols: Set[str]
+    direct_includes: Set[Path]
+    include_order: Optional[FileIncludeOrder] = None
 
 @dataclass
 class DependencyNode:
     header: Path
-    symbols_provided: Dict[str, SymbolContext]  # Simboli definiti con il loro contesto
-    symbols_required: Dict[str, SymbolContext]  # Simboli necessari con il loro contesto
+    symbols_provided: Dict[str, SymbolContext]
+    symbols_required: Dict[str, SymbolContext]
     direct_includes: Set[Path]
     indirect_includes: Set[Path] = field(default_factory=set)
-    
+
     def get_available_symbols(self, include_chain: List[Path]) -> Set[str]:
-        """Calcola i simboli disponibili considerando la catena di inclusione"""
         symbols = set()
-        for idx, header in enumerate(include_chain):
-            # Controlla che i simboli necessari siano già disponibili
+        for header in include_chain:
             if header == self.header:
                 break
-            symbols.update(self.symbols_provided[header].keys())
+            if header in self.symbols_provided:
+                symbols.update(self.symbols_provided[header].keys())
         return symbols
 
 @dataclass
 class IncludeVerification:
-    missing_symbols: Dict[str, Set[str]]  # File -> simboli mancanti
+    missing_symbols: Dict[str, Set[str]]
     circular_refs: List[List[Path]]
-    invalid_orders: List[Dict[str, List[str]]]  # Ordini di inclusione non validi
+    invalid_orders: List[Dict[str, List[str]]]
     suggested_fixes: List[dict]
 
 @dataclass
@@ -43,132 +68,147 @@ class IncludeResolver:
     source_files: Dict[Path, SourceFile]
     ai_prompt: Callable[[str, str], dict]
     
-    def __init__(self, sources_path, ai_prompt_call):
+    def __init__(self, sources_path: str, ai_prompt_call: Callable[[str, str], dict]):
         self.ai_prompt = ai_prompt_call
         self.source_path = sources_path
         self.analyzer = None
-
-        ###
-        print("analyzeSources()")
         self.dependency_graph: Dict[Path, DependencyNode] = {}
         self.symbol_dependencies: Dict[str, Set[str]] = defaultdict(set)
+        self.header_files: Dict[Path, HeaderFile] = {}
+        self.source_files: Dict[Path, SourceFile] = {}
+        self.file_include_orders: Dict[Path, FileIncludeOrder] = {}
+        
+        print("analyzeSources()")
         self.analyzeSources()
-
-    def __post_init__(self):
-        self._build_dependency_graph()
-        #self._analyze_symbol_dependencies()
-
-    def convert_analysis_format(self) -> tuple[Dict[Path, DependencyNode], Dict[str, Set[str]]]:
-        dependency_graph: Dict[Path, DependencyNode] = {}
-        symbol_dependencies: Dict[str, Set[str]] = defaultdict(set)
-        
-        def extract_type_dependencies(symbol: Symbol) -> Set[str]:
-            """Estrae i tipi usati nella definizione di un simbolo"""
-            deps = set()
-            if symbol.cursor_kind:
-                # Analizza il context solo per tipi e variabili
-                if symbol.kind in ('type', 'variable'):
-                    for def_symbol in self.symbol_definitions:
-                        if def_symbol in symbol.context:
-                            deps.add(def_symbol)
-            return deps
-
-        # Costruisci i nodi di dipendenza
-        for path, source_file in self.analyzer.files.items():
-            if source_file.is_header:
-                # Raccogli simboli definiti con il loro contesto
-                symbols_provided = {}
-                for symbol in source_file.definitions:
-                    required = extract_type_dependencies(symbol)
-                    symbols_provided[symbol.name] = SymbolContext(
-                        name=symbol.name,
-                        kind=symbol.kind,
-                        required_symbols=required
-                    )
-                    symbol_dependencies[symbol.name].update(required)
-                
-                # Raccogli simboli usati con il loro contesto
-                symbols_required = {}
-                for symbol in source_file.usages:
-                    required = extract_type_dependencies(symbol)
-                    symbols_required[symbol.name] = SymbolContext(
-                        name=symbol.name,
-                        kind=symbol.kind,
-                        required_symbols=required
-                    )
-                    symbol_dependencies[symbol.name].update(required)
-                
-                # Crea nodo dipendenza
-                dependency_graph[path] = DependencyNode(
-                    header=path,
-                    symbols_provided=symbols_provided,
-                    symbols_required=symbols_required,
-                    direct_includes=self.include_graph[path],
-                    indirect_includes=set()  # Sarà calcolato dopo
-                )
-        
-        # Calcola include indiretti
-        changed = True
-        while changed:
-            changed = False
-            for node in dependency_graph.values():
-                old_size = len(node.indirect_includes)
-                
-                for inc in node.direct_includes:
-                    if inc in dependency_graph:
-                        node.indirect_includes.update(
-                            dependency_graph[inc].all_includes
-                        )
-                
-                if len(node.indirect_includes) > old_size:
-                    changed = True
-        
-        self.dependency_graph = dependency_graph
-        self.symbol_dependencies = symbol_dependencies
-        return dependency_graph, symbol_dependencies
 
     def analyzeSources(self):
         project_paths = os.path.abspath(self.source_path)
         
         try:
             self.analyzer = analyzer = SourceAnalyzer(project_paths)
-            print("Analisi del progetto in corso...")
             analyzer.analyze()
             
-            printAndDive = True
-            if printAndDive:
-                analyzer.print_dependencies()
-                analyzer.print_symbols()
-                analyzer.find_cycles()
-                analyzer.suggest_missing_includes()
-                
-                # Opzionale: analisi dettagliata di simboli specifici
-                while False:
-                    symbol = input("\nInserisci il nome di un simbolo da analizzare (o premi Invio per terminare): ")
-                    if not symbol:
-                        break
-                    analyzer.analyze_symbol(symbol)
-
+            # Convert analyzed data to our enhanced structure
+            self._build_file_structures()
+            self._calculate_include_orders()
             
-
+            if True:  # Debug printing
+                self._print_analysis_results()
+                
         except Exception as e:
-            print(f"Errore durante l'analisi: {e}")
+            print(f"Error during analysis: {e}")
             raise
 
-    def _build_dependency_graph(self):
-        """Costruisce il grafo delle dipendenze con contesto dei simboli"""
-        for path, sf in self.source_files.items():
-            if sf.is_header:
-                node = DependencyNode(
-                    header=path,
-                    symbols_provided=self._analyze_symbol_contexts(sf.definitions),
-                    symbols_required=self._analyze_symbol_contexts(sf.usages),
-                    direct_includes=set(sf.includes)
+    def _build_file_structures(self):
+        """Builds header and source file structures from analyzer data"""
+        # First pass: Create basic file structures
+        for path, source_file in self.analyzer.files.items():
+            if source_file.is_header:
+                symbols_provided = self._analyze_symbol_contexts(source_file.definitions)
+                symbols_required = self._analyze_symbol_contexts(source_file.usages)
+                
+                self.header_files[path] = HeaderFile(
+                    path=path,
+                    symbols_provided=symbols_provided,
+                    symbols_required=symbols_required,
+                    direct_includes=set(source_file.includes)
                 )
-                self.dependency_graph[path] = node
+            else:
+                self.source_files[path] = SourceFile(
+                    path=path,
+                    required_symbols={s.name for s in source_file.usages},
+                    direct_includes=set(source_file.includes)
+                )
+
+        # Second pass: Calculate indirect includes and dependencies
+        self._calculate_indirect_includes()
+        self._build_dependency_graph()
+
+    def _calculate_indirect_includes(self):
+        """Calculates indirect includes for all header files"""
+        changed = True
+        while changed:
+            changed = False
+            for header in self.header_files.values():
+                old_size = len(header.indirect_includes)
+                
+                for inc in header.direct_includes:
+                    if inc in self.header_files:
+                        inc_header = self.header_files[inc]
+                        header.indirect_includes.update(inc_header.direct_includes)
+                        header.indirect_includes.update(inc_header.indirect_includes)
+                
+                if len(header.indirect_includes) > old_size:
+                    changed = True
+
+    def _calculate_include_orders(self):
+        """Calculates optimal include orders for all files"""
+        # Calculate for header files
+        for header in self.header_files.values():
+            include_order = self._calculate_file_include_order(
+                header.path,
+                header.symbols_required.keys(),
+                set(self.header_files.keys()) - {header.path}
+            )
+            header.include_order = include_order
+            self.file_include_orders[header.path] = include_order
+
+        # Calculate for source files
+        for source in self.source_files.values():
+            include_order = self._calculate_file_include_order(
+                source.path,
+                source.required_symbols,
+                set(self.header_files.keys())
+            )
+            source.include_order = include_order
+            self.file_include_orders[source.path] = include_order
+
+    def _calculate_file_include_order(
+        self,
+        file_path: Path,
+        required_symbols: Set[str],
+        available_headers: Set[Path]
+    ) -> FileIncludeOrder:
+        """Calculates optimal include order for a specific file"""
+        direct_includes = (self.header_files[file_path].direct_includes 
+                         if file_path in self.header_files 
+                         else self.source_files[file_path].direct_includes)
+        
+        include_order = FileIncludeOrder(
+            file_path=file_path,
+            direct_includes=direct_includes,
+            required_symbols=set(required_symbols),
+            provided_symbols=set()
+        )
+
+        # Try to find optimal include order
+        ordered_includes = self._find_valid_include_order(
+            required_symbols,
+            available_headers
+        )
+
+        if ordered_includes:
+            include_order.optimal_include_order = ordered_includes
+            # Calculate provided symbols from this order
+            for header in ordered_includes:
+                if header in self.header_files:
+                    include_order.provided_symbols.update(
+                        self.header_files[header].symbols_provided.keys()
+                    )
+        else:
+            # If no valid order found, calculate missing symbols
+            available_symbols = set()
+            for header in available_headers:
+                if header in self.header_files:
+                    available_symbols.update(
+                        self.header_files[header].symbols_provided.keys()
+                    )
+            include_order.missing_symbols = required_symbols - available_symbols
+
+        return include_order
 
     def _analyze_symbol_contexts(self, symbols: List[Symbol]) -> Dict[str, SymbolContext]:
-        """Analizza il contesto di ogni simbolo"""
+        """Analyzes the context of each symbol"""
         contexts = {}
         for sym in symbols:
             required = self._extract_required_symbols(sym.context)
@@ -176,8 +216,7 @@ class IncludeResolver:
         return contexts
 
     def _extract_required_symbols(self, context: str) -> Set[str]:
-        """Estrae i simboli necessari dal contesto (es. struct, typedef)"""
-        # Implementazione semplificata - potrebbe essere espansa con analisi più dettagliata
+        """Extracts required symbols from context"""
         symbols = set()
         words = re.findall(r'\b\w+\b', context)
         for word in words:
@@ -185,48 +224,44 @@ class IncludeResolver:
                 symbols.add(word)
         return symbols
 
-    def _verify_include_chain(self, file: Path, chain: List[Path]) -> List[str]:
-        """Verifica che una catena di inclusioni sia valida"""
-        errors = []
-        available_symbols = set()
-        
-        for idx, header in enumerate(chain):
-            node = self.dependency_graph[header]
-            current_symbols = set(node.symbols_provided.keys())
-            
-            # Verifica che i simboli necessari siano disponibili
-            for symbol, context in node.symbols_required.items():
-                required = context.required_symbols
-                missing = required - available_symbols
-                if missing:
-                    errors.append(f"Header {header}: simboli mancanti per {symbol}: {missing}")
-            
-            # Aggiorna i simboli disponibili
-            available_symbols.update(current_symbols)
-            
-            # Verifica dipendenze ricorsive
-            if idx > 0:
-                prev_headers = chain[:idx]
-                if any(ph in node.all_includes for ph in prev_headers):
-                    errors.append(f"Dipendenza circolare rilevata in {header}")
+    def _build_dependency_graph(self):
+        """Builds dependency graph from file structures"""
+        for path, header in self.header_files.items():
+            self.dependency_graph[path] = DependencyNode(
+                header=path,
+                symbols_provided=header.symbols_provided,
+                symbols_required=header.symbols_required,
+                direct_includes=header.direct_includes,
+                indirect_includes=header.indirect_includes
+            )
 
-        return errors
-
-    def _find_valid_include_order(self, required_symbols: Set[str], available_headers: Set[Path]) -> Optional[List[Path]]:
-        """Trova un ordine valido di inclusione per ottenere tutti i simboli necessari"""
-        def try_order(current_order: List[Path], remaining_symbols: Set[str], used_headers: Set[Path]) -> Optional[List[Path]]:
+    def _find_valid_include_order(
+        self,
+        required_symbols: Set[str],
+        available_headers: Set[Path]
+    ) -> Optional[List[Path]]:
+        """Finds valid include order to obtain all required symbols"""
+        def try_order(
+            current_order: List[Path],
+            remaining_symbols: Set[str],
+            used_headers: Set[Path]
+        ) -> Optional[List[Path]]:
             if not remaining_symbols:
                 return current_order
             
             for header in available_headers - used_headers:
-                node = self.dependency_graph[header]
-                provided = set(node.symbols_provided.keys())
+                if header not in self.header_files:
+                    continue
+                    
+                provided = set(self.header_files[header].symbols_provided.keys())
                 if provided & remaining_symbols:
                     new_order = current_order + [header]
-                    if not self._verify_include_chain(None, new_order):  # No errors
+                    new_remaining = remaining_symbols - provided
+                    
+                    if self._verify_include_chain(new_order):
                         result = try_order(
                             new_order,
-                            remaining_symbols - provided,
+                            new_remaining,
                             used_headers | {header}
                         )
                         if result:
@@ -235,11 +270,102 @@ class IncludeResolver:
 
         return try_order([], required_symbols, set())
 
+    def _verify_include_chain(self, include_chain: List[Path]) -> bool:
+        """Verifies that an include chain is valid"""
+        available_symbols = set()
+        
+        for header in include_chain:
+            if header not in self.header_files:
+                continue
+                
+            current_header = self.header_files[header]
+            
+            # Check that required symbols are available
+            for symbol in current_header.symbols_required:
+                if symbol not in available_symbols:
+                    return False
+            
+            # Update available symbols
+            available_symbols.update(current_header.symbols_provided.keys())
+            
+        return True
+
+    def verify_and_resolve(self) -> Dict[str, dict]:
+        """Verifies and resolves include problems"""
+        verification = IncludeVerification(
+            missing_symbols=defaultdict(set),
+            circular_refs=[],
+            invalid_orders=[],
+            suggested_fixes=[]
+        )
+        
+        # Check each file's include order
+        for path, include_order in self.file_include_orders.items():
+            if include_order.missing_symbols:
+                verification.missing_symbols[str(path)] = include_order.missing_symbols
+            
+            if not include_order.optimal_include_order:
+                verification.invalid_orders.append({
+                    'file': str(path),
+                    'required_symbols': list(include_order.required_symbols)
+                })
+        
+        # Find circular references
+        verification.circular_refs = self._find_circular_references()
+        
+        # Get AI suggestions if there are problems
+        if verification.missing_symbols or verification.invalid_orders:
+            fixes = self._suggest_include_fixes(verification)
+            verification.suggested_fixes.extend(fixes)
+        
+        return {
+            'verification': {
+                'missing_symbols': dict(verification.missing_symbols),
+                'circular_refs': verification.circular_refs,
+                'invalid_orders': verification.invalid_orders
+            },
+            'fixes': verification.suggested_fixes,
+            'include_orders': {
+                str(path): order.optimal_include_order
+                for path, order in self.file_include_orders.items()
+            }
+        }
+
+    def _find_circular_references(self) -> List[List[Path]]:
+        """Finds circular references in the include hierarchy"""
+        cycles = []
+        visited = set()
+        path = []
+
+        def dfs(header: Path):
+            if header in path:
+                cycle_start = path.index(header)
+                cycles.append(path[cycle_start:])
+                return
+            
+            if header in visited:
+                return
+                
+            visited.add(header)
+            path.append(header)
+            
+            if header in self.header_files:
+                for inc in self.header_files[header].direct_includes:
+                    dfs(inc)
+                    
+            path.pop()
+
+        for header in self.header_files:
+            if header not in visited:
+                dfs(header)
+
+        return cycles
+
     def _suggest_include_fixes(self, verification: IncludeVerification) -> List[dict]:
-        """Chiede all'AI suggerimenti per risolvere i problemi di inclusione"""
+        """Asks AI for suggestions to resolve include problems"""
         instruction = """
-        Analizza i problemi di inclusione e suggerisci soluzioni.
-        Formato JSON atteso:
+        Analyze include problems and suggest solutions.
+        Expected JSON format:
         {
             "new_headers": [
                 {
@@ -268,62 +394,36 @@ class IncludeResolver:
         """
         
         prompt = f"""
-        Problemi rilevati:
-        1. Simboli mancanti: {json.dumps(verification.missing_symbols)}
-        2. Riferimenti circolari: {verification.circular_refs}
-        3. Ordini non validi: {verification.invalid_orders}
+        Detected problems:
+        1. Missing symbols: {json.dumps(verification.missing_symbols)}
+        2. Circular references: {verification.circular_refs}
+        3. Invalid orders: {verification.invalid_orders}
         
-        Per ogni header, simboli definiti:
-        {json.dumps({str(k): list(v.symbols_provided.keys()) for k,v in self.dependency_graph.items()}, indent=2)}
+        For each header, defined symbols:
+        {json.dumps({str(k): list(v.symbols_provided.keys()) 
+                    for k,v in self.header_files.items()}, indent=2)}
         
-        Suggerisci come riorganizzare gli header per risolvere questi problemi.
+        Suggest how to reorganize headers to resolve these issues.
         """
         
         return self.ai_prompt(instruction, prompt)
 
-    def verify_and_resolve(self) -> Dict[str, dict]:
-        """Verifica e risolve i problemi di inclusione"""
-        verification = IncludeVerification(
-            missing_symbols=defaultdict(set),
-            circular_refs=[],
-            invalid_orders=[],
-            suggested_fixes=[]
-        )
-        
-        # Verifica ogni file
-        for path, file in self.analyzer.files.items():
-            if not file.is_header:
-                required = {s.name for s in file.usages}
-                current_order = self._find_valid_include_order(required, set(self.dependency_graph.keys()))
-                
-                if not current_order:
-                    verification.invalid_orders.append({
-                        'file': str(path),
-                        'required_symbols': list(required)
-                    })
-                
-                errors = self._verify_include_chain(path, current_order or [])
-                if errors:
-                    verification.missing_symbols[str(path)].update(errors)
-        
-        # Richiedi suggerimenti all'AI
-        if verification.missing_symbols or verification.invalid_orders:
-            fixes = self._suggest_include_fixes(verification)
-            verification.suggested_fixes.extend(fixes)
-        
-        return {
-            'verification': {
-                'missing_symbols': dict(verification.missing_symbols),
-                'circular_refs': verification.circular_refs,
-                'invalid_orders': verification.invalid_orders
-            },
-            'fixes': verification.suggested_fixes,
-            'include_orders': {
-                str(path): self._find_valid_include_order(
-                    {s.name for s in file.usages},
-                    set(self.dependency_graph.keys())
-                )
-                for path, file in self.analyzer.files.items()
-                if not file.is_header
-            }
-        }
+    def _print_analysis_results(self):
+        """Prints analysis results for debugging"""
+        print("\nAnalysis Results:")
+        print("\nHeader Files:")
+        for path, header in self.header_files.items():
+            print(f"\n{path}:")
+            print(f"Provided symbols: {list(header.symbols_provided.keys())}")
+            print(f"Required symbols: {list(header.symbols_required.keys())}")
+            if header.include_order:
+                print(f"Optimal include order: {header.include_order.optimal_include_order}")
+                print(f"Missing symbols: {header.include_order.missing_symbols}")
+
+        print("\nSource Files:")
+        for path, source in self.source_files.items():
+            print(f"\n{path}:")
+            print(f"Required symbols: {source.required_symbols}")
+            if source.include_order:
+                print(f"Optimal include order: {source.include_order.optimal_include_order}")
+                print(f"Missing symbols: {source.include_order.missing_symbols}")
