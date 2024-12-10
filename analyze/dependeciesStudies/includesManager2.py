@@ -312,3 +312,228 @@ class ImprovedIncludeResolver:
                 dfs(header)
                 
         return cycles
+
+    def get_source_analysis(self) -> Dict[str, dict]:
+        """
+        Get comprehensive analysis for all source files.
+        Returns a dictionary with file paths as keys and detailed analysis as values.
+        """
+        sources = {}
+        
+        for path, source in self.source_files.items():
+            str_path = str(path)
+            header_deps = self.header_deps.get(path)
+            
+            # Base source info
+            source_info = {
+                'path': str_path,
+                'is_header': source.is_header,
+                'symbols': {
+                    'provided': [],  # Will contain detailed symbol info
+                    'required': [],  # Will contain detailed symbol info
+                },
+                'includes': {
+                    'optimal_order': [str(p) for p in self.get_include_order(path)],
+                    'current': [str(p) for p in source.includes],
+                    'direct': [],
+                    'transitive': [],
+                    'unnecessary': []
+                },
+                'dependencies': {
+                    'dependent_files': [],  # Files that depend on this one
+                    'dependency_chain': self._get_dependency_chain(path),
+                },
+                'analysis': {
+                    'has_circular_deps': False,
+                    'missing_symbols': [],
+                    'symbol_overlap': [],  # Symbols provided by multiple includes
+                    'include_suggestions': []
+                }
+            }
+            
+            # Add symbol information
+            if header_deps:
+                # Provided symbols with details
+                for symbol in header_deps.provided_symbols:
+                    symbol_info = self._get_symbol_info(symbol, path)
+                    source_info['symbols']['provided'].append(symbol_info)
+                
+                # Required symbols with details
+                for symbol in header_deps.required_symbols:
+                    symbol_info = self._get_symbol_info(symbol, path)
+                    source_info['symbols']['required'].append(symbol_info)
+                
+                # Include relationships
+                source_info['includes']['direct'] = [
+                    str(p) for p in header_deps.direct_includes
+                ]
+                source_info['includes']['transitive'] = [
+                    str(p) for p in header_deps.transitive_includes
+                ]
+                source_info['dependencies']['dependent_files'] = [
+                    str(p) for p in header_deps.dependents
+                ]
+            
+            # Add analysis information
+            self._add_analysis_info(source_info, path)
+            
+            sources[str_path] = source_info
+            
+        return sources
+    
+    def _get_symbol_info(self, symbol_name: str, file_path: Path) -> dict:
+        """Get detailed information about a symbol"""
+        symbol_info = {
+            'name': symbol_name,
+            'type': 'unknown',
+            'definitions': [],
+            'usages': [],
+            'dependencies': list(self.symbol_table.get_symbol_dependencies(symbol_name))
+        }
+        
+        # Add definition information
+        for def_ in self.symbol_table.definitions.get(symbol_name, []):
+            symbol_info['type'] = def_.kind
+            def_info = {
+                'file': str(def_.file),
+                'line': def_.line,
+                'scope': def_.scope,
+                'is_exported': def_.is_exported
+            }
+            symbol_info['definitions'].append(def_info)
+        
+        # Add usage information
+        for usage in self.symbol_table.usages.get(symbol_name, []):
+            if usage.file == file_path:
+                usage_info = {
+                    'line': usage.line,
+                    'context': usage.context,
+                    'required_symbols': list(usage.required_symbols)
+                }
+                symbol_info['usages'].append(usage_info)
+        
+        return symbol_info
+    
+    def _get_dependency_chain(self, path: Path) -> List[List[str]]:
+        """Get all possible dependency chains for a file"""
+        chains = []
+        visited = set()
+        
+        def build_chain(current: Path, current_chain: List[Path]):
+            if current in visited:
+                return
+            
+            visited.add(current)
+            current_chain.append(current)
+            
+            if current in self.header_deps:
+                deps = self.header_deps[current]
+                if not deps.direct_includes:
+                    chains.append([str(p) for p in current_chain])
+                else:
+                    for inc in deps.direct_includes:
+                        build_chain(inc, current_chain[:])
+            
+            visited.remove(current)
+        
+        build_chain(path, [])
+        return chains
+    
+    def _add_analysis_info(self, source_info: dict, path: Path):
+        """Add analysis information to source info"""
+        # Check for circular dependencies
+        cycles = self._find_circular_deps()
+        str_path = str(path)
+        source_info['analysis']['has_circular_deps'] = any(
+            str_path in cycle for cycle in cycles
+        )
+        
+        # Find missing symbols
+        if path in self.header_deps:
+            deps = self.header_deps[path]
+            available_symbols = set()
+            
+            for inc in self.get_include_order(path):
+                if inc in self.header_deps:
+                    available_symbols.update(
+                        self.header_deps[inc].provided_symbols
+                    )
+            
+            missing = deps.required_symbols - available_symbols
+            source_info['analysis']['missing_symbols'] = list(missing)
+        
+        # Find symbol overlaps
+        symbol_providers = defaultdict(list)
+        if path in self.header_deps:
+            for inc in self.header_deps[path].direct_includes:
+                if inc in self.header_deps:
+                    for symbol in self.header_deps[inc].provided_symbols:
+                        symbol_providers[symbol].append(str(inc))
+            
+            overlaps = [
+                {
+                    'symbol': symbol,
+                    'providers': providers
+                }
+                for symbol, providers in symbol_providers.items()
+                if len(providers) > 1
+            ]
+            source_info['analysis']['symbol_overlap'] = overlaps
+        
+        # Generate include suggestions
+        suggestions = self._generate_include_suggestions(path)
+        source_info['analysis']['include_suggestions'] = suggestions
+    
+    def _generate_include_suggestions(self, path: Path) -> List[dict]:
+        """Generate suggestions for improving includes"""
+        suggestions = []
+        
+        if path in self.header_deps:
+            deps = self.header_deps[path]
+            current_order = [str(p) for p in deps.direct_includes]
+            optimal_order = [str(p) for p in self.get_include_order(path)]
+            
+            if current_order != optimal_order:
+                suggestions.append({
+                    'type': 'reorder',
+                    'message': 'Consider reordering includes for better symbol resolution',
+                    'current_order': current_order,
+                    'suggested_order': optimal_order
+                })
+            
+            # Check for unnecessary includes
+            unnecessary = self._find_unnecessary_includes(path)
+            if unnecessary:
+                suggestions.append({
+                    'type': 'remove',
+                    'message': 'These includes might be unnecessary',
+                    'includes': list(unnecessary)
+                })
+        
+        return suggestions
+    
+    def _find_unnecessary_includes(self, path: Path) -> Set[str]:
+        """Find includes that might be unnecessary"""
+        unnecessary = set()
+        
+        if path in self.header_deps:
+            deps = self.header_deps[path]
+            required_symbols = deps.required_symbols
+            
+            for inc in deps.direct_includes:
+                if inc not in self.header_deps:
+                    continue
+                    
+                inc_symbols = self.header_deps[inc].provided_symbols
+                if not (required_symbols & inc_symbols):
+                    # Check if any transitive dependency needs this include
+                    needed_by_transitive = False
+                    for trans in deps.transitive_includes:
+                        if inc in self.header_deps[trans].direct_includes:
+                            needed_by_transitive = True
+                            break
+                    
+                    if not needed_by_transitive:
+                        unnecessary.add(str(inc))
+        
+        return unnecessary

@@ -71,12 +71,8 @@ def main():
         # Run analysis
         resolver.analyze()
 
-        sources = {}
-        # Get include order for a file
-        for path, source in analyzer.files.items():
-            strPath = str(path)
-            order = resolver.get_include_order(path)
-            sources[strPath] = order
+        # Get comprehensive source analysis
+        sources = resolver.get_source_analysis()
 
         # Verify includes
         issues = resolver.verify_includes()
