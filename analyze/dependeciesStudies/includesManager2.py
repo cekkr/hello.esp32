@@ -32,7 +32,10 @@ class SymbolTable:
     definitions: Dict[str, List[SymbolDefinition]] = field(default_factory=lambda: defaultdict(list))
     usages: Dict[str, List[SymbolUsage]] = field(default_factory=lambda: defaultdict(list))
     dependencies: Dict[str, Set[str]] = field(default_factory=lambda: defaultdict(set))
-    
+
+    def __init__(self):
+        self.dependenciesCache: Dict[str, object] = []
+
     def add_definition(self, symbol: SymbolDefinition):
         self.definitions[symbol.name].append(symbol)
         
@@ -57,6 +60,12 @@ class SymbolTable:
         Returns:
             Set of all dependent symbols
         """
+
+        if symbol_name in self.dependenciesCache:
+            return self.dependenciesCache[symbol_name]
+
+        print("get_symbol_dependencies: ", symbol_name, visited)
+
         # Initialize visited set on first call
         if visited is None:
             visited = set()
@@ -81,6 +90,8 @@ class SymbolTable:
 
         # Remove current symbol from visited when backtracking
         visited.remove(symbol_name)
+
+        self.dependenciesCache[symbol_name] = all_deps
 
         return all_deps
 
