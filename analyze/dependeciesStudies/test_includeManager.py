@@ -1,68 +1,6 @@
 from includeManager import *
 from geminiApi import *
 
-# Mock AI prompt function
-def mock_ai_prompt(instruction: str, prompt: str) -> dict:
-    # Simula una risposta dell'AI per testing
-    return {
-        "new_headers": [
-            {
-                "name": "common_types.h",
-                "symbols": ["user_info_t", "session_data_t"],
-                "reason": "Separate common type definitions to break circular dependency"
-            }
-        ],
-        "moved_symbols": [],
-        "include_order_fixes": []
-    }
-
-# Esempio di progetto
-source_files = {
-    Path("user.h"): SourceFile(
-        path=Path("user.h"),
-        includes=[Path("session.h")],
-        included_by=set([Path("main.c")]),
-        definitions=[
-            Symbol("user_info_t", "type", 10, "struct user_info { char* name; int id; }"),
-            Symbol("create_user", "function", 15, "user_info_t* create_user(const char* name)")
-        ],
-        usages=[
-            Symbol("session_data_t", "type", 12, "session_data_t* session")
-        ],
-        is_header=True
-    ),
-    
-    Path("session.h"): SourceFile(
-        path=Path("session.h"),
-        includes=[Path("user.h")],
-        included_by=set([Path("main.c")]),
-        definitions=[
-            Symbol("session_data_t", "type", 5, "struct session_data { int session_id; user_info_t* user; }"),
-            Symbol("create_session", "function", 10, "session_data_t* create_session(user_info_t* user)")
-        ],
-        usages=[
-            Symbol("user_info_t", "type", 5, "user_info_t* user")
-        ],
-        is_header=True
-    ),
-    
-    Path("main.c"): SourceFile(
-        path=Path("main.c"),
-        includes=[Path("user.h"), Path("session.h")],
-        included_by=set(),
-        definitions=[
-            Symbol("main", "function", 1, "int main(void)")
-        ],
-        usages=[
-            Symbol("user_info_t", "type", 4, "user_info_t* user"),
-            Symbol("session_data_t", "type", 5, "session_data_t* session"),
-            Symbol("create_user", "function", 6, "user = create_user(\"test\")"),
-            Symbol("create_session", "function", 7, "session = create_session(user)")
-        ],
-        is_header=False
-    )
-}
-
 client = None
 
 def askAI(instruction, prompt):

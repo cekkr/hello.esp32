@@ -1,0 +1,85 @@
+Starting IncludeManager...
+GeminiClient loaded successfully
+analyzeSources()
+Analisi del progetto in corso...
+
+Trovati 51 file sorgente nel progetto:
+  - source/esp_try.h
+  - extensions/m3_extensions.c
+  - extensions/wasm3_ext.h
+  - extra/coremark_minimal.wasm.h
+  - extra/fib32.wasm.h
+  - extra/fib32_tail.wasm.h
+  - extra/fib64.wasm.h
+  - extra/wasi_core.h
+  - source/m3_api_esp_wasi.c
+  - source/m3_api_esp_wasi.h
+  - source/m3_api_libc.c
+  - source/m3_api_libc.h
+  - source/m3_api_meta_wasi.c
+  - source/m3_api_tracer.c
+  - source/m3_api_tracer.h
+  - source/m3_api_uvwasi.c
+  - source/m3_api_wasi.c
+  - source/m3_api_wasi.h
+  - source/m3_bind.c
+  - source/m3_bind.h
+  - source/m3_code.c
+  - source/m3_code.h
+  - source/m3_compile.c
+  - source/m3_compile.h
+  - source/m3_config.h
+  - source/m3_config_platforms.h
+  - source/m3_core.c
+  - source/m3_core.h
+  - source/m3_env.c
+  - source/m3_env.h
+  - source/m3_exception.c
+  - source/m3_exception.h
+  - source/m3_exec.c
+  - source/m3_exec.h
+  - source/m3_exec_defs.h
+  - source/m3_function.c
+  - source/m3_function.h
+  - source/m3_includes.h
+  - source/m3_info.c
+  - source/m3_info.h
+  - source/m3_math_utils.h
+  - source/m3_module.c
+  - source/m3_module.h
+  - source/m3_parse.c
+  - source/m3_parse.h
+  - source/m3_pointers.c
+  - source/m3_pointers.h
+  - source/m3_segmented_memory.c
+  - source/m3_segmented_memory.h
+  - source/wasm3.h
+  - source/wasm3_defs.h
+Traceback (most recent call last):
+  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/test_includeManager.py", line 118, in <module>
+    main()
+  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/test_includeManager.py", line 101, in main
+    resolver = IncludeResolver(project_paths, askAI)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/includeManager.py", line 55, in __init__
+    self.analyzeSources()
+  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/includeManager.py", line 136, in analyzeSources
+    analyzer.analyze()
+  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/readCLib.py", line 94, in analyze
+    self._analyze_file(file_path, first_pass=True)
+  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/readCLib.py", line 148, in _analyze_file
+    self._analyze_definitions(translation_unit.cursor, source_file)
+  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/readCLib.py", line 201, in _analyze_definitions
+    self._analyze_definitions(child, source_file)
+  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/readCLib.py", line 201, in _analyze_definitions
+    self._analyze_definitions(child, source_file)
+  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/readCLib.py", line 201, in _analyze_definitions
+    self._analyze_definitions(child, source_file)
+  [Previous line repeated 7 more times]
+  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/readCLib.py", line 172, in _analyze_definitions
+    context = self._get_context(source_file.raw_content, line)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/readCLib.py", line 245, in _get_context
+    lines = content.splitlines()
+            ^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
