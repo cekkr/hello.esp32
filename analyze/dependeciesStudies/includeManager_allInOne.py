@@ -876,6 +876,38 @@ class ImprovedIncludeResolver:
                 )
                 self.symbol_table.add_usage(symbol_usage)
 
+    def _find_circular_deps(self) -> List[List[str]]:
+        """Find circular dependencies in the include graph"""
+        cycles = []
+        visited = set()
+        path_stack = []
+
+        def dfs(current: Path):
+            if current in path_stack:
+                start = path_stack.index(current)
+                cycle = [str(p) for p in path_stack[start:]]
+                cycles.append(cycle)
+                return
+
+            if current in visited:
+                return
+
+            visited.add(current)
+            path_stack.append(current)
+
+            if current in self.header_deps:
+                for inc in self.header_deps[current].direct_includes:
+                    dfs(inc)
+
+            path_stack.pop()
+
+        # Start DFS from each header
+        for header in self.header_deps:
+            if header not in visited:
+                dfs(header)
+
+        return cycles
+
     def _extract_dependencies(self, context: str) -> Set[str]:
         """Extract symbol dependencies from context"""
         deps = set()
@@ -1006,6 +1038,68 @@ class ImprovedIncludeResolver:
             sources[str_path] = source_info
             
         return sources
+
+    def _get_symbol_info(self, symbol_name: str, file_path: Path) -> dict:
+        """Get detailed information about a symbol"""
+        symbol_info = {
+            'name': symbol_name,
+            'type': 'unknown',
+            'definitions': [],
+            'usages': [],
+            'dependencies': list(self.symbol_table.get_symbol_dependencies(symbol_name))
+        }
+
+        # Add definition information
+        for def_ in self.symbol_table.definitions.get(symbol_name, []):
+            symbol_info['type'] = def_.kind
+            def_info = {
+                'file': str(def_.file),
+                'line': def_.line,
+                'scope': def_.scope,
+                'is_exported': def_.is_exported
+            }
+            symbol_info['definitions'].append(def_info)
+
+        # Add usage information
+        for usage in self.symbol_table.usages.get(symbol_name, []):
+            if usage.file == file_path:
+                usage_info = {
+                    'line': usage.line,
+                    'context': usage.context,
+                    'required_symbols': list(usage.required_symbols)
+                }
+                symbol_info['usages'].append(usage_info)
+
+        return symbol_info
+
+    def get_include_order(self, file_path: Path) -> List[Path]:
+        """Get the optimal include order for a file"""
+        return self.include_order.get(file_path, [])
+
+    def _get_dependency_chain(self, path: Path) -> List[List[str]]:
+        """Get all possible dependency chains for a file"""
+        chains = []
+        visited = set()
+
+        def build_chain(current: Path, current_chain: List[Path]):
+            if current in visited:
+                return
+
+            visited.add(current)
+            current_chain.append(current)
+
+            if current in self.header_deps:
+                deps = self.header_deps[current]
+                if not deps.direct_includes:
+                    chains.append([str(p) for p in current_chain])
+                else:
+                    for inc in deps.direct_includes:
+                        build_chain(inc, current_chain[:])
+
+            visited.remove(current)
+
+        build_chain(path, [])
+        return chains
 
     def _get_type_dependency_chain(self, path: Path) -> List[dict]:
         """Get dependency chain based on type requirements"""

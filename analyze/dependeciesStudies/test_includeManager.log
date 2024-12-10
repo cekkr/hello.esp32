@@ -53,3 +53,18 @@ Trovati 51 file sorgente nel progetto:
   - wasm3/m3_segmented_memory.h
   - wasm3/wasm3.h
   - wasm3/wasm3_defs.h
+Traceback (most recent call last):
+  File "/Applications/PyCharm CE.app/Contents/plugins/python-ce/helpers/pydev/pydevd.py", line 1551, in _exec
+    pydev_imports.execfile(file, globals, locals)  # execute the script
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Applications/PyCharm CE.app/Contents/plugins/python-ce/helpers/pydev/_pydev_imps/_pydev_execfile.py", line 18, in execfile
+    exec(compile(contents+"\n", file, 'exec'), glob, loc)
+  File "test_includeManager.py", line 92, in <module>
+    main()
+  File "test_includeManager.py", line 76, in main
+    sources = resolver.get_source_analysis()
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/includeManager_allInOne.py", line 960, in get_source_analysis
+    'optimal_order': [str(p) for p in self.get_include_order(path)],
+                                      ^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'ImprovedIncludeResolver' object has no attribute 'get_include_order'. Did you mean: 'include_order'?
