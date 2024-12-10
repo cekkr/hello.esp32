@@ -49,6 +49,48 @@ class IncludeVerification:
     invalid_orders: List[Dict[str, List[str]]]
     suggested_fixes: List[dict]
 
+
+def dependency_graph_to_json(dependency_graph: Dict[Path, DependencyNode]) -> dict:
+    """
+    Convert dependency graph to a JSON-serializable dictionary structure.
+
+    Args:
+        dependency_graph: Dictionary mapping Path to DependencyNode
+
+    Returns:
+        Dictionary suitable for JSON serialization with dependency information
+    """
+    result = {}
+
+    for file_path, node in dependency_graph.items():
+        # Convert Path objects to strings for JSON serialization
+        file_key = str(file_path)
+
+        # Convert symbol dictionaries
+        provided_symbols = {
+            symbol: context.__dict__
+            for symbol, context in node.symbols_provided.items()
+        }
+
+        required_symbols = {
+            symbol: context.__dict__
+            for symbol, context in node.symbols_required.items()
+        }
+
+        # Create node representation
+        node_info = {
+            "header": str(node.header),
+            "symbols_provided": provided_symbols,
+            "symbols_required": required_symbols,
+            "direct_includes": [str(p) for p in node.direct_includes],
+            "indirect_includes": [str(p) for p in node.indirect_includes],
+            "resolution_state": str(node.resolution_state) if node.resolution_state else None
+        }
+
+        result[file_key] = node_info
+
+    return result
+
 @dataclass
 class IncludeResolver:
     source_files: Dict[Path, SourceFile]
@@ -288,7 +330,7 @@ class IncludeResolver:
             missing_symbols=defaultdict(set),
             circular_refs=[],
             invalid_orders=[],
-            suggested_fixes=[]
+            suggested_fixes=[],
         )
         
         # Collect unresolved dependencies
@@ -307,6 +349,8 @@ class IncludeResolver:
         if verification.missing_symbols or verification.invalid_orders:
             fixes = self._suggest_include_fixes(verification)
             verification.suggested_fixes.extend(fixes)
+
+        dependencies = dependency_graph_to_json(self.dependency_graph)
         
         return {
             'verification': {
@@ -319,7 +363,8 @@ class IncludeResolver:
                 str(path): state.current_includes
                 for path, state in self.resolution_states.items()
                 if state.is_resolved
-            }
+            },
+            dependencies: dependencies
         }
 
     def _find_circular_references(self) -> List[List[Path]]:
