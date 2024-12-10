@@ -46,6 +46,9 @@ class SymbolTable:
         self.definitions[symbol.name].append(symbol)
         
     def add_usage(self, usage: SymbolUsage):
+        if usage.name not in self.usages:
+            self.usages[usage.name] = []
+
         self.usages[usage.name].append(usage)
         # Update symbol dependencies
         for req in usage.required_symbols:
