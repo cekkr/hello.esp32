@@ -291,7 +291,7 @@ class IncludeResolver:
         )
         
         # Verifica ogni file
-        for path, file in self.source_files.items():
+        for path, file in self.analyzer.files.items():
             if not file.is_header:
                 required = {s.name for s in file.usages}
                 current_order = self._find_valid_include_order(required, set(self.dependency_graph.keys()))
