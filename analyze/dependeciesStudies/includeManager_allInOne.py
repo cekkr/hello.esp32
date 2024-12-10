@@ -1129,7 +1129,7 @@ class ImprovedIncludeResolver:
     def _add_analysis_info(self, source_info: dict, path: Path):
         """Add analysis information including type analysis to source info"""
         # Existing checks (circular deps, etc.)
-        super()._add_analysis_info(source_info, path)
+        #super()._add_analysis_info(source_info, path)
         
         # Add type-specific analysis
         source = self.source_files[path]
