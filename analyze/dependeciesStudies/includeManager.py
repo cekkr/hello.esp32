@@ -323,7 +323,7 @@ class IncludeResolver:
                     {s.name for s in file.usages},
                     set(self.dependency_graph.keys())
                 )
-                for path, file in self.source_files.items()
+                for path, file in self.analyzer.files.items()
                 if not file.is_header
             }
         }
