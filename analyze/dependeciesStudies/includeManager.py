@@ -5,6 +5,7 @@ from collections import defaultdict
 import json
 import re
 from readCLib import *
+from generalFuncs import *
 
 @dataclass
 class SymbolContext:
@@ -397,7 +398,7 @@ class IncludeResolver:
         
         prompt = f"""
         Detected problems:
-        1. Missing symbols: {json.dumps(verification.missing_symbols)}
+        1. Missing symbols: {custom_json_serializer(verification.missing_symbols)}
         2. Circular references: {verification.circular_refs}
         3. Invalid orders: {verification.invalid_orders}
         
