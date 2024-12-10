@@ -143,7 +143,7 @@ class IncludeResolver:
                 analyzer.suggest_missing_includes()
                 
                 # Opzionale: analisi dettagliata di simboli specifici
-                while True:
+                while False:
                     symbol = input("\nInserisci il nome di un simbolo da analizzare (o premi Invio per terminare): ")
                     if not symbol:
                         break
