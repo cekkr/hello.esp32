@@ -1,6 +1,7 @@
 from includeManager import *
 from geminiApi import *
 import json
+from optimizeIncludesFuncs import *
 
 client = None
 

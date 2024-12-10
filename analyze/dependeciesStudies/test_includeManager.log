@@ -1,9 +1,9 @@
+Starting IncludeManager...
+GeminiClient loaded successfully
 Traceback (most recent call last):
-  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/test_includeManager.py", line 1, in <module>
-    from includeManager import *
-  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/includeManager.py", line 9, in <module>
-    from optimizeIncludesFuncs import *
-  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/optimizeIncludesFuncs.py", line 8, in <module>
-    def optimize_includes(source_files: Dict[Path, SourceFile]) -> Dict[Path, ResolutionResult]:
-                                                                              ^^^^^^^^^^^^^^^^
-NameError: name 'ResolutionResult' is not defined
+  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/test_includeManager.py", line 71, in <module>
+    main()
+  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/test_includeManager.py", line 61, in main
+    result = optimize_includes(analyzer.files)
+             ^^^^^^^^^^^^^^^^^
+NameError: name 'optimize_includes' is not defined

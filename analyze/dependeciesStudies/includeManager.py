@@ -6,7 +6,6 @@ import json
 import re
 from readCLib import *
 from generalFuncs import *
-from optimizeIncludesFuncs import *
 
 @dataclass
 class SymbolContext:
