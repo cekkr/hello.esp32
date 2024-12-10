@@ -6,6 +6,7 @@ import json
 import re
 from readCLib import *
 from generalFuncs import *
+from optimizeIncludesFuncs import *
 
 @dataclass
 class SymbolContext:
@@ -346,9 +347,10 @@ class IncludeResolver:
         verification.circular_refs = self._find_circular_references()
         
         # Get AI suggestions if there are problems
-        if verification.missing_symbols or verification.invalid_orders:
-            fixes = self._suggest_include_fixes(verification)
-            verification.suggested_fixes.extend(fixes)
+        if False:
+            if verification.missing_symbols or verification.invalid_orders:
+                fixes = self._suggest_include_fixes(verification)
+                verification.suggested_fixes.extend(fixes)
 
         dependencies = dependency_graph_to_json(self.dependency_graph)
         

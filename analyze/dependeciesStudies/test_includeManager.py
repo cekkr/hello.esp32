@@ -37,23 +37,28 @@ def main():
     client = GeminiClient(api_key=load_gemini_key("../geminiConfig.env"))    
     print("GeminiClient loaded successfully")
 
-    # Uso del resolver
     project_paths = "../../hello-idf/components/wasm3-helloesp/platforms/embedded/esp32-idf-wasi/wasm3/wasm3"
-    resolver = IncludeResolver(project_paths, askAI)
 
-    print("resolver.verify_and_resolve()")
-    result = resolver.verify_and_resolve()
+    # Uso del resolver
+    if False:
+        resolver = IncludeResolver(project_paths, askAI)
 
-    # Stampa risultati
-    print("Analisi delle inclusioni:")
-    print("\nProblemi rilevati:")
-    print(custom_json_serializer(result['verification']))
+        print("resolver.verify_and_resolve()")
+        result = resolver.verify_and_resolve()
 
-    print("\nSuggerimenti AI:")
-    print(custom_json_serializer(result['fixes']))
+        # Stampa risultati
+        print("Analisi delle inclusioni:")
+        print("\nProblemi rilevati:")
+        print(custom_json_serializer(result['verification']))
 
-    print("\nOrdine include suggerito:")
-    print(custom_json_serializer(result['include_orders']))
+        print("\nSuggerimenti AI:")
+        print(custom_json_serializer(result['fixes']))
+
+        print("\nOrdine include suggerito:")
+        print(custom_json_serializer(result['include_orders']))
+
+    analyzer = SourceAnalyzer([project_paths])
+    result = optimize_includes(analyzer.files)
 
     # Salva l'oggetto come JSON nel file "result.json"
     saveTo = "result_includeManager.json"
