@@ -53,3 +53,1246 @@ Trovati 51 file sorgente nel progetto:
   - wasm3/m3_segmented_memory.h
   - wasm3/wasm3.h
   - wasm3/wasm3_defs.h
+get_symbol_dependencies:  m3_wasi_context_t None
+get_symbol_dependencies:  m3_GetWasiContext {'m3_wasi_context_t'}
+get_symbol_dependencies:  wasi_context {'m3_wasi_context_t'}
+get_symbol_dependencies:  m3_wasi_generic_args_get {'m3_wasi_context_t', 'wasi_context'}
+get_symbol_dependencies:  SuppressLookupFailure {'m3_wasi_context_t', 'wasi_context'}
+get_symbol_dependencies:  m3_wasi_generic_fd_prestat_dir_name {'m3_wasi_context_t', 'wasi_context', 'SuppressLookupFailure'}
+get_symbol_dependencies:  m3_wasi_generic_clock_time_get {'wasi_context', 'SuppressLookupFailure', 'm3_wasi_context_t'}
+get_symbol_dependencies:  m3_libc_memmove {'wasi_context', 'SuppressLookupFailure', 'm3_wasi_context_t'}
+get_symbol_dependencies:  m3_spectest_dummy {'wasi_context', 'SuppressLookupFailure', 'm3_wasi_context_t'}
+get_symbol_dependencies:  m3_libc_print {'wasi_context', 'SuppressLookupFailure', 'm3_wasi_context_t'}
+get_symbol_dependencies:  m3_wasi_generic_args_sizes_get {'wasi_context', 'SuppressLookupFailure', 'm3_wasi_context_t'}
+get_symbol_dependencies:  m3_wasi_generic_fd_fdstat_set_flags {'wasi_context', 'SuppressLookupFailure', 'm3_wasi_context_t'}
+get_symbol_dependencies:  m3_wasi_generic_proc_exit {'wasi_context', 'SuppressLookupFailure', 'm3_wasi_context_t'}
+get_symbol_dependencies:  m3_wasi_generic_fd_close {'wasi_context', 'SuppressLookupFailure', 'm3_wasi_context_t'}
+get_symbol_dependencies:  m3_libc_memset {'wasi_context', 'SuppressLookupFailure', 'm3_wasi_context_t'}
+get_symbol_dependencies:  m3_wasi_generic_environ_get {'wasi_context', 'SuppressLookupFailure', 'm3_wasi_context_t'}
+get_symbol_dependencies:  m3_wasi_snapshot_preview1_fd_seek {'wasi_context', 'SuppressLookupFailure', 'm3_wasi_context_t'}
+get_symbol_dependencies:  m3_wasi_unstable_fd_seek {'wasi_context', 'SuppressLookupFailure', 'm3_wasi_context_t'}
+get_symbol_dependencies:  m3_libc_abort {'wasi_context', 'SuppressLookupFailure', 'm3_wasi_context_t'}
+get_symbol_dependencies:  m3_libc_exit {'wasi_context', 'SuppressLookupFailure', 'm3_wasi_context_t'}
+get_symbol_dependencies:  m3_wasi_generic_random_get {'wasi_context', 'SuppressLookupFailure', 'm3_wasi_context_t'}
+get_symbol_dependencies:  m3_wasi_generic_fd_fdstat_get {'wasi_context', 'SuppressLookupFailure', 'm3_wasi_context_t'}
+get_symbol_dependencies:  m3_wasi_generic_path_open {'wasi_context', 'SuppressLookupFailure', 'm3_wasi_context_t'}
+get_symbol_dependencies:  m3_wasi_generic_environ_sizes_get {'wasi_context', 'SuppressLookupFailure', 'm3_wasi_context_t'}
+get_symbol_dependencies:  m3_libc_printf {'wasi_context', 'SuppressLookupFailure', 'm3_wasi_context_t'}
+get_symbol_dependencies:  m3_wasi_generic_fd_prestat_get {'wasi_context', 'SuppressLookupFailure', 'm3_wasi_context_t'}
+get_symbol_dependencies:  m3_wasi_generic_fd_write {'wasi_context', 'SuppressLookupFailure', 'm3_wasi_context_t'}
+get_symbol_dependencies:  m3_wasi_generic_fd_read {'wasi_context', 'SuppressLookupFailure', 'm3_wasi_context_t'}
+get_symbol_dependencies:  m3_wasi_generic_clock_res_get {'wasi_context', 'SuppressLookupFailure', 'm3_wasi_context_t'}
+get_symbol_dependencies:  m3_libc_clock_ms {'wasi_context', 'SuppressLookupFailure', 'm3_wasi_context_t'}
+get_symbol_dependencies:  m3_wasi_generic_fd_datasync {'wasi_context', 'SuppressLookupFailure', 'm3_wasi_context_t'}
+get_symbol_dependencies:  m3_LinkWASI None
+get_symbol_dependencies:  M3Result None
+get_symbol_dependencies:  m3_ParseModule {'M3Result'}
+get_symbol_dependencies:  m3opcode_t {'M3Result'}
+get_symbol_dependencies:  Compile_Operator {'M3Result', 'm3opcode_t'}
+get_symbol_dependencies:  Compile_Return {'M3Result', 'm3opcode_t'}
+get_symbol_dependencies:  Compile_CallIndirect {'M3Result', 'm3opcode_t'}
+get_symbol_dependencies:  CompileBlock {'M3Result', 'm3opcode_t'}
+get_symbol_dependencies:  Compile_ExtendedOpcode {'M3Result', 'm3opcode_t'}
+get_symbol_dependencies:  Compile_Convert {'M3Result', 'm3opcode_t'}
+get_symbol_dependencies:  Compile_GetLocal {'M3Result', 'm3opcode_t'}
+get_symbol_dependencies:  bytes_t {'M3Result', 'm3opcode_t'}
+get_symbol_dependencies:  u64 {'M3Result', 'm3opcode_t', 'bytes_t'}
+get_symbol_dependencies:  m3slot_t {'u64', 'M3Result', 'm3opcode_t', 'bytes_t'}
+get_symbol_dependencies:  u8 {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'bytes_t'}
+get_symbol_dependencies:  IsRegisterTypeAllocated {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'bytes_t', 'u8'}
+get_symbol_dependencies:  GetStackTopType {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'bytes_t', 'u8'}
+get_symbol_dependencies:  convertTypeIdToChar {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'bytes_t', 'u8'}
+get_symbol_dependencies:  Module_AddGlobal {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'bytes_t', 'u8'}
+get_symbol_dependencies:  AllocateSlotsWithinRange {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'u8', 'bytes_t'}
+get_symbol_dependencies:  SizeOfType {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'u8', 'bytes_t'}
+get_symbol_dependencies:  i32 {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'u8', 'bytes_t'}
+get_symbol_dependencies:  rotl32 {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'u8', 'i32', 'bytes_t'}
+get_symbol_dependencies:  u32 {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'bytes_t'}
+get_symbol_dependencies:  GetMemorySegment {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u32'}
+get_symbol_dependencies:  FindCodePageEnd {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u32'}
+get_symbol_dependencies:  m3_LoadInt {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u32'}
+get_symbol_dependencies:  FindReferencedLocalWithinCurrentBlock {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u32'}
+get_symbol_dependencies:  u16 {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u32'}
+get_symbol_dependencies:  GetMaxUsedSlotPlusOne {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'u32'}
+get_symbol_dependencies:  IsSlotAllocated {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'u32'}
+get_symbol_dependencies:  CompileCallArgsAndReturn {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'u32'}
+get_symbol_dependencies:  MarkSlotsAllocated {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'u32'}
+get_symbol_dependencies:  GetFunctionNumReturns {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'u32'}
+get_symbol_dependencies:  c_ioSlotCount {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'GetFunctionNumReturns', 'i32', 'bytes_t', 'u16', 'u32'}
+get_symbol_dependencies:  CopyStackTopToSlot {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'GetFunctionNumReturns', 'i32', 'c_ioSlotCount', 'bytes_t', 'u16', 'u32'}
+get_symbol_dependencies:  GetNumBlockValuesOnStack {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'u32'}
+get_symbol_dependencies:  Push {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'u32'}
+get_symbol_dependencies:  GetFuncTypeNumParams {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'u32'}
+get_symbol_dependencies:  GetFuncTypeParamType {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'u32'}
+get_symbol_dependencies:  cstr_t {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'u32'}
+get_symbol_dependencies:  Read_utf8 {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'u32'}
+get_symbol_dependencies:  GetFunctionNames {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'u32'}
+get_symbol_dependencies:  ProfileHit {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'u32'}
+get_symbol_dependencies:  IM3Function {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'u32'}
+get_symbol_dependencies:  CompileRawFunction {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32'}
+get_symbol_dependencies:  CompileFunction {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32'}
+get_symbol_dependencies:  m3_GetResults {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32'}
+get_symbol_dependencies:  m3_GetFunctionModule {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32'}
+get_symbol_dependencies:  ValidateSignature {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32'}
+get_symbol_dependencies:  m3_GetArgType {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32'}
+get_symbol_dependencies:  ForEachModule {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32'}
+get_symbol_dependencies:  v_FindFunction {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'IM3Function', 'ForEachModule', 'bytes_t', 'u16', 'cstr_t', 'u32'}
+get_symbol_dependencies:  m3_GetResultsVL {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32'}
+get_symbol_dependencies:  m3_GetRetCount {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32'}
+get_symbol_dependencies:  Function_FreeCompiledCode {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32'}
+get_symbol_dependencies:  m3_Call {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32'}
+get_symbol_dependencies:  M3ValueType {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32'}
+get_symbol_dependencies:  m3_GetGlobalType {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32', 'M3ValueType'}
+get_symbol_dependencies:  m3_GetRetType {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32', 'M3ValueType'}
+get_symbol_dependencies:  IM3Global {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32', 'M3ValueType'}
+get_symbol_dependencies:  m3_SetGlobal {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32', 'M3ValueType', 'IM3Global'}
+get_symbol_dependencies:  m3_FindGlobal {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32', 'M3ValueType', 'IM3Global'}
+get_symbol_dependencies:  m3_GetGlobal {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32', 'M3ValueType', 'IM3Global'}
+get_symbol_dependencies:  IM3Module {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32', 'M3ValueType', 'IM3Global'}
+get_symbol_dependencies:  FindAndLinkFunction {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32', 'IM3Module', 'M3ValueType', 'IM3Global'}
+get_symbol_dependencies:  m3_CompileModule {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32', 'IM3Module', 'M3ValueType', 'IM3Global'}
+get_symbol_dependencies:  m3_FreeModule {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32', 'IM3Module', 'M3ValueType', 'IM3Global'}
+get_symbol_dependencies:  checkStartFunction {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32', 'IM3Module', 'M3ValueType', 'IM3Global'}
+get_symbol_dependencies:  m3_LinkRawFunctionEx {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32', 'IM3Module', 'M3ValueType', 'IM3Global'}
+get_symbol_dependencies:  addFunctionToModule {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32', 'IM3Module', 'M3ValueType', 'IM3Global'}
+get_symbol_dependencies:  m3_SetModuleName {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32', 'IM3Module', 'M3ValueType', 'IM3Global'}
+get_symbol_dependencies:  m3_LinkTracer {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32', 'IM3Module', 'M3ValueType', 'IM3Global'}
+get_symbol_dependencies:  InitGlobals {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32', 'IM3Module', 'M3ValueType', 'IM3Global'}
+get_symbol_dependencies:  ParseSection_Type {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32', 'IM3Module', 'M3ValueType', 'IM3Global'}
+get_symbol_dependencies:  m3_GetTableFunction {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32', 'IM3Module', 'M3ValueType', 'IM3Global'}
+get_symbol_dependencies:  ParseSection_Import {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32', 'IM3Module', 'M3ValueType', 'IM3Global'}
+get_symbol_dependencies:  m3_LinkEspWASI {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32', 'IM3Module', 'M3ValueType', 'IM3Global'}
+get_symbol_dependencies:  ModuleVisitor {'u64', 'M3Result', 'm3opcode_t', 'm3slot_t', 'rotl32', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32', 'IM3Module', 'M3ValueType', 'IM3Global'}
+get_symbol_dependencies:  IM3Runtime {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'u32', 'IM3Module'}
+get_symbol_dependencies:  m3_GetBacktrace {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module'}
+get_symbol_dependencies:  IM3BacktraceInfo {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module'}
+get_symbol_dependencies:  m3_GetErrorInfo {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module'}
+get_symbol_dependencies:  InitRuntime {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module'}
+get_symbol_dependencies:  m3_NewRuntime {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module'}
+get_symbol_dependencies:  m3_FreeRuntime {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module'}
+get_symbol_dependencies:  ReleaseCodePageNoTrack {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module'}
+get_symbol_dependencies:  Runtime_Release {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module'}
+get_symbol_dependencies:  m3_GetModuleRuntime {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module'}
+get_symbol_dependencies:  m3_FindFunction {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module'}
+get_symbol_dependencies:  NewCodePage {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module'}
+get_symbol_dependencies:  ReleaseCodePage {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module'}
+get_symbol_dependencies:  m3_GetMemory {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module'}
+get_symbol_dependencies:  FreeMemory {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module'}
+get_symbol_dependencies:  m3_LoadModule {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module'}
+get_symbol_dependencies:  m3Error {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module'}
+get_symbol_dependencies:  IM3ImportContext {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module'}
+get_symbol_dependencies:  M3RawCall {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module', 'IM3ImportContext'}
+get_symbol_dependencies:  m3_GetMemorySize {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module'}
+get_symbol_dependencies:  m3_GetUserData {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module'}
+get_symbol_dependencies:  IM3CodePage {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module'}
+get_symbol_dependencies:  AcquireCompilationCodePage {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module', 'IM3CodePage'}
+get_symbol_dependencies:  PopCodePage {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module', 'IM3CodePage'}
+get_symbol_dependencies:  EmitWord64 {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module', 'IM3CodePage'}
+get_symbol_dependencies:  GetPageStartPC {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module', 'IM3CodePage'}
+get_symbol_dependencies:  RemoveCodePageOfCapacity {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module', 'IM3CodePage'}
+get_symbol_dependencies:  Environment_ReleaseCodePages {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module', 'IM3CodePage'}
+get_symbol_dependencies:  EmitWord32 {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module', 'IM3CodePage'}
+get_symbol_dependencies:  EmitWord_impl {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module', 'IM3CodePage'}
+get_symbol_dependencies:  GetPagePC {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module', 'IM3CodePage'}
+get_symbol_dependencies:  PushCodePage {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module', 'IM3CodePage'}
+get_symbol_dependencies:  Environment_AcquireCodePage {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module', 'IM3CodePage'}
+get_symbol_dependencies:  pc_t {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module', 'IM3CodePage'}
+get_symbol_dependencies:  Call {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module', 'IM3CodePage'}
+get_symbol_dependencies:  m3ret_t {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module', 'IM3CodePage'}
+get_symbol_dependencies:  m3Err_none {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  m3Err_mallocFailed {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  error_details {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'm3Err_mallocFailed', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  m3Err_trapStackOverflow {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'm3Err_mallocFailed', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t', 'error_details'}
+get_symbol_dependencies:  f32 {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  min_f32 {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  max_f32 {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  cbytes_t {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  ReadLEB_i64 {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  ParseSection_Code {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  ParseSection_Memory {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  Parse_InitExpr {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  ReadLebSigned {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  M3Module {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  ParseSection_Data {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'M3Module', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  ParseModuleSection {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'M3Module', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  M3Parser {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'M3Module', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  s_parsers {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'M3Module', 'M3Parser', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  ParseSection_Custom {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'M3Module', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  ParseSection_Name {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'M3Module', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  ParseSection_Global {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'M3Module', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  Read_u32 {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  ReadLEB_i7 {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  ReadLEB_u32 {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  ParseSection_Function {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  f64 {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  IM3Operation {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'f64', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  c_setSetOps {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'f64', 'M3Result', 'pc_t', 'IM3Operation', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  EmitOp {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'c_setSetOps', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'f64', 'M3Result', 'pc_t', 'IM3Operation', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  c_setRegisterOps {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'f64', 'M3Result', 'pc_t', 'IM3Operation', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  c_intSelectOps {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'f64', 'M3Result', 'pc_t', 'IM3Operation', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  c_preserveSetSlot {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'f64', 'M3Result', 'pc_t', 'IM3Operation', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  c_fpSelectOps {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'f64', 'M3Result', 'pc_t', 'IM3Operation', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  rotr32 {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'f64', 'M3Result', 'pc_t', 'IM3Operation', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  IsStackTopInRegister {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'f64', 'M3Result', 'pc_t', 'IM3Operation', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  max_f64 {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'f64', 'M3Result', 'pc_t', 'IM3Operation', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  rotr64 {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'f64', 'M3Result', 'pc_t', 'IM3Operation', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  rotl64 {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'f64', 'M3Result', 'pc_t', 'IM3Operation', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  c_setGlobalOps {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'f64', 'M3Result', 'pc_t', 'IM3Operation', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  i64 {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'f64', 'M3Result', 'pc_t', 'IM3Operation', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  i8 {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'f64', 'M3Result', 'pc_t', 'IM3Operation', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t', 'i64'}
+get_symbol_dependencies:  NormalizeType {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'f64', 'M3Result', 'pc_t', 'IM3Operation', 'IM3Function', 'i8', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t', 'i64'}
+get_symbol_dependencies:  m3reg_t {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'f64', 'M3Result', 'pc_t', 'IM3Operation', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t', 'i64'}
+get_symbol_dependencies:  i16 {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'm3reg_t', 'f64', 'M3Result', 'pc_t', 'IM3Operation', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t', 'i64'}
+get_symbol_dependencies:  DeallocateSlot {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'm3reg_t', 'f64', 'M3Result', 'pc_t', 'IM3Operation', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'i16', 'IM3CodePage', 'm3ret_t', 'i64'}
+get_symbol_dependencies:  GetStackTopIndex {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'm3reg_t', 'f64', 'M3Result', 'pc_t', 'IM3Operation', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'i16', 'IM3CodePage', 'm3ret_t', 'i64'}
+get_symbol_dependencies:  IsStackIndexInRegister {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'GetStackTopIndex', 'IM3Global', 'm3reg_t', 'f64', 'M3Result', 'pc_t', 'IM3Operation', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'i16', 'IM3CodePage', 'm3ret_t', 'i64'}
+get_symbol_dependencies:  IsStackTopMinus1InRegister {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'GetStackTopIndex', 'IM3Global', 'm3reg_t', 'f64', 'M3Result', 'pc_t', 'IM3Operation', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'i16', 'IM3CodePage', 'm3ret_t', 'i64'}
+get_symbol_dependencies:  IsStackTopMinus2InRegister {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'GetStackTopIndex', 'IM3Global', 'm3reg_t', 'f64', 'M3Result', 'pc_t', 'IM3Operation', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'i16', 'IM3CodePage', 'm3ret_t', 'i64'}
+get_symbol_dependencies:  RunCode {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'f64', 'm3reg_t', 'M3Result', 'pc_t', 'IM3Operation', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t', 'i64'}
+get_symbol_dependencies:  min_f64 {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'f64', 'm3reg_t', 'M3Result', 'pc_t', 'IM3Operation', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t', 'i64'}
+get_symbol_dependencies:  Read_f64 {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'f64', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  EvaluateExpression {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  ReadLebUnsigned {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  ParseType_Memory {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  Read_opcode {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  ReadLEB_u7 {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  c_waTypes {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'ReadLEB_u7', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  Read_f32 {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  ParseType_Table {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  ParseSection_Start {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  Read_u64 {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  ParseSection_Element {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  ReadLEB_i32 {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  ParseSection_Export {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  Read_u8 {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  IM3Environment {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  Environment_Release {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'm3ret_t'}
+get_symbol_dependencies:  m3_SetCustomSectionHandler {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'm3ret_t'}
+get_symbol_dependencies:  m3_NewEnvironment {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'm3ret_t'}
+get_symbol_dependencies:  Environment_AddFuncType {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'm3ret_t'}
+get_symbol_dependencies:  M3SectionHandler {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'm3ret_t'}
+get_symbol_dependencies:  m3_FreeEnvironment {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'm3ret_t'}
+get_symbol_dependencies:  IM3FuncType {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'm3ret_t'}
+get_symbol_dependencies:  GetFuncTypeNumResults {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  ccstr_t {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  SignatureToFuncType {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'ccstr_t', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  ReportError {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'ccstr_t', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  M3FuncType {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  m3_type_to_signature {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'M3FuncType', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  ParseFunctionSignature {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'M3FuncType', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  FreeFuncType {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'M3FuncType', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  AreFuncTypesEqual {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  GetFuncTypeResultType {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  ReadBlockType {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  AllocFuncType {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  GetSingleRetType {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  CompileElseBlock {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  IM3Compilation {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  EmitPatchingBranchPointer {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  PreserveRegisterIfOccupied {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  MarkSlotAllocated {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  EnsureCodePageNumLines {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  Compile_Select {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  AddTrapRecord {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  CopyStackIndexToSlot {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  CopyStackSlotsR {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  GetStackTopSlotNumber {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  EmitSlotOffset {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'GetStackTopSlotNumber', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  EmitConstant32 {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  Compile_Memory_Size {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  PushConst {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  EmitPatchingBranch {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  GetStackTypeFromBottom {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  GetTypeNumSlots {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'GetStackTypeFromBottom', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  PreserveRegisters {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  PreservedCopyTopSlot {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  PushBlockResults {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  Compile_Unreachable {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  ReturnValues {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  AllocateSlots {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  GetRegisterStackIndex {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  MarkSlotsAllocatedByType {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  IncrementSlotUsageCount {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  Compile_Const_i64 {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  ReleaseCompilationCodePage {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  Compile_Call {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  CompileBlockStatements {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  EmitSlotNumOfStackTopAndPop {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  IsStackTopInSlot {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  PushRegister {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  GetExtraSlotForStackIndex {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  PatchBranches {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  CopyStackTopToRegister {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  GetStackTypeFromTop {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  Compile_Nop {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  Compile_Drop {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  SetStackPolymorphic {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  ResolveBlockResults {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  Compile_BranchTable {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  TouchSlot {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  Compile_Load_Store {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  UnwindBlockStack {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  DeallocateRegister {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  Compile_If {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  IsRegisterAllocated {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  Compile_End {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  GetPC {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  Compile_GetGlobal {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  Compile_SetGlobal {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'Compile_GetGlobal', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  Compile_Const_f32 {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  _PushAllocatedSlotAndEmit {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  Compile_Const_i32 {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  ReservePointer {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  ValidateBlockEnd {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  PushAllocatedSlotAndEmit {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  ReserveConstants {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  IsStackPolymorphic {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  GetBlockScope {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  Compile_LoopOrBlock {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  AllocateRegister {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  Compile_Branch {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  M3Compiler {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  Compile_Memory_Grow {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  Compile_SetLocal {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  AllocateConstantSlots {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  Compile_Memory_CopyFill {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  EmitPointer {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  GetSlotForStackIndex {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  CompileLocals {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  PreserveArgsAndLocals {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  PreserveNonTopRegisters {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  Compile_GetSetGlobal {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  PushAllocatedSlot {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  IsConstantSlot {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  PopType {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  Pop {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  Compile_Const_f64 {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'f32', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'cbytes_t', 'u32', 'IM3Module', 'IM3CodePage', 'IM3Environment', 'IM3Compilation', 'm3ret_t', 'IM3FuncType'}
+get_symbol_dependencies:  errno_to_wasi {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'm3Err_none', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  m3_Yield {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'Call', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'pc_t', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module', 'IM3CodePage', 'm3ret_t'}
+get_symbol_dependencies:  CountCodePages {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module', 'IM3CodePage'}
+get_symbol_dependencies:  NumFreeLines {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module', 'IM3CodePage'}
+get_symbol_dependencies:  GetEndCodePage {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module', 'IM3CodePage'}
+get_symbol_dependencies:  FreeCodePages {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module', 'IM3CodePage'}
+get_symbol_dependencies:  AcquireCodePage {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module', 'IM3CodePage'}
+get_symbol_dependencies:  M3CodePage {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module', 'IM3CodePage'}
+get_symbol_dependencies:  AcquireCodePageWithCapacity {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module', 'IM3CodePage'}
+get_symbol_dependencies:  ResizeMemory {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module'}
+get_symbol_dependencies:  m3_ResetErrorInfo {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module'}
+get_symbol_dependencies:  M3ErrorInfo {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module'}
+get_symbol_dependencies:  m3_PrintRuntimeInfo {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'ModuleVisitor', 'IM3Global', 'M3Result', 'IM3Function', 'IM3Runtime', 'u32', 'IM3Module'}
+get_symbol_dependencies:  RegisterWasmFunction {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'IM3Global', 'M3Result', 'IM3Function', 'u32', 'IM3Module'}
+get_symbol_dependencies:  InitDataSegments {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'IM3Global', 'M3Result', 'IM3Function', 'u32', 'IM3Module'}
+get_symbol_dependencies:  Module_PreallocFunctions {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'IM3Global', 'M3Result', 'IM3Function', 'u32', 'IM3Module'}
+get_symbol_dependencies:  RegisterWasmFunctions {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'IM3Global', 'M3Result', 'IM3Function', 'u32', 'IM3Module'}
+get_symbol_dependencies:  m3_LinkLibC {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'IM3Global', 'M3Result', 'IM3Function', 'u32', 'IM3Module'}
+get_symbol_dependencies:  Module_AddFunction {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'IM3Global', 'M3Result', 'IM3Function', 'u32', 'IM3Module'}
+get_symbol_dependencies:  IM3ImportInfo {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'IM3Global', 'M3Result', 'IM3Function', 'u32', 'IM3Module'}
+get_symbol_dependencies:  m3_RunStart {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'IM3Global', 'M3Result', 'IM3Function', 'u32', 'IM3Module'}
+get_symbol_dependencies:  m3_LinkSpecTest {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'IM3Global', 'M3Result', 'IM3Function', 'u32', 'IM3Module'}
+get_symbol_dependencies:  _FreeModule {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'IM3Global', 'M3Result', 'IM3Function', 'u32', 'IM3Module'}
+get_symbol_dependencies:  Module_GetFunction {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'IM3Global', 'M3Result', 'IM3Function', 'u32', 'IM3Module'}
+get_symbol_dependencies:  Module_GenerateNames {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'IM3Global', 'M3Result', 'IM3Function', 'u32', 'IM3Module'}
+get_symbol_dependencies:  m3_GetModuleName {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'IM3Global', 'M3Result', 'IM3Function', 'u32', 'IM3Module'}
+get_symbol_dependencies:  Module_FreeFunctions {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'IM3Global', 'M3Result', 'IM3Function', 'u32', 'IM3Module'}
+get_symbol_dependencies:  WasmFunctionEntry {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'IM3Global', 'M3Result', 'IM3Function', 'u32', 'IM3Module'}
+get_symbol_dependencies:  m3_LinkEspWASI_Hello {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'IM3Global', 'M3Result', 'IM3Function', 'u32', 'IM3Module'}
+get_symbol_dependencies:  m3_LinkRawFunction {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'IM3Global', 'M3Result', 'IM3Function', 'u32', 'IM3Module'}
+get_symbol_dependencies:  InitElements {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3ValueType', 'IM3Global', 'M3Result', 'IM3Function', 'u32', 'IM3Module'}
+get_symbol_dependencies:  m3_GetArgCount {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3Result', 'IM3Function', 'u32'}
+get_symbol_dependencies:  GetFunctionNumArgsAndLocals {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3Result', 'IM3Function', 'u32'}
+get_symbol_dependencies:  GetStackPointerForArgs {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3Result', 'IM3Function', 'u32'}
+get_symbol_dependencies:  GetFunctionImportModuleName {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3Result', 'IM3Function', 'u32'}
+get_symbol_dependencies:  GetFunctionNumArgs {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3Result', 'IM3Function', 'u32'}
+get_symbol_dependencies:  m3_GetFunctionName {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3Result', 'IM3Function', 'u32'}
+get_symbol_dependencies:  GetFunctionArgType {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3Result', 'IM3Function', 'u32'}
+get_symbol_dependencies:  m3_CallArgv {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3Result', 'IM3Function', 'u32'}
+get_symbol_dependencies:  m3_GetResultsV {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3Result', 'IM3Function', 'u32'}
+get_symbol_dependencies:  SPrintFunctionArgList {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'M3Result', 'IM3Function', 'u32'}
+get_symbol_dependencies:  m3_CallV {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'M3Result', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32'}
+get_symbol_dependencies:  Function_Release {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'M3Result', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32'}
+get_symbol_dependencies:  GetFunctionReturnType {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'M3Result', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32'}
+get_symbol_dependencies:  m3_CallVL {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'M3Result', 'u8', 'i32', 'IM3Function', 'bytes_t', 'u16', 'cstr_t', 'u32'}
+get_symbol_dependencies:  SPrintValue {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'M3Result', 'u8', 'i32', 'bytes_t', 'u16', 'cstr_t', 'u32'}
+get_symbol_dependencies:  AlignSlotToType {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'M3Result', 'u8', 'i32', 'bytes_t', 'u16', 'u32'}
+get_symbol_dependencies:  c_slotUnused {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'M3Result', 'u8', 'i32', 'bytes_t', 'u16', 'u32'}
+get_symbol_dependencies:  IsFpRegisterSlotAlias {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'M3Result', 'u8', 'i32', 'bytes_t', 'u16', 'u32'}
+get_symbol_dependencies:  IsRegisterSlotAlias {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'M3Result', 'u8', 'i32', 'bytes_t', 'u16', 'u32'}
+get_symbol_dependencies:  c_m3RegisterUnallocated {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'M3Result', 'u8', 'i32', 'bytes_t', 'u16', 'u32'}
+get_symbol_dependencies:  IsIntRegisterSlotAlias {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'M3Result', 'u8', 'i32', 'bytes_t', 'u16', 'u32'}
+get_symbol_dependencies:  IsValidSlot {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'M3Result', 'u8', 'i32', 'bytes_t', 'u16', 'u32'}
+get_symbol_dependencies:  code_t {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'M3Result', 'u8', 'i32', 'bytes_t', 'u32'}
+get_symbol_dependencies:  M3CodePageHeader {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'M3Result', 'u8', 'i32', 'bytes_t', 'u32', 'code_t'}
+get_symbol_dependencies:  m3_StoreInt {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'M3Result', 'u8', 'i32', 'bytes_t', 'u32'}
+get_symbol_dependencies:  IM3Memory {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'M3Result', 'u8', 'i32', 'bytes_t', 'u32'}
+get_symbol_dependencies:  m3_GetMemoryPoint {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'M3Result', 'u8', 'i32', 'bytes_t', 'u32', 'IM3Memory'}
+get_symbol_dependencies:  m3_NewStack {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'M3Result', 'u8', 'i32', 'bytes_t', 'u32', 'IM3Memory'}
+get_symbol_dependencies:  m3SegmentedMemAccess {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'M3Result', 'u8', 'i32', 'bytes_t', 'u32', 'IM3Memory'}
+get_symbol_dependencies:  m3_NewMemory {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'M3Result', 'u8', 'i32', 'bytes_t', 'u32', 'IM3Memory'}
+get_symbol_dependencies:  IM3MemoryPoint {'u64', 'm3slot_t', 'm3opcode_t', 'rotl32', 'M3Result', 'u8', 'i32', 'bytes_t', 'u32', 'IM3Memory'}
+get_symbol_dependencies:  IsFpType {'u64', 'm3slot_t', 'm3opcode_t', 'M3Result', 'u8', 'bytes_t'}
+get_symbol_dependencies:  ConvertTypeCharToTypeId {'u64', 'm3slot_t', 'm3opcode_t', 'M3Result', 'u8', 'bytes_t'}
+get_symbol_dependencies:  IsStackAddress {'u64', 'm3slot_t', 'm3opcode_t', 'M3Result', 'u8', 'bytes_t'}
+get_symbol_dependencies:  GetAddressType {'u64', 'm3slot_t', 'm3opcode_t', 'M3Result', 'u8', 'bytes_t'}
+get_symbol_dependencies:  sectionsOrder {'u64', 'm3slot_t', 'm3opcode_t', 'M3Result', 'u8', 'bytes_t'}
+get_symbol_dependencies:  IsIntType {'u64', 'm3slot_t', 'm3opcode_t', 'M3Result', 'u8', 'bytes_t'}
+get_symbol_dependencies:  GetEffectiveAddress {'u64', 'm3slot_t', 'm3opcode_t', 'M3Result', 'u8', 'bytes_t'}
+get_symbol_dependencies:  SPrintArg {'u64', 'm3slot_t', 'm3opcode_t', 'M3Result', 'u8', 'bytes_t'}
+get_symbol_dependencies:  Is64BitType {'u64', 'm3slot_t', 'm3opcode_t', 'M3Result', 'u8', 'bytes_t'}
+get_symbol_dependencies:  IsLinearAddress {'u64', 'm3slot_t', 'm3opcode_t', 'M3Result', 'u8', 'bytes_t'}
+get_symbol_dependencies:  M3Memory {'u64', 'm3slot_t', 'm3opcode_t', 'M3Result', 'u8', 'bytes_t'}
+get_symbol_dependencies:  allocate_segment {'u64', 'm3slot_t', 'm3opcode_t', 'M3Result', 'u8', 'bytes_t', 'M3Memory'}
+get_symbol_dependencies:  InitMemory {'u64', 'm3slot_t', 'm3opcode_t', 'M3Result', 'u8', 'bytes_t', 'M3Memory'}
+get_symbol_dependencies:  validate_pointer {'u64', 'm3slot_t', 'm3opcode_t', 'M3Result', 'u8', 'bytes_t', 'M3Memory'}
+get_symbol_dependencies:  GrowStack {'u64', 'm3slot_t', 'm3opcode_t', 'M3Result', 'u8', 'bytes_t', 'M3Memory'}
+get_symbol_dependencies:  current_allocator {'u64', 'm3slot_t', 'm3opcode_t', 'M3Result', 'u8', 'bytes_t', 'M3Memory'}
+get_symbol_dependencies:  default_allocator {'u64', 'm3slot_t', 'm3opcode_t', 'M3Result', 'u8', 'current_allocator', 'bytes_t', 'M3Memory'}
+get_symbol_dependencies:  MemoryAllocator {'u64', 'm3slot_t', 'm3opcode_t', 'M3Result', 'u8', 'current_allocator', 'bytes_t', 'M3Memory', 'default_allocator'}
+get_symbol_dependencies:  m3_SetMemoryAllocator {'u64', 'm3slot_t', 'm3opcode_t', 'M3Result', 'u8', 'current_allocator', 'bytes_t', 'M3Memory', 'MemoryAllocator', 'default_allocator'}
+get_symbol_dependencies:  is_ptr_freeable {'u64', 'm3slot_t', 'm3opcode_t', 'M3Result', 'u8', 'current_allocator', 'bytes_t', 'M3Memory'}
+get_symbol_dependencies:  m3_Malloc_Impl {'u64', 'm3slot_t', 'm3opcode_t', 'M3Result', 'u8', 'bytes_t', 'M3Memory'}
+get_symbol_dependencies:  AddSegment {'u64', 'm3slot_t', 'm3opcode_t', 'M3Result', 'u8', 'bytes_t', 'M3Memory'}
+get_symbol_dependencies:  GetStackAddress {'u64', 'm3slot_t', 'm3opcode_t', 'M3Result', 'u8', 'bytes_t', 'M3Memory'}
+get_symbol_dependencies:  GetSegmentAndOffset {'u64', 'm3slot_t', 'm3opcode_t', 'M3Result', 'u8', 'bytes_t', 'M3Memory'}
+get_symbol_dependencies:  m3stack_t {'u64', 'm3slot_t', 'm3opcode_t', 'M3Result', 'bytes_t'}
+get_symbol_dependencies:  m3Err_tooManyArgsRets {'u64', 'm3opcode_t', 'M3Result', 'bytes_t'}
+get_symbol_dependencies:  IM3OpInfo {'m3opcode_t', 'M3Result'}
+get_symbol_dependencies:  GetOpInfo {'m3opcode_t', 'M3Result', 'IM3OpInfo'}
+get_symbol_dependencies:  m3Err_wasmUnderrun {'M3Result'}
+get_symbol_dependencies:  m3_Free_Impl None
+get_symbol_dependencies:  m3_Abort None
+get_symbol_dependencies:  default_free None
+get_symbol_dependencies:  c_waCompactTypes None
+get_symbol_dependencies:  m3_CopyMem None
+get_symbol_dependencies:  m3_Realloc_Impl None
+get_symbol_dependencies:  default_malloc None
+get_symbol_dependencies:  default_realloc None
+get_symbol_dependencies:  m3_Int_CopyMem None
+get_symbol_dependencies:  voidptr_t None
+get_symbol_dependencies:  ultra_safe_free None
+get_symbol_dependencies:  safe_ptr_t None
+get_symbol_dependencies:  ultra_safe_ptr_valid None
+get_symbol_dependencies:  is_ptr_valid None
+get_symbol_dependencies:  validate_ptr_for_free None
+get_symbol_dependencies:  ptr_status_t {'validate_ptr_for_free'}
+get_symbol_dependencies:  is_address_in_range None
+get_symbol_dependencies:  safe_free None
+get_symbol_dependencies:  struct (unnamed at /Users/riccardo/Sources/GitHub/hello.esp32/hello-idf/components/wasm3-helloesp/platforms/embedded/esp32-idf-wasi/wasm3/wasm3/m3_pointers.h:31:9) None
+get_symbol_dependencies:  safe_free_with_check None
+get_symbol_dependencies:  safe_m3_int_free None
+get_symbol_dependencies:  ptr_check_result_t None
+get_symbol_dependencies:  M3MemoryPoint_ptr None
+get_symbol_dependencies:  M3Memory_ptr None
+get_symbol_dependencies:  M3Function None
+get_symbol_dependencies:  struct (unnamed at /Users/riccardo/Sources/GitHub/hello.esp32/hello-idf/components/wasm3-helloesp/platforms/embedded/esp32-idf-wasi/wasm3/wasm3/m3_function.h:41:16) None
+get_symbol_dependencies:  struct (unnamed at /Users/riccardo/Sources/GitHub/hello.esp32/hello-idf/components/wasm3-helloesp/platforms/embedded/esp32-idf-wasi/wasm3/wasm3/m3_function.h:17:16) None
+get_symbol_dependencies:  M3ImportInfo None
+get_symbol_dependencies:  FreeImportInfo {'M3ImportInfo'}
+get_symbol_dependencies:  m3Err_globaIndexOutOfBounds None
+get_symbol_dependencies:  m3Err_trapAbort None
+get_symbol_dependencies:  m3Err_noCompiler None
+get_symbol_dependencies:  M3ImportContext None
+get_symbol_dependencies:  m3Err_functionImportMissing None
+get_symbol_dependencies:  m3Err_globalLookupFailed None
+get_symbol_dependencies:  m3Err_trapIntegerConversion None
+get_symbol_dependencies:  m3Err_typeCountMismatch None
+get_symbol_dependencies:  m3Err_trapDivisionByZero None
+get_symbol_dependencies:  m3Err_lebOverflow None
+get_symbol_dependencies:  m3Err_wasmMalformed None
+get_symbol_dependencies:  m3Err_wasmMissingInitExpr None
+get_symbol_dependencies:  m3Err_moduleNotLinked None
+get_symbol_dependencies:  m3Err_invalidTypeId None
+get_symbol_dependencies:  m3Err_typeMismatch None
+get_symbol_dependencies:  m3Err_wasmOverrun None
+get_symbol_dependencies:  m3Err_functionStackUnderrun None
+get_symbol_dependencies:  m3Err_moduleAlreadyLinked None
+get_symbol_dependencies:  m3Err_trapUnreachable None
+get_symbol_dependencies:  m3Err_trapOutOfBoundsMemoryAccess None
+get_symbol_dependencies:  __wasi_size_t {'m3Err_trapOutOfBoundsMemoryAccess'}
+get_symbol_dependencies:  wasm_ptr_t {'m3Err_trapOutOfBoundsMemoryAccess'}
+get_symbol_dependencies:  wasi_iovec_t {'m3Err_trapOutOfBoundsMemoryAccess'}
+get_symbol_dependencies:  M3BacktraceInfo None
+get_symbol_dependencies:  m3_PrintProfilerInfo None
+get_symbol_dependencies:  m3Err_globalMemoryNotAllocated None
+get_symbol_dependencies:  m3Err_m3Err_malformedUtf8 None
+get_symbol_dependencies:  M3TaggedValue None
+get_symbol_dependencies:  M3BacktraceFrame None
+get_symbol_dependencies:  m3Err_restrictedOpcode None
+get_symbol_dependencies:  m3Err_trapTableElementIsNull None
+get_symbol_dependencies:  m3Err_wasmSectionUnderrun None
+get_symbol_dependencies:  m3Err_misorderedWasmSection None
+get_symbol_dependencies:  m3Err_tooManyMemorySections None
+get_symbol_dependencies:  m3Err_incompatibleWasmVersion None
+get_symbol_dependencies:  m3Err_argumentTypeMismatch None
+get_symbol_dependencies:  m3Err_trapIndirectCallTypeMismatch None
+get_symbol_dependencies:  m3Err_nullRuntime None
+get_symbol_dependencies:  m3Err_globalTypeMismatch None
+get_symbol_dependencies:  m3Err_missingCompiledCode None
+get_symbol_dependencies:  M3Global None
+get_symbol_dependencies:  m3Err_functionLookupFailed None
+get_symbol_dependencies:  m3Err_globalNotMutable None
+get_symbol_dependencies:  m3Err_functionStackOverflow None
+get_symbol_dependencies:  m3Err_unknownOpcode None
+get_symbol_dependencies:  m3Err_malformedFunctionSignature None
+get_symbol_dependencies:  M3Runtime None
+get_symbol_dependencies:  m3Err_mallocFailedCodePage None
+get_symbol_dependencies:  m3_PrintM3Info None
+get_symbol_dependencies:  m3Err_wasmSectionOverrun None
+get_symbol_dependencies:  M3Environment None
+get_symbol_dependencies:  m3Err_argumentCountMismatch None
+get_symbol_dependencies:  m3Err_settingImmutableGlobal None
+get_symbol_dependencies:  m3Err_trapExit None
+get_symbol_dependencies:  m3Err_missingUTF8 None
+get_symbol_dependencies:  m3Err_wasmMemoryOverflow None
+get_symbol_dependencies:  m3Err_trapTableIndexOutOfRange None
+get_symbol_dependencies:  m3Err_trapIntegerOverflow None
+get_symbol_dependencies:  IM3BacktraceFrame None
+get_symbol_dependencies:  IM3TaggedValue None
+get_symbol_dependencies:  check_memory_available None
+get_symbol_dependencies:  preallocate_wasm_memory None
+get_symbol_dependencies:  ptr None
+get_symbol_dependencies:  ALLOC_SHIFT_OF {'ptr'}
+get_symbol_dependencies:  ESP_LOGI None
+get_symbol_dependencies:  WASM_DEBUG_ADDFUNC {'ESP_LOGI'}
+get_symbol_dependencies:  DEBUG_TOP_MEMORY {'ESP_LOGI'}
+get_symbol_dependencies:  WASM_DEBUG_FIND_LINK_FUNC {'ESP_LOGI'}
+get_symbol_dependencies:  WASM_DEBUG_FUNCTION_RELEASE {'ESP_LOGI'}
+get_symbol_dependencies:  WASM_DEBUG_STACK {'ESP_LOGI'}
+get_symbol_dependencies:  WASM_DEBUG_PREALLOCFUNCTIONS {'ESP_LOGI'}
+get_symbol_dependencies:  WASM_DEBUG_PARSE_MODULE {'ESP_LOGI'}
+get_symbol_dependencies:  WASM_DEBUG_NEW_ENV {'ESP_LOGI'}
+get_symbol_dependencies:  WASM_DEBUG_ALLOCS {'ESP_LOGI'}
+get_symbol_dependencies:  WAS_DEBUG_CompileFunction {'ESP_LOGI'}
+get_symbol_dependencies:  WASM_DEBUG_PARSE_FUNCTION_SIGNATURE {'ESP_LOGI'}
+get_symbol_dependencies:  WASM_DEBUG_ADD_FUNCTION_NAME {'ESP_LOGI'}
+get_symbol_dependencies:  M3CodeMappingPage None
+get_symbol_dependencies:  example_function_trycatch None
+get_symbol_dependencies:  last_error None
+get_symbol_dependencies:  backtrace None
+get_symbol_dependencies:  faulty_function None
+get_symbol_dependencies:  ESP_LOGE None
+get_symbol_dependencies:  WASM_DEBUG_POINTERS {'ESP_LOGE'}
+get_symbol_dependencies:  esp_err_to_name None
+get_symbol_dependencies:  esp_backtrace_print None
+get_symbol_dependencies:  WASM_DEBUG_POINTERS_BACKTRACE {'esp_backtrace_print'}
+get_symbol_dependencies:  WASM_DEBUG_MALLOC_IMPL_BACKTRACE {'esp_backtrace_print'}
+get_symbol_dependencies:  signbit None
+get_symbol_dependencies:  mask None
+get_symbol_dependencies:  __builtin_expect None
+get_symbol_dependencies:  WASM_Entry_IgnoreBufferOverflow {'__builtin_expect'}
+get_symbol_dependencies:  cvptr_t None
+get_symbol_dependencies:  struct (unnamed at /Users/riccardo/Sources/GitHub/hello.esp32/hello-idf/components/wasm3-helloesp/platforms/embedded/esp32-idf-wasi/wasm3/wasm3/m3_compile.h:74:9) None
+get_symbol_dependencies:  struct (unnamed at /Users/riccardo/Sources/GitHub/hello.esp32/hello-idf/components/wasm3-helloesp/platforms/embedded/esp32-idf-wasi/wasm3/wasm3/m3_compile.h:56:16) None
+get_symbol_dependencies:  struct (unnamed at /Users/riccardo/Sources/GitHub/hello.esp32/hello-idf/components/wasm3-helloesp/platforms/embedded/esp32-idf-wasi/wasm3/wasm3/m3_compile.h:131:16) None
+get_symbol_dependencies:  M3OpInfo None
+get_symbol_dependencies:  M3Compilation None
+get_symbol_dependencies:  M3CompilationScope None
+get_symbol_dependencies:  IM3CompilationScope {'M3CompilationScope'}
+get_symbol_dependencies:  enum (unnamed at /Users/riccardo/Sources/GitHub/hello.esp32/hello-idf/components/wasm3-helloesp/platforms/embedded/esp32-idf-wasi/wasm3/wasm3/m3_compile.h:19:1) None
+get_symbol_dependencies:  op_i32_Multiply_rs None
+get_symbol_dependencies:  op_f32_CopySign_sr None
+get_symbol_dependencies:  op_MemSize None
+get_symbol_dependencies:  op_i64_TruncSat_f32_s_r None
+get_symbol_dependencies:  op_f32_Convert_i64_s_r None
+get_symbol_dependencies:  op_MemCopy None
+get_symbol_dependencies:  op_f32_Min_ss None
+get_symbol_dependencies:  op_f64_NotEqual_rs None
+get_symbol_dependencies:  op_i32_Trunc_f32_s_s None
+get_symbol_dependencies:  op_i64_Load_i16_r None
+get_symbol_dependencies:  op_Select_i64_ssr None
+get_symbol_dependencies:  op_i64_LessThan_ss None
+get_symbol_dependencies:  op_i32_Subtract_rs None
+get_symbol_dependencies:  op_i64_Extend_i32_s None
+get_symbol_dependencies:  op_f64_LessThanOrEqual_sr None
+get_symbol_dependencies:  op_i64_NotEqual_rs None
+get_symbol_dependencies:  op_f32_Trunc_r None
+get_symbol_dependencies:  op_i32_Extend8_s_s None
+get_symbol_dependencies:  op_i32_Load_u8_s None
+get_symbol_dependencies:  op_f64_Convert_u64_r_s None
+get_symbol_dependencies:  op_u32_TruncSat_f32_r_s None
+get_symbol_dependencies:  op_i64_Trunc_f64_r_r None
+get_symbol_dependencies:  op_i64_Remainder_ss None
+get_symbol_dependencies:  op_f64_Divide_sr None
+get_symbol_dependencies:  op_u32_Trunc_f64_r_s None
+get_symbol_dependencies:  op_i64_TruncSat_f64_r_r None
+get_symbol_dependencies:  op_i64_Load_i32_s None
+get_symbol_dependencies:  op_f64_Nearest_s None
+get_symbol_dependencies:  op_u64_LessThan_sr None
+get_symbol_dependencies:  op_f32_Convert_i32_r_s None
+get_symbol_dependencies:  op_Const64 None
+get_symbol_dependencies:  op_f64_Add_rs None
+get_symbol_dependencies:  op_i32_Store_i32_sr None
+get_symbol_dependencies:  op_f32_Convert_u32_s_r None
+get_symbol_dependencies:  op_u32_Divide_ss None
+get_symbol_dependencies:  op_i32_Reinterpret_f32_r_s None
+get_symbol_dependencies:  op_i32_Equal_rs None
+get_symbol_dependencies:  op_i32_Trunc_f64_s_s None
+get_symbol_dependencies:  op_i32_LessThan_rs None
+get_symbol_dependencies:  op_u64_Remainder_rs None
+get_symbol_dependencies:  op_i64_Equal_ss None
+get_symbol_dependencies:  op_f32_LessThanOrEqual_ss None
+get_symbol_dependencies:  op_i32_TruncSat_f32_s_s None
+get_symbol_dependencies:  op_i64_Trunc_f32_r_r None
+get_symbol_dependencies:  op_i64_Store_u8_ss None
+get_symbol_dependencies:  op_CopySlot_32 None
+get_symbol_dependencies:  op_f32_NotEqual_ss None
+get_symbol_dependencies:  op_u64_TruncSat_f64_r_r None
+get_symbol_dependencies:  op_Select_f64_rrs None
+get_symbol_dependencies:  op_i32_GreaterThan_ss None
+get_symbol_dependencies:  op_i32_TruncSat_f32_r_s None
+get_symbol_dependencies:  op_f64_Convert_i64_r_r None
+get_symbol_dependencies:  op_i64_Extend8_s_s None
+get_symbol_dependencies:  op_i32_Extend16_s_r None
+get_symbol_dependencies:  op_f64_Convert_i64_s_s None
+get_symbol_dependencies:  op_u32_LessThan_sr None
+get_symbol_dependencies:  op_i64_TruncSat_f32_r_s None
+get_symbol_dependencies:  op_u32_ShiftRight_sr None
+get_symbol_dependencies:  op_f32_Floor_s None
+get_symbol_dependencies:  op_i64_Reinterpret_f64_s_s None
+get_symbol_dependencies:  op_i32_Load_i8_r None
+get_symbol_dependencies:  op_i64_TruncSat_f32_s_s None
+get_symbol_dependencies:  op_i64_Trunc_f64_s_s None
+get_symbol_dependencies:  op_i32_LessThan_ss None
+get_symbol_dependencies:  op_f32_GreaterThanOrEqual_rs None
+get_symbol_dependencies:  op_f32_GreaterThan_rs None
+get_symbol_dependencies:  op_f64_LessThan_sr None
+get_symbol_dependencies:  op_f64_Convert_i32_s_r None
+get_symbol_dependencies:  op_i64_EqualToZero_r None
+get_symbol_dependencies:  op_f32_Floor_r None
+get_symbol_dependencies:  op_f64_GreaterThanOrEqual_rs None
+get_symbol_dependencies:  op_f64_Load_f64_r None
+get_symbol_dependencies:  op_f64_Load_f64_s None
+get_symbol_dependencies:  op_i64_Extend16_s_s None
+get_symbol_dependencies:  op_u64_Trunc_f32_r_s None
+get_symbol_dependencies:  op_f64_Equal_rs None
+get_symbol_dependencies:  op_i64_Load_u16_s None
+get_symbol_dependencies:  op_u64_Xor_ss None
+get_symbol_dependencies:  op_i64_Multiply_ss None
+get_symbol_dependencies:  op_f32_Multiply_rs None
+get_symbol_dependencies:  op_f32_Reinterpret_i32_r_r None
+get_symbol_dependencies:  op_i32_Store_i32_rs None
+get_symbol_dependencies:  op_u32_LessThan_ss None
+get_symbol_dependencies:  op_u64_Remainder_sr None
+get_symbol_dependencies:  op_f64_Negate_r None
+get_symbol_dependencies:  op_u64_Trunc_f32_r_r None
+get_symbol_dependencies:  op_i64_Divide_ss None
+get_symbol_dependencies:  op_f64_Min_rs None
+get_symbol_dependencies:  op_i32_Store_i16_sr None
+get_symbol_dependencies:  op_f64_Floor_s None
+get_symbol_dependencies:  op_f32_Demote_f64_r None
+get_symbol_dependencies:  op_u64_Popcnt_s None
+get_symbol_dependencies:  op_i32_GreaterThanOrEqual_ss None
+get_symbol_dependencies:  op_i32_GreaterThanOrEqual_rs None
+get_symbol_dependencies:  op_SetGlobal_f64 None
+get_symbol_dependencies:  op_i32_Divide_ss None
+get_symbol_dependencies:  op_i64_Store_i32_ss None
+get_symbol_dependencies:  op_i32_NotEqual_ss None
+get_symbol_dependencies:  op_f32_Divide_rs None
+get_symbol_dependencies:  op_SetGlobal_f32 None
+get_symbol_dependencies:  op_Select_i64_rss None
+get_symbol_dependencies:  op_i64_Load_u8_s None
+get_symbol_dependencies:  op_f32_Store_f32_rr None
+get_symbol_dependencies:  op_f32_Convert_u64_s_s None
+get_symbol_dependencies:  op_PreserveCopySlot_32 None
+get_symbol_dependencies:  op_f64_GreaterThanOrEqual_ss None
+get_symbol_dependencies:  op_u64_Rotr_sr None
+get_symbol_dependencies:  op_f64_Convert_u64_s_r None
+get_symbol_dependencies:  op_u32_ShiftLeft_sr None
+get_symbol_dependencies:  op_f32_Reinterpret_i32_s_r None
+get_symbol_dependencies:  op_u64_Trunc_f32_s_r None
+get_symbol_dependencies:  op_u64_LessThan_rs None
+get_symbol_dependencies:  op_BranchIf_r None
+get_symbol_dependencies:  op_i64_Remainder_rs None
+get_symbol_dependencies:  op_u64_Or_rs None
+get_symbol_dependencies:  op_f32_Multiply_ss None
+get_symbol_dependencies:  op_f32_Convert_i64_r_r None
+get_symbol_dependencies:  op_f32_CopySign_ss None
+get_symbol_dependencies:  op_u64_Rotl_sr None
+get_symbol_dependencies:  op_u64_Rotr_ss None
+get_symbol_dependencies:  op_i64_Extend32_s_r None
+get_symbol_dependencies:  op_f64_Multiply_ss None
+get_symbol_dependencies:  op_i64_Load_u8_r None
+get_symbol_dependencies:  op_f32_Store_f32_ss None
+get_symbol_dependencies:  op_u64_Or_ss None
+get_symbol_dependencies:  op_i32_Trunc_f32_r_r None
+get_symbol_dependencies:  op_f64_Trunc_s None
+get_symbol_dependencies:  op_f64_Store_f64_rs None
+get_symbol_dependencies:  op_i32_Load_i8_s None
+get_symbol_dependencies:  op_u64_Trunc_f64_s_s None
+get_symbol_dependencies:  op_u32_LessThanOrEqual_sr None
+get_symbol_dependencies:  op_f32_Convert_i64_s_s None
+get_symbol_dependencies:  op_f32_Convert_u32_s_s None
+get_symbol_dependencies:  op_i32_Load_i32_r None
+get_symbol_dependencies:  op_u32_Rotl_sr None
+get_symbol_dependencies:  op_u64_Clz_r None
+get_symbol_dependencies:  op_SetGlobal_i32 None
+get_symbol_dependencies:  op_i32_LessThanOrEqual_sr None
+get_symbol_dependencies:  op_f32_GreaterThan_ss None
+get_symbol_dependencies:  op_f64_Min_ss None
+get_symbol_dependencies:  op_u32_Trunc_f32_r_s None
+get_symbol_dependencies:  op_i32_Load_u16_r None
+get_symbol_dependencies:  op_i32_Equal_ss None
+get_symbol_dependencies:  op_f64_Convert_i64_s_r None
+get_symbol_dependencies:  op_i64_LessThanOrEqual_rs None
+get_symbol_dependencies:  op_f64_GreaterThan_ss None
+get_symbol_dependencies:  op_u32_Trunc_f32_r_r None
+get_symbol_dependencies:  op_u64_TruncSat_f32_r_s None
+get_symbol_dependencies:  op_i32_Store_u8_rs None
+get_symbol_dependencies:  op_Select_f32_sss None
+get_symbol_dependencies:  op_i64_Extend32_s_s None
+get_symbol_dependencies:  op_f32_Divide_ss None
+get_symbol_dependencies:  op_f32_LessThan_sr None
+get_symbol_dependencies:  op_u64_Divide_ss None
+get_symbol_dependencies:  op_Select_i64_srs None
+get_symbol_dependencies:  op_f64_CopySign_rs None
+get_symbol_dependencies:  op_i32_TruncSat_f64_s_r None
+get_symbol_dependencies:  op_f64_NotEqual_ss None
+get_symbol_dependencies:  op_f32_Subtract_ss None
+get_symbol_dependencies:  op_u32_GreaterThanOrEqual_rs None
+get_symbol_dependencies:  op_f32_Abs_s None
+get_symbol_dependencies:  op_PreserveSetSlot_i32 None
+get_symbol_dependencies:  op_i32_ShiftRight_ss None
+get_symbol_dependencies:  op_Select_f32_rsr None
+get_symbol_dependencies:  op_u64_GreaterThan_rs None
+get_symbol_dependencies:  op_BranchIf_s None
+get_symbol_dependencies:  op_f32_Subtract_rs None
+get_symbol_dependencies:  op_i32_EqualToZero_s None
+get_symbol_dependencies:  op_f64_Sqrt_s None
+get_symbol_dependencies:  op_u32_TruncSat_f64_s_s None
+get_symbol_dependencies:  op_u64_ShiftLeft_rs None
+get_symbol_dependencies:  op_i32_Trunc_f64_r_r None
+get_symbol_dependencies:  op_u32_Popcnt_r None
+get_symbol_dependencies:  op_u32_Trunc_f64_r_r None
+get_symbol_dependencies:  op_u32_Rotl_rs None
+get_symbol_dependencies:  op_u32_Rotr_rs None
+get_symbol_dependencies:  op_i64_Remainder_sr None
+get_symbol_dependencies:  op_f64_Divide_ss None
+get_symbol_dependencies:  op_i32_Add_ss None
+get_symbol_dependencies:  op_i64_Load_i32_r None
+get_symbol_dependencies:  op_i32_Load_u16_s None
+get_symbol_dependencies:  op_BranchIfPrologue_r None
+get_symbol_dependencies:  op_i64_Extend8_s_r None
+get_symbol_dependencies:  op_BranchTable None
+get_symbol_dependencies:  op_u32_TruncSat_f64_s_r None
+get_symbol_dependencies:  op_f32_Convert_u64_r_s None
+get_symbol_dependencies:  op_Const32 None
+get_symbol_dependencies:  op_f64_Min_sr None
+get_symbol_dependencies:  op_i32_Store_i16_rs None
+get_symbol_dependencies:  op_u64_LessThanOrEqual_ss None
+get_symbol_dependencies:  op_PreserveSetSlot_i64 None
+get_symbol_dependencies:  op_Select_f64_srs None
+get_symbol_dependencies:  op_u64_ShiftLeft_sr None
+get_symbol_dependencies:  op_u32_Trunc_f32_s_s None
+get_symbol_dependencies:  op_f32_LessThan_rs None
+get_symbol_dependencies:  op_Return None
+get_symbol_dependencies:  op_f32_Equal_ss None
+get_symbol_dependencies:  op_BranchIfPrologue_s None
+get_symbol_dependencies:  op_PreserveSetSlot_f32 None
+get_symbol_dependencies:  op_i32_TruncSat_f64_s_s None
+get_symbol_dependencies:  op_u32_And_ss None
+get_symbol_dependencies:  op_u32_Rotl_ss None
+get_symbol_dependencies:  op_f32_Add_rs None
+get_symbol_dependencies:  op_i32_Store_u8_sr None
+get_symbol_dependencies:  op_Unreachable None
+get_symbol_dependencies:  op_f32_Convert_u32_r_s None
+get_symbol_dependencies:  op_Select_f32_rss None
+get_symbol_dependencies:  op_f32_Abs_r None
+get_symbol_dependencies:  op_SetRegister_f64 None
+get_symbol_dependencies:  op_f64_LessThan_rs None
+get_symbol_dependencies:  op_SetRegister_f32 None
+get_symbol_dependencies:  op_i32_TruncSat_f64_r_s None
+get_symbol_dependencies:  op_Select_i32_srs None
+get_symbol_dependencies:  op_i64_Store_i32_rs None
+get_symbol_dependencies:  op_CopySlot_64 None
+get_symbol_dependencies:  op_i64_Subtract_ss None
+get_symbol_dependencies:  op_u32_TruncSat_f64_r_r None
+get_symbol_dependencies:  op_u64_Rotl_rs None
+get_symbol_dependencies:  op_u32_Ctz_r None
+get_symbol_dependencies:  op_f64_Nearest_r None
+get_symbol_dependencies:  op_f32_Max_sr None
+get_symbol_dependencies:  op_f64_GreaterThan_rs None
+get_symbol_dependencies:  op_f32_Ceil_r None
+get_symbol_dependencies:  op_i64_GreaterThanOrEqual_ss None
+get_symbol_dependencies:  op_Select_i64_sss None
+get_symbol_dependencies:  op_i64_Extend16_s_r None
+get_symbol_dependencies:  op_u64_ShiftRight_rs None
+get_symbol_dependencies:  op_f32_Load_f32_s None
+get_symbol_dependencies:  op_u32_And_rs None
+get_symbol_dependencies:  op_i32_TruncSat_f32_s_r None
+get_symbol_dependencies:  op_i32_GreaterThan_sr None
+get_symbol_dependencies:  op_i32_Trunc_f64_s_r None
+get_symbol_dependencies:  op_f32_Trunc_s None
+get_symbol_dependencies:  op_i64_Store_i64_ss None
+get_symbol_dependencies:  op_Unsupported None
+get_symbol_dependencies:  op_i64_LessThanOrEqual_ss None
+get_symbol_dependencies:  op_i64_TruncSat_f64_r_s None
+get_symbol_dependencies:  op_u32_Rotr_ss None
+get_symbol_dependencies:  op_f64_Max_rs None
+get_symbol_dependencies:  op_i32_Trunc_f32_s_r None
+get_symbol_dependencies:  op_u64_LessThan_ss None
+get_symbol_dependencies:  op_i64_Extend_u32_r None
+get_symbol_dependencies:  op_f64_Promote_f32_r None
+get_symbol_dependencies:  op_f64_Convert_u64_s_s None
+get_symbol_dependencies:  op_u32_Divide_rs None
+get_symbol_dependencies:  op_i64_Store_i16_ss None
+get_symbol_dependencies:  op_u32_Or_ss None
+get_symbol_dependencies:  op_i64_TruncSat_f32_r_r None
+get_symbol_dependencies:  op_PreserveSetSlot_f64 None
+get_symbol_dependencies:  op_i64_Store_i16_sr None
+get_symbol_dependencies:  op_i32_Subtract_ss None
+get_symbol_dependencies:  op_i64_GreaterThan_sr None
+get_symbol_dependencies:  op_f64_GreaterThanOrEqual_sr None
+get_symbol_dependencies:  op_u64_And_ss None
+get_symbol_dependencies:  op_i32_ShiftRight_rs None
+get_symbol_dependencies:  op_i64_Store_i32_sr None
+get_symbol_dependencies:  op_f32_Convert_i64_r_s None
+get_symbol_dependencies:  op_i64_ShiftRight_sr None
+get_symbol_dependencies:  op_u32_Ctz_s None
+get_symbol_dependencies:  op_u32_Divide_sr None
+get_symbol_dependencies:  op_If_s None
+get_symbol_dependencies:  op_i64_TruncSat_f64_s_r None
+get_symbol_dependencies:  op_f64_Convert_u32_r_s None
+get_symbol_dependencies:  op_i32_Wrap_i64_s None
+get_symbol_dependencies:  op_i64_Multiply_rs None
+get_symbol_dependencies:  op_f64_GreaterThan_sr None
+get_symbol_dependencies:  op_f32_LessThanOrEqual_rs None
+get_symbol_dependencies:  op_f64_Ceil_s None
+get_symbol_dependencies:  op_u32_Trunc_f64_s_s None
+get_symbol_dependencies:  op_i32_Divide_rs None
+get_symbol_dependencies:  op_i64_NotEqual_ss None
+get_symbol_dependencies:  op_f32_Sqrt_s None
+get_symbol_dependencies:  op_f32_Equal_rs None
+get_symbol_dependencies:  op_i64_Trunc_f32_r_s None
+get_symbol_dependencies:  op_f32_Store_f32_sr None
+get_symbol_dependencies:  op_u64_Remainder_ss None
+get_symbol_dependencies:  op_u64_Xor_rs None
+get_symbol_dependencies:  op_i32_LessThan_sr None
+get_symbol_dependencies:  op_f32_Convert_u64_s_r None
+get_symbol_dependencies:  op_u64_GreaterThanOrEqual_ss None
+get_symbol_dependencies:  op_SetGlobal_i64 None
+get_symbol_dependencies:  op_u64_LessThanOrEqual_rs None
+get_symbol_dependencies:  op_u64_ShiftRight_sr None
+get_symbol_dependencies:  op_i32_Multiply_ss None
+get_symbol_dependencies:  op_i64_Load_i8_s None
+get_symbol_dependencies:  op_f32_GreaterThan_sr None
+get_symbol_dependencies:  op_u64_Ctz_r None
+get_symbol_dependencies:  op_f64_Convert_u32_s_s None
+get_symbol_dependencies:  op_f32_Convert_u32_r_r None
+get_symbol_dependencies:  op_u64_GreaterThanOrEqual_rs None
+get_symbol_dependencies:  op_i64_Trunc_f32_s_s None
+get_symbol_dependencies:  op_u64_ShiftRight_ss None
+get_symbol_dependencies:  op_f64_Divide_rs None
+get_symbol_dependencies:  op_u64_TruncSat_f64_s_s None
+get_symbol_dependencies:  op_GetGlobal_s32 None
+get_symbol_dependencies:  op_i32_Store_i32_ss None
+get_symbol_dependencies:  op_f32_GreaterThanOrEqual_sr None
+get_symbol_dependencies:  op_u32_Clz_r None
+get_symbol_dependencies:  op_f64_Store_f64_rr None
+get_symbol_dependencies:  op_u64_GreaterThanOrEqual_sr None
+get_symbol_dependencies:  op_i64_Reinterpret_f64_r_r None
+get_symbol_dependencies:  op_f32_Store_f32_rs None
+get_symbol_dependencies:  op_Entry None
+get_symbol_dependencies:  op_u32_TruncSat_f32_r_r None
+get_symbol_dependencies:  op_f64_Equal_ss None
+get_symbol_dependencies:  op_u32_ShiftRight_rs None
+get_symbol_dependencies:  op_Select_i32_rss None
+get_symbol_dependencies:  op_Select_f64_sss None
+get_symbol_dependencies:  op_f32_Negate_r None
+get_symbol_dependencies:  op_i32_Trunc_f64_r_s None
+get_symbol_dependencies:  op_i32_GreaterThan_rs None
+get_symbol_dependencies:  op_f32_Subtract_sr None
+get_symbol_dependencies:  op_f64_Convert_u32_r_r None
+get_symbol_dependencies:  op_i64_LessThan_rs None
+get_symbol_dependencies:  op_f64_Max_ss None
+get_symbol_dependencies:  op_i32_Reinterpret_f32_s_s None
+get_symbol_dependencies:  op_u32_GreaterThan_ss None
+get_symbol_dependencies:  op_f32_Load_f32_r None
+get_symbol_dependencies:  op_f32_GreaterThanOrEqual_ss None
+get_symbol_dependencies:  op_f64_Convert_i32_s_s None
+get_symbol_dependencies:  op_u64_LessThanOrEqual_sr None
+get_symbol_dependencies:  op_f32_Divide_sr None
+get_symbol_dependencies:  op_SetRegister_i32 None
+get_symbol_dependencies:  op_i32_Load_u8_r None
+get_symbol_dependencies:  op_Select_i32_sss None
+get_symbol_dependencies:  op_f64_CopySign_sr None
+get_symbol_dependencies:  op_i64_Store_u8_rs None
+get_symbol_dependencies:  op_f32_Demote_f64_s None
+get_symbol_dependencies:  op_f64_Reinterpret_i64_s_r None
+get_symbol_dependencies:  op_i64_Load_i64_r None
+get_symbol_dependencies:  op_u64_TruncSat_f32_s_r None
+get_symbol_dependencies:  op_f32_Max_rs None
+get_symbol_dependencies:  op_f32_Min_sr None
+get_symbol_dependencies:  op_i64_Extend_i32_r None
+get_symbol_dependencies:  op_i64_Subtract_sr None
+get_symbol_dependencies:  op_i32_TruncSat_f64_r_r None
+get_symbol_dependencies:  op_u32_TruncSat_f32_s_r None
+get_symbol_dependencies:  op_u32_Remainder_rs None
+get_symbol_dependencies:  op_i64_Add_rs None
+get_symbol_dependencies:  op_f64_Convert_i64_r_s None
+get_symbol_dependencies:  op_Compile None
+get_symbol_dependencies:  op_Select_f32_rrs None
+get_symbol_dependencies:  op_i32_Load_i16_r None
+get_symbol_dependencies:  op_u32_GreaterThan_sr None
+get_symbol_dependencies:  op_f64_Sqrt_r None
+get_symbol_dependencies:  op_u32_Or_rs None
+get_symbol_dependencies:  op_f64_Negate_s None
+get_symbol_dependencies:  op_f32_NotEqual_rs None
+get_symbol_dependencies:  op_u32_ShiftRight_ss None
+get_symbol_dependencies:  op_i32_Add_rs None
+get_symbol_dependencies:  op_i64_Trunc_f32_s_r None
+get_symbol_dependencies:  op_u64_Trunc_f32_s_s None
+get_symbol_dependencies:  op_f64_Convert_u32_s_r None
+get_symbol_dependencies:  op_i64_GreaterThanOrEqual_rs None
+get_symbol_dependencies:  op_i32_Remainder_ss None
+get_symbol_dependencies:  op_f32_Reinterpret_i32_s_s None
+get_symbol_dependencies:  op_i64_ShiftRight_ss None
+get_symbol_dependencies:  op_u32_TruncSat_f32_s_s None
+get_symbol_dependencies:  op_i64_Store_i64_rs None
+get_symbol_dependencies:  op_f64_Abs_r None
+get_symbol_dependencies:  op_i64_TruncSat_f64_s_s None
+get_symbol_dependencies:  op_SetRegister_i64 None
+get_symbol_dependencies:  op_f64_LessThanOrEqual_rs None
+get_symbol_dependencies:  op_f32_Sqrt_r None
+get_symbol_dependencies:  op_i64_Trunc_f64_s_r None
+get_symbol_dependencies:  op_u64_TruncSat_f32_r_r None
+get_symbol_dependencies:  op_i32_Store_u8_ss None
+get_symbol_dependencies:  op_f32_Min_rs None
+get_symbol_dependencies:  op_i64_Divide_rs None
+get_symbol_dependencies:  op_i64_Load_u32_r None
+get_symbol_dependencies:  op_u32_GreaterThan_rs None
+get_symbol_dependencies:  op_Select_f64_ssr None
+get_symbol_dependencies:  op_f32_Add_ss None
+get_symbol_dependencies:  op_f32_Convert_i32_s_r None
+get_symbol_dependencies:  op_f64_Store_f64_ss None
+get_symbol_dependencies:  op_u32_LessThan_rs None
+get_symbol_dependencies:  op_f64_Convert_u64_r_r None
+get_symbol_dependencies:  op_u32_ShiftLeft_rs None
+get_symbol_dependencies:  op_u64_GreaterThan_sr None
+get_symbol_dependencies:  op_u64_Popcnt_r None
+get_symbol_dependencies:  op_f64_Subtract_ss None
+get_symbol_dependencies:  op_u32_Clz_s None
+get_symbol_dependencies:  op_i32_LessThanOrEqual_rs None
+get_symbol_dependencies:  op_f64_Multiply_rs None
+get_symbol_dependencies:  op_u64_Trunc_f64_r_s None
+get_symbol_dependencies:  op_f64_CopySign_ss None
+get_symbol_dependencies:  op_f64_Reinterpret_i64_s_s None
+get_symbol_dependencies:  op_u32_ShiftLeft_ss None
+get_symbol_dependencies:  op_u64_Rotl_ss None
+get_symbol_dependencies:  op_MemFill None
+get_symbol_dependencies:  op_f32_Reinterpret_i32_r_s None
+get_symbol_dependencies:  op_u64_TruncSat_f64_s_r None
+get_symbol_dependencies:  op_i32_Load_i16_s None
+get_symbol_dependencies:  op_u64_ShiftLeft_ss None
+get_symbol_dependencies:  op_f64_Add_ss None
+get_symbol_dependencies:  op_i64_Store_i64_sr None
+get_symbol_dependencies:  op_If_r None
+get_symbol_dependencies:  op_u32_Trunc_f64_s_r None
+get_symbol_dependencies:  op_f64_Trunc_r None
+get_symbol_dependencies:  op_i64_Store_u8_sr None
+get_symbol_dependencies:  op_u64_TruncSat_f64_r_s None
+get_symbol_dependencies:  op_u32_GreaterThanOrEqual_sr None
+get_symbol_dependencies:  op_u32_Rotr_sr None
+get_symbol_dependencies:  op_f64_Floor_r None
+get_symbol_dependencies:  op_f32_Max_ss None
+get_symbol_dependencies:  op_u32_Remainder_sr None
+get_symbol_dependencies:  op_i32_GreaterThanOrEqual_sr None
+get_symbol_dependencies:  op_f64_LessThan_ss None
+get_symbol_dependencies:  op_u64_Trunc_f64_s_r None
+get_symbol_dependencies:  op_u32_LessThanOrEqual_ss None
+get_symbol_dependencies:  op_i32_EqualToZero_r None
+get_symbol_dependencies:  op_i32_Subtract_sr None
+get_symbol_dependencies:  op_f64_Subtract_rs None
+get_symbol_dependencies:  op_f64_Reinterpret_i64_r_r None
+get_symbol_dependencies:  op_ContinueLoopIf None
+get_symbol_dependencies:  op_f64_Ceil_r None
+get_symbol_dependencies:  op_i64_ShiftRight_rs None
+get_symbol_dependencies:  op_i64_GreaterThan_ss None
+get_symbol_dependencies:  op_GetGlobal_s64 None
+get_symbol_dependencies:  op_f32_LessThanOrEqual_sr None
+get_symbol_dependencies:  op_i64_Subtract_rs None
+get_symbol_dependencies:  op_u64_Rotr_rs None
+get_symbol_dependencies:  op_u32_Remainder_ss None
+get_symbol_dependencies:  op_f32_Nearest_r None
+get_symbol_dependencies:  op_Loop None
+get_symbol_dependencies:  op_i32_Extend16_s_s None
+get_symbol_dependencies:  op_u32_Xor_rs None
+get_symbol_dependencies:  op_u64_GreaterThan_ss None
+get_symbol_dependencies:  op_i32_Store_i16_ss None
+get_symbol_dependencies:  op_Select_f32_srs None
+get_symbol_dependencies:  op_u32_Popcnt_s None
+get_symbol_dependencies:  op_i32_Extend8_s_r None
+get_symbol_dependencies:  op_Call None
+get_symbol_dependencies:  op_f64_LessThanOrEqual_ss None
+get_symbol_dependencies:  op_u32_LessThanOrEqual_rs None
+get_symbol_dependencies:  op_f64_Subtract_sr None
+get_symbol_dependencies:  op_i32_NotEqual_rs None
+get_symbol_dependencies:  op_u64_Divide_rs None
+get_symbol_dependencies:  op_MemGrow None
+get_symbol_dependencies:  op_u32_GreaterThanOrEqual_ss None
+get_symbol_dependencies:  op_f64_Reinterpret_i64_r_s None
+get_symbol_dependencies:  op_i64_Divide_sr None
+get_symbol_dependencies:  op_i32_Reinterpret_f32_s_r None
+get_symbol_dependencies:  op_u64_Ctz_s None
+get_symbol_dependencies:  op_PreserveCopySlot_64 None
+get_symbol_dependencies:  op_i32_Remainder_sr None
+get_symbol_dependencies:  op_i64_Trunc_f64_r_s None
+get_symbol_dependencies:  op_i32_Reinterpret_f32_r_r None
+get_symbol_dependencies:  op_SetGlobal_s64 None
+get_symbol_dependencies:  op_i32_Trunc_f32_r_s None
+get_symbol_dependencies:  op_u32_Xor_ss None
+get_symbol_dependencies:  op_i32_ShiftRight_sr None
+get_symbol_dependencies:  op_i32_Remainder_rs None
+get_symbol_dependencies:  op_i64_Load_u16_r None
+get_symbol_dependencies:  op_u64_Clz_s None
+get_symbol_dependencies:  op_f32_Negate_s None
+get_symbol_dependencies:  op_Select_f64_rsr None
+get_symbol_dependencies:  op_SetGlobal_s32 None
+get_symbol_dependencies:  op_Branch None
+get_symbol_dependencies:  op_i64_Add_ss None
+get_symbol_dependencies:  op_i64_GreaterThan_rs None
+get_symbol_dependencies:  op_i64_GreaterThanOrEqual_sr None
+get_symbol_dependencies:  op_End None
+get_symbol_dependencies:  op_f64_Convert_i32_r_s None
+get_symbol_dependencies:  op_f32_Ceil_s None
+get_symbol_dependencies:  op_i64_LessThan_sr None
+get_symbol_dependencies:  op_i64_Reinterpret_f64_s_r None
+get_symbol_dependencies:  op_f64_Abs_s None
+get_symbol_dependencies:  op_f32_Nearest_s None
+get_symbol_dependencies:  op_i64_Store_i16_rs None
+get_symbol_dependencies:  op_i32_LessThanOrEqual_ss None
+get_symbol_dependencies:  op_i64_Equal_rs None
+get_symbol_dependencies:  op_i32_Wrap_i64_r None
+get_symbol_dependencies:  op_i64_Load_i16_s None
+get_symbol_dependencies:  op_Select_f32_ssr None
+get_symbol_dependencies:  op_u32_Trunc_f32_s_r None
+get_symbol_dependencies:  op_i64_Reinterpret_f64_r_s None
+get_symbol_dependencies:  op_f64_Promote_f32_s None
+get_symbol_dependencies:  op_f32_Convert_i32_s_s None
+get_symbol_dependencies:  op_Select_i32_ssr None
+get_symbol_dependencies:  op_f32_Convert_i32_r_r None
+get_symbol_dependencies:  op_ContinueLoop None
+get_symbol_dependencies:  op_i64_Load_i8_r None
+get_symbol_dependencies:  op_u64_TruncSat_f32_s_s None
+get_symbol_dependencies:  op_i32_Load_i32_s None
+get_symbol_dependencies:  op_i64_EqualToZero_s None
+get_symbol_dependencies:  op_Select_f64_rss None
+get_symbol_dependencies:  op_u32_TruncSat_f64_r_s None
+get_symbol_dependencies:  op_u64_Divide_sr None
+get_symbol_dependencies:  op_f64_Convert_i32_r_r None
+get_symbol_dependencies:  op_i32_Divide_sr None
+get_symbol_dependencies:  op_i64_Extend_u32_s None
+get_symbol_dependencies:  op_f64_Store_f64_sr None
+get_symbol_dependencies:  op_i64_LessThanOrEqual_sr None
+get_symbol_dependencies:  op_i64_Load_u32_s None
+get_symbol_dependencies:  op_f32_Convert_u64_r_r None
+get_symbol_dependencies:  op_u64_And_rs None
+get_symbol_dependencies:  op_f32_LessThan_ss None
+get_symbol_dependencies:  op_CallIndirect None
+get_symbol_dependencies:  op_i32_TruncSat_f32_r_r None
+get_symbol_dependencies:  op_u64_Trunc_f64_r_r None
+get_symbol_dependencies:  op_CallRawFunction None
+get_symbol_dependencies:  op_i64_Load_i64_s None
+get_symbol_dependencies:  op_f64_Max_sr None
+get_symbol_dependencies:  op_f32_CopySign_rs None
+get_symbol_dependencies:  src None
+get_symbol_dependencies:  byte None
+get_symbol_dependencies:  OP_U64_TRUNC_SAT_F32 None
+get_symbol_dependencies:  trunc None
+get_symbol_dependencies:  from None
+get_symbol_dependencies:  OP_I32_TRUNC_SAT_F32 None
+get_symbol_dependencies:  type None
+get_symbol_dependencies:  __builtin_popcountll None
+get_symbol_dependencies:  requiredPages None
+get_symbol_dependencies:  OP_I64_TRUNC_F64 None
+get_symbol_dependencies:  condition None
+get_symbol_dependencies:  isnan None
+get_symbol_dependencies:  runtime None
+get_symbol_dependencies:  memset None
+get_symbol_dependencies:  operand2 None
+get_symbol_dependencies:  call None
+get_symbol_dependencies:  OP_I32_TRUNC_SAT_F64 None
+get_symbol_dependencies:  OP_I32_TRUNC_F64 None
+get_symbol_dependencies:  __builtin_ctz None
+get_symbol_dependencies:  OP_U32_TRUNC_SAT_F64 None
+get_symbol_dependencies:  branchIndex None
+get_symbol_dependencies:  fabsf None
+get_symbol_dependencies:  global None
+get_symbol_dependencies:  offset None
+get_symbol_dependencies:  sp None
+get_symbol_dependencies:  copysignf None
+get_symbol_dependencies:  elsePC None
+get_symbol_dependencies:  copysign None
+get_symbol_dependencies:  loopId None
+get_symbol_dependencies:  OP_U64_TRUNC_F32 None
+get_symbol_dependencies:  __builtin_clzll None
+get_symbol_dependencies:  possible_trap None
+get_symbol_dependencies:  fabs None
+get_symbol_dependencies:  rintf None
+get_symbol_dependencies:  dest None
+get_symbol_dependencies:  __builtin_clz None
+get_symbol_dependencies:  OP_DIV_U None
+get_symbol_dependencies:  __builtin_ctzll None
+get_symbol_dependencies:  OP_U32_TRUNC_F32 None
+get_symbol_dependencies:  OP_U64_TRUNC_F64 None
+get_symbol_dependencies:  module None
+get_symbol_dependencies:  stack None
+get_symbol_dependencies:  ceilf None
+get_symbol_dependencies:  ceil None
+get_symbol_dependencies:  memory None
+get_symbol_dependencies:  source None
+get_symbol_dependencies:  OP_U32_TRUNC_F64 None
+get_symbol_dependencies:  memcpy None
+get_symbol_dependencies:  numPagesToGrow None
+get_symbol_dependencies:  callPC None
+get_symbol_dependencies:  OP_U32_TRUNC_SAT_F32 None
+get_symbol_dependencies:  truncf None
+get_symbol_dependencies:  r None
+get_symbol_dependencies:  MemorySegment None
+get_symbol_dependencies:  OP_REM_U None
+get_symbol_dependencies:  destination None
+get_symbol_dependencies:  preserve None
+get_symbol_dependencies:  value None
+get_symbol_dependencies:  floorf None
+get_symbol_dependencies:  OP_I64_TRUNC_SAT_F64 None
+get_symbol_dependencies:  OP_U64_TRUNC_SAT_F64 None
+get_symbol_dependencies:  numTargets None
+get_symbol_dependencies:  val None
+get_symbol_dependencies:  OP_I64_TRUNC_F32 None
+get_symbol_dependencies:  newSegments None
+get_symbol_dependencies:  sqrt None
+get_symbol_dependencies:  OP_I64_TRUNC_SAT_F32 None
+get_symbol_dependencies:  size None
+get_symbol_dependencies:  memmove None
+get_symbol_dependencies:  dst None
+get_symbol_dependencies:  m3StackCheck None
+get_symbol_dependencies:  OP_I32_TRUNC_F32 None
+get_symbol_dependencies:  iteration_count None
+get_symbol_dependencies:  stackOffset None
+get_symbol_dependencies:  branches None
+get_symbol_dependencies:  floor None
+get_symbol_dependencies:  tableIndex None
+get_symbol_dependencies:  operand None
+get_symbol_dependencies:  __builtin_popcount None
+get_symbol_dependencies:  result None
+get_symbol_dependencies:  operand1 None
+get_symbol_dependencies:  function None
+get_symbol_dependencies:  mem8 None
+get_symbol_dependencies:  u None
+get_symbol_dependencies:  branch None
+get_symbol_dependencies:  rint None
+get_symbol_dependencies:  ctx None
+get_symbol_dependencies:  src8 None
+get_symbol_dependencies:  sqrtf None
+get_symbol_dependencies:  stack_backup None
+get_symbol_dependencies:  M3MemoryInfo None
+get_symbol_dependencies:  M3DataSegment None
+get_symbol_dependencies:  M3Memory_t None
+get_symbol_dependencies:  M3MemoryPoint_t None
+get_symbol_dependencies:  M3MemoryRegion None
+get_symbol_dependencies:  AddressType None
+get_symbol_dependencies:  M3MemoryPoint None
+get_symbol_dependencies:  m3_NewModule None
+get_symbol_dependencies:  m3_InjectFunction None
+get_symbol_dependencies:  m3_GetFunctionByIndex None
+get_symbol_dependencies:  fib64_wasm None
+get_symbol_dependencies:  fib64_wasm_len None
+get_symbol_dependencies:  coremark_minimal_wasm_len None
+get_symbol_dependencies:  coremark_minimal_wasm None
+get_symbol_dependencies:  fib32_tail_wasm_len None
+get_symbol_dependencies:  fib32_tail_wasm None
+get_symbol_dependencies:  fib32_wasm_len None
+get_symbol_dependencies:  fib32_wasm None
+get_symbol_dependencies:  __wasi_riflags_t None
+get_symbol_dependencies:  __wasi_fd_filestat_set_times None
+get_symbol_dependencies:  __wasi_fd_t None
+get_symbol_dependencies:  __wasi_device_t None
+get_symbol_dependencies:  __wasi_fd_datasync None
+get_symbol_dependencies:  __wasi_path_filestat_get None
+get_symbol_dependencies:  __wasi_sched_yield None
+get_symbol_dependencies:  __wasi_subscription_t None
+get_symbol_dependencies:  __wasi_fd_write None
+get_symbol_dependencies:  __wasi_ciovec_t None
+get_symbol_dependencies:  __wasi_proc_raise None
+get_symbol_dependencies:  __wasi_linkcount_t None
+get_symbol_dependencies:  __wasi_preopentype_t None
+get_symbol_dependencies:  __wasi_inode_t None
+get_symbol_dependencies:  __wasi_path_link None
+get_symbol_dependencies:  __wasi_fd_pread None
+get_symbol_dependencies:  __wasi_fd_fdstat_get None
+get_symbol_dependencies:  __wasi_roflags_t None
+get_symbol_dependencies:  __wasi_clock_res_get None
+get_symbol_dependencies:  __wasi_subscription_u_t None
+get_symbol_dependencies:  __wasi_clock_time_get None
+get_symbol_dependencies:  __wasi_fdstat_t None
+get_symbol_dependencies:  stat {'__wasi_fdstat_t'}
+get_symbol_dependencies:  __wasi_random_get None
+get_symbol_dependencies:  __wasi_prestat_u_t None
+get_symbol_dependencies:  __wasi_event_t None
+get_symbol_dependencies:  __wasi_poll_oneoff None
+get_symbol_dependencies:  __wasi_sock_send None
+get_symbol_dependencies:  __wasi_prestat_t None
+get_symbol_dependencies:  __wasi_filesize_t None
+get_symbol_dependencies:  __wasi_fd_read None
+get_symbol_dependencies:  __wasi_event_u_t None
+get_symbol_dependencies:  __wasi_args_get None
+get_symbol_dependencies:  __wasi_userdata_t None
+get_symbol_dependencies:  __wasi_eventtype_t None
+get_symbol_dependencies:  __wasi_filetype_t None
+get_symbol_dependencies:  __wasi_dircookie_t None
+get_symbol_dependencies:  __wasi_dirent_t None
+get_symbol_dependencies:  __wasi_advice_t None
+get_symbol_dependencies:  __wasi_fd_close None
+get_symbol_dependencies:  __wasi_subclockflags_t None
+get_symbol_dependencies:  __wasi_path_readlink None
+get_symbol_dependencies:  __wasi_signal_t None
+get_symbol_dependencies:  __wasi_fd_sync None
+get_symbol_dependencies:  __wasi_exitcode_t None
+get_symbol_dependencies:  __wasi_prestat_dir_t None
+get_symbol_dependencies:  __wasi_oflags_t None
+get_symbol_dependencies:  __wasi_fd_readdir None
+get_symbol_dependencies:  __wasi_fd_pwrite None
+get_symbol_dependencies:  __wasi_dirnamlen_t None
+get_symbol_dependencies:  __wasi_lookupflags_t None
+get_symbol_dependencies:  __wasi_fd_fdstat_set_flags None
+get_symbol_dependencies:  __wasi_fd_fdstat_set_rights None
+get_symbol_dependencies:  __wasi_sdflags_t None
+get_symbol_dependencies:  __wasi_timestamp_t None
+get_symbol_dependencies:  convert_timespec {'__wasi_timestamp_t'}
+get_symbol_dependencies:  timespec {'__wasi_timestamp_t'}
+get_symbol_dependencies:  __wasi_path_rename None
+get_symbol_dependencies:  __wasi_args_sizes_get None
+get_symbol_dependencies:  __wasi_fd_allocate None
+get_symbol_dependencies:  __wasi_path_open None
+get_symbol_dependencies:  __wasi_fd_prestat_get None
+get_symbol_dependencies:  __wasi_whence_t None
+get_symbol_dependencies:  __wasi_path_symlink None
+get_symbol_dependencies:  __wasi_sock_recv None
+get_symbol_dependencies:  __wasi_path_create_directory None
+get_symbol_dependencies:  __wasi_filedelta_t None
+get_symbol_dependencies:  __wasi_subscription_clock_t None
+get_symbol_dependencies:  __wasi_fd_seek None
+get_symbol_dependencies:  __wasi_fd_prestat_dir_name None
+get_symbol_dependencies:  __wasi_environ_sizes_get None
+get_symbol_dependencies:  __wasi_sock_shutdown None
+get_symbol_dependencies:  __wasi_event_fd_readwrite_t None
+get_symbol_dependencies:  __wasi_path_remove_directory None
+get_symbol_dependencies:  __wasi_fd_filestat_get None
+get_symbol_dependencies:  __wasi_filestat_t None
+get_symbol_dependencies:  __wasi_fstflags_t None
+get_symbol_dependencies:  __wasi_eventrwflags_t None
+get_symbol_dependencies:  __wasi_iovec_t None
+get_symbol_dependencies:  __wasi_siflags_t None
+get_symbol_dependencies:  __wasi_rights_t None
+get_symbol_dependencies:  __wasi_errno_t None
+get_symbol_dependencies:  __wasi_fd_renumber {'__wasi_errno_t'}
+get_symbol_dependencies:  __wasi_fd_advise {'__wasi_errno_t'}
+get_symbol_dependencies:  __wasi_path_unlink_file {'__wasi_errno_t'}
+get_symbol_dependencies:  __wasi_fd_tell {'__wasi_errno_t'}
+get_symbol_dependencies:  __wasi_path_filestat_set_times {'__wasi_errno_t'}
+get_symbol_dependencies:  __wasi_fd_filestat_set_size {'__wasi_errno_t'}
+get_symbol_dependencies:  __wasi_environ_get {'__wasi_errno_t'}
+get_symbol_dependencies:  __wasi_proc_exit None
+get_symbol_dependencies:  __wasi_fdflags_t None
+get_symbol_dependencies:  __wasi_clockid_t None
+get_symbol_dependencies:  convert_clockid {'__wasi_clockid_t'}
+get_symbol_dependencies:  __wasi_subscription_fd_readwrite_t None
+Saving result in:  result_includeManager.json

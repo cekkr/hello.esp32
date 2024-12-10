@@ -44,7 +44,11 @@ class SymbolTable:
             self.definitions[symbol.name] = []
 
         self.definitions[symbol.name].append(symbol)
-        
+
+    def check_dependency(self, dep: str):
+        if dep not in self.dependencies:
+            self.dependencies[dep] = set()
+
     def add_usage(self, usage: SymbolUsage):
         if usage.name not in self.usages:
             self.usages[usage.name] = []
@@ -52,6 +56,7 @@ class SymbolTable:
         self.usages[usage.name].append(usage)
         # Update symbol dependencies
         for req in usage.required_symbols:
+            self.check_dependency(usage.name)
             self.dependencies[usage.name].add(req)
     
     def get_symbol_providers(self, symbol_name: str) -> List[Path]:
