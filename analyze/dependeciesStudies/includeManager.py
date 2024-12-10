@@ -364,7 +364,7 @@ class IncludeResolver:
                 for path, state in self.resolution_states.items()
                 if state.is_resolved
             },
-            dependencies: dependencies
+            'dependencies': dependencies
         }
 
     def _find_circular_references(self) -> List[List[Path]]:
