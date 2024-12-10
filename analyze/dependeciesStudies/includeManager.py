@@ -324,7 +324,7 @@ class IncludeResolver:
                 symbols.add(word)
         return symbols
 
-    def verify_and_resolve(self) -> Dict[str, dict]:
+    def verify_and_resolve(self):
         """Generate final verification and resolution report"""
         verification = IncludeVerification(
             missing_symbols=defaultdict(set),
