@@ -5,7 +5,7 @@ client = None
 
 def askAI(instruction, prompt):
     global client
-
+    print("askAI request:\nInstruction:\n", instruction, "\nPrompt:\n", prompt)
     response = client.generate_text(
             system_instructions=instruction,
             prompt=prompt,
@@ -17,6 +17,8 @@ def askAI(instruction, prompt):
                 }
             }
         )
+
+    print("Response: \n", response, "\n\n")
     
     return response
 
