@@ -325,26 +325,26 @@ class IncludeResolver:
         """Find circular dependencies in the include hierarchy"""
         cycles = []
         visited = set()
-        path = []
+        paths = []
 
         def dfs(node_path: Path):
-            if node_path in path:
-                cycle_start = path.index(node_path)
-                cycles.append(path[cycle_start:])
+            if node_path in paths:
+                cycle_start = paths.index(node_path)
+                cycles.append(paths[cycle_start:])
                 return
             
             if node_path in visited:
                 return
                 
             visited.add(node_path)
-            path.append(node_path)
+            paths.append(node_path)
             
             if node_path in self.dependency_graph:
                 node = self.dependency_graph[node_path]
                 for inc in node.direct_includes:
                     dfs(inc)
                     
-            path.pop()
+            paths.pop()
 
         for path in self.dependency_graph:
             if path not in visited:
