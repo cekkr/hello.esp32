@@ -2,8 +2,8 @@ from typing import Dict, Set, List, Optional
 from pathlib import Path
 from dataclasses import dataclass
 from collections import defaultdict
-from includeManager import *
-from readCLib import *
+from includeManager import ResolutionResult, DependencyNode, IncludeVerification
+from readCLib import SourceFile
 
 def optimize_includes(source_files: Dict[Path, SourceFile]) -> Dict[Path, ResolutionResult]:
     """

@@ -3,6 +3,7 @@ Traceback (most recent call last):
     from includeManager import *
   File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/includeManager.py", line 9, in <module>
     from optimizeIncludesFuncs import *
-  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/optimizeIncludesFuncs.py", line 5, in <module>
-    from includeManager import ResolutionResult, SourceFile, DependencyNode, IncludeVerification
-ImportError: cannot import name 'ResolutionResult' from partially initialized module 'includeManager' (most likely due to a circular import) (/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/includeManager.py)
+  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/optimizeIncludesFuncs.py", line 8, in <module>
+    def optimize_includes(source_files: Dict[Path, SourceFile]) -> Dict[Path, ResolutionResult]:
+                                                                              ^^^^^^^^^^^^^^^^
+NameError: name 'ResolutionResult' is not defined
