@@ -42,7 +42,7 @@ def main():
     project_paths = os.path.abspath(project_paths)
 
     # Uso del resolver
-    if False:
+    if True:
         resolver = IncludeResolver(project_paths, askAI)
 
         print("resolver.verify_and_resolve()")
@@ -58,10 +58,10 @@ def main():
 
         print("\nOrdine include suggerito:")
         print(custom_json_serializer(result['include_orders']))
-
-    analyzer = SourceAnalyzer([project_paths])
-    analyzer.analyze()
-    result = optimize_includes(analyzer.files)
+    else:
+        analyzer = SourceAnalyzer([project_paths])
+        analyzer.analyze()
+        result = optimize_includes(analyzer.files)
 
     # Salva l'oggetto come JSON nel file "result.json"
     saveTo = "result_includeManager.json"
