@@ -13,12 +13,80 @@ import subprocess
 import clang.cindex
 from clang.cindex import Index, CursorKind, TypeKind, Config
 
+from typing import NamedTuple, Optional, Dict, Any
+from clang.cindex import CursorKind
+
+
 class Symbol(NamedTuple):
+    """Rappresenta un simbolo definito nel codice sorgente.
+
+    Attributes:
+        name (str): Nome completo del simbolo (incluso namespace/classe padre)
+        symbol_type (str): Tipo del simbolo (typedef, struct, function, etc.)
+        line (int): Numero di riga dove appare il simbolo
+        context (str): Contesto del codice intorno al simbolo
+        cursor_kind (CursorKind): Tipo di cursore libclang
+        metadata (Dict[str, Any]): Metadati aggiuntivi del simbolo che includono:
+            - template_params (str): Parametri template se presenti
+            - access (Optional[str]): Specificatore di accesso (public/private/protected)
+            - storage_class (Optional[str]): Classe di storage (static/extern)
+            - is_virtual (bool): Se il metodo è virtuale
+            - is_pure_virtual (bool): Se il metodo è pure virtual
+            - return_type (Optional[str]): Tipo di ritorno per funzioni/metodi
+    """
     name: str
-    kind: str  # 'type', 'variable', 'function', 'macro'
+    symbol_type: str
     line: int
     context: str
-    cursor_kind: Optional[CursorKind] = None
+    cursor_kind: CursorKind
+    metadata: Dict[str, Any] = {}
+
+    def __str__(self) -> str:
+        """Rappresentazione leggibile del simbolo."""
+        base = f"{self.symbol_type} {self.name} at line {self.line}"
+
+        # Aggiungi informazioni template se presenti
+        if self.metadata.get('template_params'):
+            base = f"template{self.metadata['template_params']} " + base
+
+        # Aggiungi tipo di ritorno per funzioni/metodi
+        if self.metadata.get('return_type'):
+            base = f"{self.metadata['return_type']} {base}"
+
+        # Aggiungi specificatore di accesso per membri
+        if self.metadata.get('access'):
+            base = f"{self.metadata['access']} {base}"
+
+        # Aggiungi informazioni sulla virtualità
+        if self.metadata.get('is_pure_virtual'):
+            base += " = 0"
+        elif self.metadata.get('is_virtual'):
+            base = f"virtual {base}"
+
+        # Aggiungi storage class
+        if self.metadata.get('storage_class'):
+            base = f"{self.metadata['storage_class'].lower()} {base}"
+
+        return base
+
+    def get_qualified_name(self) -> str:
+        """Restituisce il nome completamente qualificato del simbolo."""
+        return self.name
+
+    def is_member(self) -> bool:
+        """Verifica se il simbolo è un membro di una classe/struct."""
+        return self.metadata.get('access') is not None
+
+    def is_template(self) -> bool:
+        """Verifica se il simbolo è un template."""
+        return bool(self.metadata.get('template_params'))
+
+    def get_declaration(self) -> str:
+        """Genera una rappresentazione della dichiarazione del simbolo."""
+        decl = str(self)
+        if self.symbol_type in {'function', 'method'}:
+            decl += ';'
+        return decl
 
 @dataclass
 class SourceFile:
@@ -172,83 +240,273 @@ class SourceAnalyzer:
                 self.files[resolved_path].included_by.add(source_file.path)
                 self.include_graph[source_file.path].add(resolved_path)
                 self.reverse_graph[resolved_path].add(source_file.path)
-    
+
     def _analyze_definitions(self, cursor, source_file: SourceFile):
-        """Analizza le definizioni usando il cursore di libclang."""
-        if cursor.location.file and Path(cursor.location.file.name) == source_file.path:
-            line = cursor.location.line
-            # Estrai il contesto (50 caratteri prima e dopo)
-            context = self._get_context(source_file.raw_content, line)
-            
-            if cursor.kind in {CursorKind.TYPEDEF_DECL, CursorKind.STRUCT_DECL, 
-                             CursorKind.CLASS_DECL, CursorKind.ENUM_DECL}:
-                source_file.add_definition(cursor.spelling, 'type', line, context, cursor.kind)
-                self.symbol_definitions[cursor.spelling].append(
-                    Symbol(cursor.spelling, 'type', line, context, cursor.kind)
-                )
-                
-            elif cursor.kind == CursorKind.FUNCTION_DECL:
-                source_file.add_definition(cursor.spelling, 'function', line, context, cursor.kind)
-                self.symbol_definitions[cursor.spelling].append(
-                    Symbol(cursor.spelling, 'function', line, context, cursor.kind)
-                )
-                
-            elif cursor.kind == CursorKind.VAR_DECL:
-                if cursor.storage_class in {clang.cindex.StorageClass.EXTERN, clang.cindex.StorageClass.STATIC}:
-                    source_file.add_definition(cursor.spelling, 'variable', line, context, cursor.kind)
-                    self.symbol_definitions[cursor.spelling].append(
-                        Symbol(cursor.spelling, 'variable', line, context, cursor.kind)
-                    )
-                
-            elif cursor.kind == CursorKind.MACRO_DEFINITION:
-                source_file.add_definition(cursor.spelling, 'macro', line, context, cursor.kind)
-                self.symbol_definitions[cursor.spelling].append(
-                    Symbol(cursor.spelling, 'macro', line, context, cursor.kind)
-                )
-        
+        """Analizza le definizioni usando il cursore di libclang.
+
+        Supporta:
+        - Typedef e tipi base
+        - Struct/Union/Class
+        - Enum e costanti enum
+        - Funzioni e prototipi
+        - Variabili globali/static
+        - Macro
+        - Template
+        - Namespace
+        """
+        if not (cursor.location.file and Path(cursor.location.file.name) == source_file.path):
+            return
+
+        line = cursor.location.line
+        context = self._get_context(source_file.raw_content, line)
+
+        # Dizionario per mappare i tipi di cursore al tipo di simbolo
+        cursor_type_map = {
+            CursorKind.TYPEDEF_DECL: 'typedef',
+            CursorKind.STRUCT_DECL: 'struct',
+            CursorKind.UNION_DECL: 'union',
+            CursorKind.CLASS_DECL: 'class',
+            CursorKind.CLASS_TEMPLATE: 'class_template',
+            CursorKind.ENUM_DECL: 'enum',
+            CursorKind.FUNCTION_DECL: 'function',
+            CursorKind.FUNCTION_TEMPLATE: 'function_template',
+            CursorKind.VAR_DECL: 'variable',
+            CursorKind.FIELD_DECL: 'field',
+            CursorKind.MACRO_DEFINITION: 'macro',
+            CursorKind.NAMESPACE: 'namespace',
+            CursorKind.CONSTRUCTOR: 'constructor',
+            CursorKind.DESTRUCTOR: 'destructor',
+            CursorKind.METHOD_DECL: 'method',
+            CursorKind.CONVERSION_FUNCTION: 'conversion',
+            CursorKind.ENUM_CONSTANT_DECL: 'enum_constant'
+        }
+
+        def get_full_name(cursor):
+            """Ottiene il nome completo includendo il namespace/classe padre."""
+            parts = []
+            current = cursor
+            while current and current.kind != CursorKind.TRANSLATION_UNIT:
+                if current.spelling:
+                    parts.append(current.spelling)
+                current = current.semantic_parent
+            return '::'.join(reversed(parts))
+
+        def get_template_params(cursor):
+            """Estrae i parametri template se presenti."""
+            template_params = []
+            if cursor.kind in {CursorKind.CLASS_TEMPLATE, CursorKind.FUNCTION_TEMPLATE}:
+                for child in cursor.get_children():
+                    if child.kind == CursorKind.TEMPLATE_TYPE_PARAMETER:
+                        template_params.append(child.spelling or 'typename')
+                    elif child.kind == CursorKind.TEMPLATE_NON_TYPE_PARAMETER:
+                        template_params.append(f"{child.type.spelling} {child.spelling}")
+            return '<' + ', '.join(template_params) + '>' if template_params else ''
+
+        def process_symbol(cursor, symbol_type):
+            """Processa un simbolo e lo aggiunge alle definizioni."""
+            full_name = get_full_name(cursor)
+            template_params = get_template_params(cursor)
+
+            # Gestione speciale per i membri di struct/class
+            access_specifier = None
+            if cursor.kind in {CursorKind.FIELD_DECL, CursorKind.METHOD_DECL}:
+                access_specifier = cursor.access_specifier.name.lower()
+
+            # Aggiunta metadati extra
+            metadata = {
+                'template_params': template_params,
+                'access': access_specifier,
+                'storage_class': cursor.storage_class.name if hasattr(cursor, 'storage_class') else None,
+                'is_virtual': cursor.is_virtual_method() if hasattr(cursor, 'is_virtual_method') else False,
+                'is_pure_virtual': cursor.is_pure_virtual_method() if hasattr(cursor,
+                                                                              'is_pure_virtual_method') else False,
+                'return_type': cursor.result_type.spelling if hasattr(cursor, 'result_type') else None
+            }
+
+            symbol = Symbol(
+                name=full_name,
+                symbol_type=symbol_type,
+                line=line,
+                context=context,
+                cursor_kind=cursor.kind,
+                metadata=metadata
+            )
+
+            source_file.add_definition(full_name, symbol_type, line, context, cursor.kind, metadata)
+            self.symbol_definitions[full_name].append(symbol)
+
+        # Processa il cursore corrente
+        if cursor.kind in cursor_type_map:
+            symbol_type = cursor_type_map[cursor.kind]
+
+            # Gestione speciale per le variabili
+            if cursor.kind == CursorKind.VAR_DECL:
+                if cursor.storage_class in {
+                    clang.StorageClass.EXTERN,
+                    clang.StorageClass.STATIC,
+                    clang.StorageClass.NONE  # Per variabili globali
+                }:
+                    process_symbol(cursor, symbol_type)
+            else:
+                process_symbol(cursor, symbol_type)
+
+        # Analisi ricorsiva dei figli
         for child in cursor.get_children():
             self._analyze_definitions(child, source_file)
-    
+
+    ####
+
     def _analyze_usages(self, cursor, source_file: SourceFile):
-        """Analizza gli usi dei simboli usando il cursore di libclang."""
-        if cursor.location.file and Path(cursor.location.file.name) == source_file.path:
-            line = cursor.location.line
-            context = self._get_context(source_file.raw_content, line)
-            
-            if cursor.referenced and cursor.referenced.spelling:
-                ref_kind = cursor.referenced.kind
-                symbol_name = cursor.referenced.spelling
-                
-                # Verifica che non sia una definizione
-                is_definition = any(
-                    d.line == line and d.name == symbol_name 
+        """Analizza gli usi dei simboli usando il cursore di libclang.
+
+        Traccia:
+        - Utilizzo di tipi (inclusi template)
+        - Chiamate a funzioni/metodi
+        - Accesso a variabili/membri
+        - Utilizzo di macro
+        - Riferimenti a namespace
+        - Specializzazioni template
+        """
+        if not (cursor.location.file and Path(cursor.location.file.name) == source_file.path):
+            return
+
+        line = cursor.location.line
+        context = self._get_context(source_file.raw_content, line)
+
+        def get_template_specialization(cursor):
+            """Estrae informazioni sulla specializzazione template."""
+            if cursor.kind == CursorKind.TEMPLATE_REF:
+                spec_args = []
+                for arg in cursor.get_specialization_args():
+                    if arg.kind == CursorKind.TYPE:
+                        spec_args.append(arg.spelling)
+                    elif arg.kind == CursorKind.LITERAL:
+                        spec_args.append(str(arg.literal))
+                return '<' + ', '.join(spec_args) + '>' if spec_args else ''
+            return ''
+
+        def get_full_symbol_name(cursor):
+            """Ottiene il nome completo del simbolo inclusi namespace e template."""
+            if not cursor:
+                return None
+
+            name_parts = []
+            current = cursor
+
+            # Risali la catena dei genitori per costruire il nome completo
+            while current and current.kind != CursorKind.TRANSLATION_UNIT:
+                if current.spelling:
+                    # Gestisci specializzazioni template
+                    if current.kind == CursorKind.CLASS_TEMPLATE_PARTIAL_SPECIALIZATION:
+                        spec = get_template_specialization(current)
+                        name_parts.append(current.spelling + spec)
+                    else:
+                        name_parts.append(current.spelling)
+                current = current.semantic_parent
+
+            return '::'.join(reversed(name_parts)) if name_parts else None
+
+        def create_usage_metadata(cursor, referenced):
+            """Crea metadati dettagliati per l'utilizzo."""
+            metadata = {
+                'is_declaration': cursor.is_declaration(),
+                'is_definition': cursor.is_definition(),
+                'is_reference': cursor.is_reference(),
+                'is_expression': cursor.is_expression(),
+                'is_statement': cursor.is_statement(),
+                'access_specifier': cursor.access_specifier.name.lower() if hasattr(cursor,
+                                                                                    'access_specifier') else None,
+                'storage_class': referenced.storage_class.name if hasattr(referenced, 'storage_class') else None,
+                'is_virtual_method': referenced.is_virtual_method() if hasattr(referenced,
+                                                                               'is_virtual_method') else False,
+                'containing_function': None,
+                'template_args': get_template_specialization(cursor),
+                'type_info': cursor.type.spelling if hasattr(cursor, 'type') else None
+            }
+
+            # Trova la funzione contenitore
+            current = cursor
+            while current and current.kind != CursorKind.TRANSLATION_UNIT:
+                if current.kind in {CursorKind.FUNCTION_DECL, CursorKind.METHOD_DECL,
+                                    CursorKind.CONSTRUCTOR, CursorKind.DESTRUCTOR}:
+                    metadata['containing_function'] = current.spelling
+                    break
+                current = current.semantic_parent
+
+            return metadata
+
+        # Analizza il cursore corrente
+        if cursor.referenced and cursor.referenced.spelling:
+            referenced = cursor.referenced
+            symbol_name = get_full_symbol_name(referenced)
+
+            if symbol_name:
+                # Verifica che non sia una definizione già tracciata
+                is_tracked_definition = any(
+                    d.line == line and d.name == symbol_name
                     for d in source_file.definitions
                 )
-                
-                if not is_definition:
-                    kind = self._get_symbol_kind(ref_kind)
+
+                if not is_tracked_definition:
+                    kind = self._get_symbol_kind(referenced.kind)
                     if kind:
-                        source_file.add_usage(symbol_name, kind, line, context, ref_kind)
-                        self.symbol_usages[symbol_name].append(
-                            (source_file.path, Symbol(symbol_name, kind, line, context, ref_kind))
+                        metadata = create_usage_metadata(cursor, referenced)
+                        usage_symbol = Symbol(
+                            name=symbol_name,
+                            symbol_type=kind,
+                            line=line,
+                            context=context,
+                            cursor_kind=referenced.kind,
+                            metadata=metadata
                         )
-        
+
+                        source_file.add_usage(symbol_name, kind, line, context, referenced.kind, metadata)
+                        self.symbol_usages[symbol_name].append((source_file.path, usage_symbol))
+
+        # Analisi ricorsiva
         for child in cursor.get_children():
             self._analyze_usages(child, source_file)
-    
+
     def _get_symbol_kind(self, cursor_kind: CursorKind) -> Optional[str]:
         """Converte il tipo di cursore in un tipo di simbolo."""
-        if cursor_kind in {CursorKind.TYPEDEF_DECL, CursorKind.STRUCT_DECL, 
-                          CursorKind.CLASS_DECL, CursorKind.ENUM_DECL}:
-            return 'type'
-        elif cursor_kind == CursorKind.FUNCTION_DECL:
-            return 'function'
-        elif cursor_kind == CursorKind.VAR_DECL:
-            return 'variable'
-        elif cursor_kind == CursorKind.MACRO_DEFINITION:
-            return 'macro'
-        return None
-    
+        symbol_kind_map = {
+            # Tipi base
+            CursorKind.TYPEDEF_DECL: 'typedef',
+            CursorKind.TYPE_REF: 'type',
+            CursorKind.STRUCT_DECL: 'struct',
+            CursorKind.UNION_DECL: 'union',
+            CursorKind.CLASS_DECL: 'class',
+            CursorKind.ENUM_DECL: 'enum',
+
+            # Template
+            CursorKind.CLASS_TEMPLATE: 'class_template',
+            CursorKind.CLASS_TEMPLATE_PARTIAL_SPECIALIZATION: 'class_template_spec',
+            CursorKind.FUNCTION_TEMPLATE: 'function_template',
+            CursorKind.TEMPLATE_REF: 'template',
+
+            # Funzioni e metodi
+            CursorKind.FUNCTION_DECL: 'function',
+            CursorKind.METHOD_DECL: 'method',
+            CursorKind.CONSTRUCTOR: 'constructor',
+            CursorKind.DESTRUCTOR: 'destructor',
+            CursorKind.CONVERSION_FUNCTION: 'conversion',
+
+            # Variabili e membri
+            CursorKind.VAR_DECL: 'variable',
+            CursorKind.FIELD_DECL: 'field',
+            CursorKind.ENUM_CONSTANT_DECL: 'enum_constant',
+
+            # Altri
+            CursorKind.MACRO_DEFINITION: 'macro',
+            CursorKind.NAMESPACE: 'namespace',
+            CursorKind.NAMESPACE_REF: 'namespace',
+            CursorKind.MEMBER_REF: 'member',
+            CursorKind.MEMBER_REF_EXPR: 'member',
+            CursorKind.DECL_REF_EXPR: 'reference',
+        }
+
+        return symbol_kind_map.get(cursor_kind)
+
     def _get_context(self, content: str, line: int, context_size: int = 50) -> str:
         """Estrae il contesto attorno a una linea specifica."""
         lines = content.splitlines()
