@@ -3,70 +3,97 @@ from datetime import datetime, date
 from decimal import Decimal
 from uuid import UUID
 from pathlib import Path
+from typing import Any, Union, Dict, List, Set
 
 
-def custom_json_serializer(obj):
+class JSONSerializationError(TypeError):
+    """Eccezione personalizzata per errori di serializzazione JSON"""
+    pass
+
+
+class CustomJSONSerializer:
     """
-    Converte un oggetto Python in una struttura JSON serializzabile.
-    Gestisce tipi speciali come set, datetime, Decimal, UUID, Path, etc.
-    Converte anche le chiavi non serializzabili in stringhe.
-
-    Args:
-        obj: L'oggetto da serializzare
-
-    Returns:
-        str: Stringa JSON dell'oggetto serializzato
+    Classe per la serializzazione JSON di oggetti Python con tipi complessi.
+    Supporta la serializzazione di set, datetime, Decimal, UUID, Path e oggetti custom.
     """
 
-    def convert_key(key):
-        # Converti le chiavi non serializzabili in stringhe
-        if isinstance(key, Path):
-            return str(key)
-        if isinstance(key, (datetime, date)):
-            return key.isoformat()
-        if isinstance(key, (Decimal, UUID)):
+    @staticmethod
+    def _convert_key(key: Any) -> str:
+        """Converte le chiavi non serializzabili in stringhe."""
+        if isinstance(key, (Path, datetime, date, Decimal, UUID)):
             return str(key)
         return key
 
-    def serialize_object(obj):
-        # Gestione dizionari con chiavi non serializzabili
+    @classmethod
+    def _serialize_object(cls, obj: Any) -> Union[Dict, List, str, Any]:
+        """Serializza un oggetto Python in un formato JSON compatibile."""
+
+        # Gestione tipi base
+        if obj is None or isinstance(obj, (bool, int, float, str)):
+            return obj
+
+        # Gestione dizionari
         if isinstance(obj, dict):
-            return {convert_key(k): serialize_object(v) for k, v in obj.items()}
+            return {
+                cls._convert_key(k): cls._serialize_object(v)
+                for k, v in obj.items()
+            }
 
-        # Gestione set
+        # Gestione collezioni
+        if isinstance(obj, (list, tuple)):
+            return [cls._serialize_object(item) for item in obj]
         if isinstance(obj, set):
-            return list(obj)
+            return [cls._serialize_object(item) for item in sorted(obj)]
 
-        # Gestione datetime e date
+        # Gestione tipi speciali
         if isinstance(obj, (datetime, date)):
             return obj.isoformat()
-
-        # Gestione Decimal
         if isinstance(obj, Decimal):
             return str(obj)
-
-        # Gestione UUID
         if isinstance(obj, UUID):
             return str(obj)
-
-        # Gestione Path
         if isinstance(obj, Path):
             return str(obj)
 
-        # Gestione oggetti custom con __dict__
+        # Gestione oggetti custom
+        if hasattr(obj, 'to_json'):
+            return cls._serialize_object(obj.to_json())
         if hasattr(obj, '__dict__'):
-            return serialize_object(obj.__dict__)
+            return cls._serialize_object(obj.__dict__)
 
         # Gestione iterabili custom
         try:
             if hasattr(obj, '__iter__') and not isinstance(obj, (str, bytes, bytearray)):
-                return [serialize_object(item) for item in obj]
-        except:
+                return [cls._serialize_object(item) for item in obj]
+        except Exception:
             pass
 
-        return obj
+        raise JSONSerializationError(
+            f"Impossibile serializzare oggetto di tipo {type(obj).__name__}"
+        )
 
-    try:
-        return json.dumps(serialize_object(obj), ensure_ascii=False)
-    except TypeError as e:
-        raise TypeError(f'Oggetto non serializzabile: {str(e)}')
+    @classmethod
+    def dumps(cls, obj: Any, **kwargs) -> str:
+        """
+        Serializza un oggetto Python in una stringa JSON.
+
+        Args:
+            obj: L'oggetto da serializzare
+            **kwargs: Argomenti opzionali da passare a json.dumps
+
+        Returns:
+            str: Stringa JSON dell'oggetto serializzato
+
+        Raises:
+            JSONSerializationError: Se l'oggetto non può essere serializzato
+        """
+        try:
+            serialized = cls._serialize_object(obj)
+            return json.dumps(serialized, ensure_ascii=False, **kwargs)
+        except Exception as e:
+            raise JSONSerializationError(f"Errore di serializzazione: {str(e)}")
+
+
+def custom_json_serializer(obj: Any, **kwargs) -> str:
+    """Funzione di utilità per serializzare oggetti Python in JSON."""
+    return CustomJSONSerializer.dumps(obj, **kwargs)
