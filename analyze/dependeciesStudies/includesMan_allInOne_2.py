@@ -9,6 +9,8 @@ import sys
 from clang.cindex import Index, CursorKind, Config
 import clang.cindex
 
+from checkCircularDeps import *
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -244,3 +246,18 @@ class SourceAnalyzer:
             "symbol_definitions": self.symbol_definitions,
             "symbol_usages": self.symbol_usages
         }
+
+    def calculateCircularDeps(self):
+
+        optimizer = HeaderDependencyOptimizer(self.files)
+
+        # Ottimizza gli include
+        optimized = optimizer.generate_include_statements()
+
+        # Verifica eventuali dipendenze circolari
+        circular = optimizer.check_circular_dependencies()
+
+        # Stampa i risultati
+        for file_name, includes in optimized.items():
+            print(f"\n{file_name}:")
+            print(includes)
