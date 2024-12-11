@@ -69,6 +69,8 @@ def main():
 
         result = analyzer.output()
 
+        result['deps'] = analyzer.calculateCircularDeps()
+
     # Salva l'oggetto come JSON nel file "result.json"
     saveTo = "result_includeManager.json"
     print("Saving result in: ", saveTo)

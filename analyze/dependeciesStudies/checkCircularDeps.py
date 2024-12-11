@@ -1,17 +1,69 @@
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List, Set, Tuple, Union, Any
 from dataclasses import dataclass
+from pathlib import Path
+from dataclasses import is_dataclass, asdict
 
+def convert_paths_to_strings(data: Union[Dict, Any]) -> Union[Dict, Any]:
+    """
+    Converte ricorsivamente tutti gli oggetti Path in stringhe all'interno di un dizionario,
+    dei suoi sotto-dizionari e degli oggetti.
+
+    Args:
+        data: Un dizionario, un oggetto o un qualsiasi altro tipo di dato
+
+    Returns:
+        L'oggetto con tutti i Path convertiti in stringhe
+    """
+    # Se è un Path, convertilo in stringa
+    if isinstance(data, Path):
+        return str(data)
+
+    # Se è un dizionario, elabora ricorsivamente ogni elemento
+    if isinstance(data, dict):
+        return {
+            convert_paths_to_strings(key): convert_paths_to_strings(value)
+            for key, value in data.items()
+        }
+
+    # Se è una lista o una tupla, elabora ricorsivamente ogni elemento
+    if isinstance(data, (list, tuple)):
+        return type(data)(convert_paths_to_strings(item) for item in data)
+
+    # Se è un dataclass, convertilo in dizionario e poi elaboralo
+    if is_dataclass(data):
+        return convert_paths_to_strings(asdict(data))
+
+    # Se è un oggetto generico con __dict__, elabora i suoi attributi
+    if hasattr(data, '__dict__'):
+        # Creiamo una copia dell'oggetto per non modificare l'originale
+        import copy
+        obj_copy = copy.copy(data)
+
+        # Convertiamo gli attributi
+        for key, value in vars(data).items():
+            setattr(obj_copy, key, convert_paths_to_strings(value))
+        return obj_copy
+
+    # Per tutti gli altri tipi di dati, restituisci il valore invariato
+    return data
 
 @dataclass
 class FileInfo:
     includes: List[str]
-    # Altri campi potrebbero essere aggiunti qui, come simboli_definiti, simboli_usati, etc.
+
+
+class SelfInclusionError(Exception):
+    def __init__(self, file: str):
+        self.file = file
+        super().__init__(f"Self-inclusion detected in file: {file}")
+
 
 class CircularDependencyError(Exception):
-    def __init__(self, cycle: Tuple[str, ...]):
+    def __init__(self, cycle: List[str]):
         self.cycle = cycle
         cycle_str = " -> ".join(cycle)
         super().__init__(f"Trovata dipendenza circolare: {cycle_str}")
+
 
 class HeaderDependencyOptimizer:
     def __init__(self, files: Dict[str, FileInfo]):
@@ -19,11 +71,24 @@ class HeaderDependencyOptimizer:
         self.dependency_graph: Dict[str, Set[str]] = {}
         self.optimized_includes: Dict[str, List[str]] = {}
 
+    def check_self_inclusions(self):
+        """Verifica la presenza di auto-inclusioni nei file."""
+        for file_name, file_info in self.files.items():
+            if file_name in file_info['includes']:
+                #raise SelfInclusionError(file_name)
+                file_info['includes'].remove(file_name)
+
     def build_dependency_graph(self):
         """Costruisce il grafo delle dipendenze dirette e transitive."""
-        # Inizializza il grafo con le dipendenze dirette
+        # Prima verifichiamo le auto-inclusioni
+        self.check_self_inclusions()
+
+        # Inizializza il grafo con le dipendenze dirette, escludendo auto-inclusioni
         for file_name, file_info in self.files.items():
-            self.dependency_graph[file_name] = set(file_info.includes)
+            self.dependency_graph[file_name] = {
+                inc for inc in file_info['includes']
+                if inc != file_name  # Escludiamo esplicitamente le auto-inclusioni
+            }
 
         # Calcola le dipendenze transitive
         changed = True
@@ -33,14 +98,13 @@ class HeaderDependencyOptimizer:
                 current_deps = self.dependency_graph[file_name].copy()
                 for dep in current_deps:
                     if dep in self.dependency_graph:
-                        # Non includiamo le dipendenze che ci includono
                         if file_name not in self.dependency_graph[dep]:
                             new_deps = self.dependency_graph[dep] - current_deps
                             if new_deps:
                                 self.dependency_graph[file_name].update(new_deps)
                                 changed = True
 
-    def check_circular_dependencies(self) -> List[Tuple[str, ...]]:
+    def check_circular_dependencies(self) -> List[List[str]]:
         """Identifica eventuali dipendenze circolari."""
         circular_deps = []
         visited = set()
@@ -48,14 +112,17 @@ class HeaderDependencyOptimizer:
         def dfs(file: str, path: List[str]):
             if file in path:
                 cycle_start = path.index(file)
-                circular_deps.append(tuple(path[cycle_start:] + [file]))
+                cycle = path[cycle_start:]
+                cycle.append(file)
+                circular_deps.append(cycle)
                 return
 
             path.append(file)
             if file in self.dependency_graph:
                 for dep in self.dependency_graph[file]:
                     if dep not in visited:
-                        dfs(dep, path.copy())
+                        new_path = path.copy()
+                        dfs(dep, new_path)
             visited.add(file)
 
         for file in self.files:
@@ -65,55 +132,42 @@ class HeaderDependencyOptimizer:
         return circular_deps
 
     def optimize_includes(self, break_cycles: bool = False) -> Dict[str, List[str]]:
-        """
-        Ottimizza gli #include per ogni file.
+        """Ottimizza gli #include per ogni file."""
+        try:
+            self.build_dependency_graph()
+        except SelfInclusionError as e:
+            print(f"ERRORE: {e}")
+            print("Rimuovo l'auto-inclusione e continuo...")
+            # Rimuovi l'auto-inclusione dal file originale
+            self.files[e.file]['includes'] = [
+                inc for inc in self.files[e.file]['includes']
+                if inc != e.file
+            ]
+            # Ricostruisci il grafo
+            self.build_dependency_graph()
 
-        Args:
-            break_cycles: Se True, tenta di risolvere le dipendenze circolari rimuovendo
-                        l'inclusione meno necessaria. Se False, solleva un'eccezione.
-
-        Raises:
-            CircularDependencyError: Se vengono trovate dipendenze circolari e break_cycles è False.
-        """
-        self.build_dependency_graph()
-
-        # Controlla le dipendenze circolari
         circular_deps = self.check_circular_dependencies()
         if circular_deps:
             if not break_cycles:
                 raise CircularDependencyError(circular_deps[0])
             else:
-                # Rompi i cicli rimuovendo la dipendenza meno necessaria
                 for cycle in circular_deps:
-                    # Per semplicità, rimuoviamo l'ultima dipendenza nel ciclo
-                    # In un caso reale, potremmo usare euristiche più sofisticate
                     source = cycle[-2]
                     target = cycle[-1]
                     self.dependency_graph[source].remove(target)
                     print(f"WARNING: Rotto il ciclo rimuovendo la dipendenza {source} -> {target}")
 
         for file_name, file_info in self.files.items():
-            # Inizia con tutte le dipendenze dirette
-            necessary_includes = set(file_info.includes)
-
-            # Rimuovi le inclusioni ridondanti
-            for include in file_info.includes:
-                if include in self.dependency_graph:
+            necessary_includes = set(inc for inc in file_info['includes'] if inc != file_name)
+            for include in file_info['includes']:
+                if include in self.dependency_graph and include != file_name:
                     necessary_includes -= self.dependency_graph[include]
-
-            # Ordina gli include per leggibilità
             self.optimized_includes[file_name] = sorted(list(necessary_includes))
 
         return self.optimized_includes
 
     def generate_include_statements(self, break_cycles: bool = False) -> Dict[str, str]:
-        """
-        Genera gli statement #include formattati per ogni file.
-
-        Args:
-            break_cycles: Se True, tenta di risolvere le dipendenze circolari rimuovendo
-                        l'inclusione meno necessaria. Se False, solleva un'eccezione.
-        """
+        """Genera gli statement #include formattati per ogni file."""
         self.optimize_includes(break_cycles)
         include_statements = {}
 
@@ -125,6 +179,7 @@ class HeaderDependencyOptimizer:
             include_statements[file_name] = '\n'.join(statements)
 
         return include_statements
+
 
 '''
 # Esempio di utilizzo

@@ -249,15 +249,19 @@ class SourceAnalyzer:
 
     def calculateCircularDeps(self):
 
-        optimizer = HeaderDependencyOptimizer(self.files)
+        files = convert_paths_to_strings(self.files)
+        optimizer = HeaderDependencyOptimizer(files)
 
-        # Ottimizza gli include
-        optimized = optimizer.generate_include_statements()
-
-        # Verifica eventuali dipendenze circolari
-        circular = optimizer.check_circular_dependencies()
+        optimized = {}
+        try:
+            optimized = optimizer.generate_include_statements(break_cycles=True)
+        except CircularDependencyError as e:
+            raise e
+            print(f"Errore: {e}")
 
         # Stampa i risultati
         for file_name, includes in optimized.items():
             print(f"\n{file_name}:")
             print(includes)
+
+        return optimized
