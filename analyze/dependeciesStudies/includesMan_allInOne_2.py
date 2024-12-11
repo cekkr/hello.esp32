@@ -440,36 +440,6 @@ class SourceAnalyzer:
             CursorKind.ENUM_CONSTANT_DECL: 'enum_constant'
         }
 
-        def process_symbol(cursor, symbol_type):
-            full_name = get_full_name(cursor)
-            template_params = get_template_params(cursor)
-
-            access_specifier = None
-            if cursor.kind in {CursorKind.FIELD_DECL, CursorKind.METHOD_DECL}:
-                access_specifier = cursor.access_specifier.name.lower()
-
-            metadata = {
-                'template_params': template_params,
-                'access': access_specifier,
-                'storage_class': cursor.storage_class.name if hasattr(cursor, 'storage_class') else None,
-                'is_virtual': cursor.is_virtual_method() if hasattr(cursor, 'is_virtual_method') else False,
-                'is_pure_virtual': cursor.is_pure_virtual_method() if hasattr(cursor,
-                                                                              'is_pure_virtual_method') else False,
-                'return_type': cursor.result_type.spelling if hasattr(cursor, 'result_type') else None
-            }
-
-            symbol = Symbol(
-                name=full_name,
-                symbol_type=symbol_type,
-                line=line,
-                context=context,
-                cursor_kind=cursor.kind,
-                metadata=metadata
-            )
-
-            source_file.add_definition(full_name, symbol_type, line, context, cursor.kind, metadata)
-            self.symbol_definitions[full_name].append(symbol)
-
         # Processa il cursore corrente
         if cursor.kind in cursor_type_map:
             symbol_type = cursor_type_map[cursor.kind]
@@ -480,13 +450,123 @@ class SourceAnalyzer:
                     clang.cindex.StorageClass.STATIC,
                     clang.cindex.StorageClass.NONE
                 }:
-                    process_symbol(cursor, symbol_type)
+                    self.process_symbol(cursor, symbol_type, source_file, line, context)
             else:
-                process_symbol(cursor, symbol_type)
+                self.process_symbol(cursor, symbol_type, source_file, line, context)
 
         # Analisi ricorsiva dei figli
         for child in cursor.get_children():
             self._analyze_definitions(child, source_file)
+
+    def process_symbol(self, cursor, symbol_type: str, source_file: SourceFile, line: int, context: str) -> Symbol:
+        """
+        Processa un simbolo e lo aggiunge alle definizioni.
+
+        Args:
+            cursor: Cursore libclang che punta al simbolo
+            symbol_type: Tipo del simbolo (function, class, etc.)
+            source_file: File sorgente contenente il simbolo
+            line: Numero di riga del simbolo
+            context: Contesto del codice
+
+        Returns:
+            Symbol: Il simbolo processato
+        """
+        full_name = get_full_name(cursor)
+        template_params = get_template_params(cursor)
+
+        # Controlla se il simbolo è un membro di una classe/struttura
+        access_specifier = None
+        if cursor.kind in {CursorKind.FIELD_DECL, CursorKind.METHOD_DECL}:
+            access_specifier = cursor.access_specifier.name.lower()
+
+        # Raccoglie tutti i metadati del simbolo
+        metadata = {
+            'template_params': template_params,
+            'access': access_specifier,
+            'storage_class': cursor.storage_class.name if hasattr(cursor, 'storage_class') else None,
+            'is_virtual': cursor.is_virtual_method() if hasattr(cursor, 'is_virtual_method') else False,
+            'is_pure_virtual': cursor.is_pure_virtual_method() if hasattr(cursor,
+                                                                          'is_pure_virtual_method') else False,
+            'return_type': cursor.result_type.spelling if hasattr(cursor, 'result_type') else None,
+            'location': {
+                'is_internal': True,  # Il simbolo è definito in questo file
+                'declaration_file': str(source_file.path),
+                'definition_file': str(source_file.path)
+            }
+        }
+
+        # Crea il simbolo
+        symbol = Symbol(
+            name=full_name,
+            symbol_type=symbol_type,
+            line=line,
+            context=context,
+            cursor_kind=cursor.kind,
+            metadata=metadata
+        )
+
+        # Aggiunge il simbolo alle definizioni del file e globali
+        source_file.add_definition(full_name, symbol_type, line, context, cursor.kind, metadata)
+        self.symbol_definitions[full_name].append(symbol)
+
+        return symbol
+
+    '''
+     def process_symbol(self, cursor, symbol_type: str, source_file: SourceFile, line: int, context: str) -> Symbol:
+        """
+        Processa un simbolo e lo aggiunge alle definizioni.
+
+        Args:
+            cursor: Cursore libclang che punta al simbolo
+            symbol_type: Tipo del simbolo (function, class, etc.)
+            source_file: File sorgente contenente il simbolo
+            line: Numero di riga del simbolo
+            context: Contesto del codice
+
+        Returns:
+            Symbol: Il simbolo processato
+        """
+        full_name = get_full_name(cursor)
+        template_params = get_template_params(cursor)
+
+        # Controlla se il simbolo è un membro di una classe/struttura
+        access_specifier = None
+        if cursor.kind in {CursorKind.FIELD_DECL, CursorKind.METHOD_DECL}:
+            access_specifier = cursor.access_specifier.name.lower()
+
+        # Raccoglie tutti i metadati del simbolo
+        metadata = {
+            'template_params': template_params,
+            'access': access_specifier,
+            'storage_class': cursor.storage_class.name if hasattr(cursor, 'storage_class') else None,
+            'is_virtual': cursor.is_virtual_method() if hasattr(cursor, 'is_virtual_method') else False,
+            'is_pure_virtual': cursor.is_pure_virtual_method() if hasattr(cursor,
+                                                                          'is_pure_virtual_method') else False,
+            'return_type': cursor.result_type.spelling if hasattr(cursor, 'result_type') else None,
+            'location': {
+                'is_internal': True,  # Il simbolo è definito in questo file
+                'declaration_file': str(source_file.path),
+                'definition_file': str(source_file.path)
+            }
+        }
+
+        # Crea il simbolo
+        symbol = Symbol(
+            name=full_name,
+            symbol_type=symbol_type,
+            line=line,
+            context=context,
+            cursor_kind=cursor.kind,
+            metadata=metadata
+        )
+
+        # Aggiunge il simbolo alle definizioni del file e globali
+        source_file.add_definition(full_name, symbol_type, line, context, cursor.kind, metadata)
+        self.symbol_definitions[full_name].append(symbol)
+
+        return symbol
+    '''
 
     def _analyze_usages(self, cursor, source_file: SourceFile):
         if not (cursor.location.file and Path(cursor.location.file.name) == source_file.path):
