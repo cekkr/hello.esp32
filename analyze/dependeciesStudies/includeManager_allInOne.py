@@ -17,6 +17,128 @@ from typing import NamedTuple, Optional, Dict, Any
 from clang.cindex import CursorKind
 
 
+def get_full_name(cursor) -> str:
+    """Ottiene il nome completo del simbolo includendo namespace, classe e template.
+
+    Args:
+        cursor: Cursore libclang che punta al simbolo
+
+    Returns:
+        str: Nome completo qualificato del simbolo
+    """
+
+    def _get_parent_context(cursor):
+        """Costruisce il contesto del genitore ricorsivamente."""
+        if cursor is None or cursor.kind == CursorKind.TRANSLATION_UNIT:
+            return []
+
+        # Ignora i contesti anonimi
+        if not cursor.spelling and cursor.kind in {
+            CursorKind.NAMESPACE,
+            CursorKind.STRUCT_DECL,
+            CursorKind.CLASS_DECL,
+            CursorKind.CLASS_TEMPLATE
+        }:
+            return _get_parent_context(cursor.semantic_parent)
+
+        return _get_parent_context(cursor.semantic_parent) + ([cursor.spelling] if cursor.spelling else [])
+
+    # Ottieni il contesto del genitore
+    parent_parts = _get_parent_context(cursor.semantic_parent)
+
+    # Gestisci il nome del simbolo corrente
+    current_name = cursor.spelling if cursor.spelling else ""
+
+    # Aggiungi specializzazione template se presente
+    if cursor.kind in {
+        CursorKind.CLASS_TEMPLATE_PARTIAL_SPECIALIZATION,
+        CursorKind.FUNCTION_TEMPLATE,
+        CursorKind.CLASS_TEMPLATE
+    }:
+        template_params = get_template_params(cursor)
+        if template_params:
+            current_name = f"{current_name}{template_params}"
+
+    # Combina il tutto
+    if parent_parts:
+        return "::".join(parent_parts + [current_name])
+    return current_name
+
+
+def get_template_params(cursor) -> str:
+    """Estrae e formatta i parametri template di un simbolo.
+
+    Args:
+        cursor: Cursore libclang che punta al simbolo
+
+    Returns:
+        str: Stringa formattata dei parametri template o stringa vuota se non presenti
+    """
+    if cursor.kind not in {
+        CursorKind.CLASS_TEMPLATE,
+        CursorKind.CLASS_TEMPLATE_PARTIAL_SPECIALIZATION,
+        CursorKind.FUNCTION_TEMPLATE
+    }:
+        return ""
+
+    template_params = []
+
+    def format_template_arg(arg):
+        """Formatta un singolo argomento template."""
+        if arg.kind == CursorKind.TEMPLATE_TYPE_PARAMETER:
+            # Gestisce parametri di tipo (typename/class)
+            name = arg.spelling or "typename"
+            if arg.default_type:
+                return f"{name} = {arg.default_type.spelling}"
+            return name
+
+        elif arg.kind == CursorKind.TEMPLATE_NON_TYPE_PARAMETER:
+            # Gestisce parametri non-tipo (e.g., int N)
+            param_type = arg.type.spelling
+            param_name = arg.spelling
+            if arg.default_value:
+                return f"{param_type} {param_name} = {arg.default_value}"
+            return f"{param_type} {param_name}"
+
+        elif arg.kind == CursorKind.TEMPLATE_TEMPLATE_PARAMETER:
+            # Gestisce parametri template-template
+            name = arg.spelling or "template"
+            inner_params = get_template_params(arg)
+            if arg.default_type:
+                return f"template {name}{inner_params} = {arg.default_type.spelling}"
+            return f"template {name}{inner_params}"
+
+        return str(arg.spelling)
+
+    def get_specialization_args(cursor):
+        """Ottiene gli argomenti di specializzazione per template parzialmente specializzati."""
+        if cursor.kind == CursorKind.CLASS_TEMPLATE_PARTIAL_SPECIALIZATION:
+            spec_args = []
+            for arg in cursor.get_specialization_args():
+                if arg.kind == CursorKind.TYPE:
+                    spec_args.append(arg.spelling)
+                elif arg.kind == CursorKind.LITERAL:
+                    spec_args.append(str(arg.literal))
+            return spec_args
+        return []
+
+    # Raccogli parametri template standard
+    for child in cursor.get_children():
+        if child.kind in {
+            CursorKind.TEMPLATE_TYPE_PARAMETER,
+            CursorKind.TEMPLATE_NON_TYPE_PARAMETER,
+            CursorKind.TEMPLATE_TEMPLATE_PARAMETER
+        }:
+            template_params.append(format_template_arg(child))
+
+    # Aggiungi argomenti di specializzazione se presenti
+    spec_args = get_specialization_args(cursor)
+    if spec_args:
+        return f"<{', '.join(spec_args)}>"
+
+    # Restituisci i parametri template standard
+    return f"<{', '.join(template_params)}>" if template_params else ""
+
 class Symbol(NamedTuple):
     """Rappresenta un simbolo definito nel codice sorgente.
 
@@ -769,6 +891,146 @@ class SourceAnalyzer:
                 return True
         
         return False
+
+    def analyze_symbol_locations(self):
+        """Analizza e stampa un report sulla locazione dei simboli."""
+        print("\nAnalisi della locazione dei simboli:")
+
+        for file_path, source_file in sorted(self.files.items()):
+            internal_symbols = []
+            project_symbols = []
+            external_symbols = []
+
+            for symbol in source_file.definitions:
+                location = symbol.metadata.get('symbol_location', {})
+                if location.get('is_internal'):
+                    internal_symbols.append(symbol)
+                elif location.get('is_project_local'):
+                    project_symbols.append(symbol)
+                elif location.get('is_external'):
+                    external_symbols.append(symbol)
+
+            if any([internal_symbols, project_symbols, external_symbols]):
+                rel_path = self._get_relative_path(file_path)
+                print(f"\n{rel_path}:")
+
+                if internal_symbols:
+                    print("  Simboli dichiarati internamente:")
+                    for sym in internal_symbols:
+                        print(f"    - {sym.kind} '{sym.name}' (linea {sym.line})")
+
+                if project_symbols:
+                    print("  Simboli del progetto:")
+                    for sym in project_symbols:
+                        location = sym.metadata['symbol_location']
+                        decl_file = location['declaration_file']
+                        print(f"    - {sym.kind} '{sym.name}' dichiarato in {decl_file}")
+
+                if external_symbols:
+                    print("  Simboli esterni:")
+                    for sym in external_symbols:
+                        location = sym.metadata['symbol_location']
+                        decl_file = location['declaration_file']
+                        print(f"    - {sym.kind} '{sym.name}' da {decl_file}")
+
+    def _analyze_symbol_location(self, cursor, source_file: SourceFile):
+        """Analizza se un simbolo è dichiarato internamente o esternamente."""
+        if not (cursor.location.file and Path(cursor.location.file.name) == source_file.path):
+            return
+
+        def determine_symbol_location(cursor) -> dict:
+            """Determina la locazione di un simbolo e raccoglie metadati sulla sua origine."""
+            location_info = {
+                'is_internal': False,  # Dichiarato in questo file
+                'is_project_local': False,  # Dichiarato in un altro file del progetto
+                'is_external': False,  # Dichiarato in un header di sistema/esterno
+                'declaration_file': None,  # Path del file di dichiarazione
+                'definition_file': None,  # Path del file di definizione
+                'is_forward_declared': False,  # Se è una forward declaration
+            }
+
+            # Ottieni la dichiarazione e definizione
+            declaration = cursor.get_definition() or cursor
+            definition = cursor.get_definition()
+
+            if declaration.location.file:
+                decl_path = Path(declaration.location.file.name)
+                location_info['declaration_file'] = decl_path
+
+                # Controlla se è una dichiarazione interna
+                if decl_path == source_file.path:
+                    location_info['is_internal'] = True
+                # Controlla se è nel progetto
+                elif any(decl_path.is_relative_to(p) for p in self.project_paths):
+                    location_info['is_project_local'] = True
+                else:
+                    location_info['is_external'] = True
+
+            # Controlla se è una forward declaration
+            if declaration != definition and definition:
+                location_info['is_forward_declared'] = True
+                if definition.location.file:
+                    location_info['definition_file'] = Path(definition.location.file.name)
+
+            return location_info
+
+        def update_symbol_metadata(symbol: Symbol, location_info: dict):
+            """Aggiorna i metadati del simbolo con le informazioni sulla locazione."""
+            metadata = symbol.metadata or {}
+            metadata.update({
+                'symbol_location': {
+                    'is_internal': location_info['is_internal'],
+                    'is_project_local': location_info['is_project_local'],
+                    'is_external': location_info['is_external'],
+                    'declaration_file': str(location_info['declaration_file']) if location_info[
+                        'declaration_file'] else None,
+                    'definition_file': str(location_info['definition_file']) if location_info[
+                        'definition_file'] else None,
+                    'is_forward_declared': location_info['is_forward_declared']
+                }
+            })
+            return metadata
+
+        # Aggiorna _analyze_definitions per includere le informazioni sulla locazione
+        def enhanced_process_symbol(cursor, symbol_type):
+            """Versione estesa di process_symbol che include informazioni sulla locazione."""
+            location_info = determine_symbol_location(cursor)
+            full_name = get_full_name(cursor)
+            template_params = get_template_params(cursor)
+
+            # Ottieni i metadati esistenti e aggiungi le informazioni sulla locazione
+            metadata = {
+                'template_params': template_params,
+                'access': cursor.access_specifier.name.lower() if hasattr(cursor, 'access_specifier') else None,
+                'storage_class': cursor.storage_class.name if hasattr(cursor, 'storage_class') else None,
+                'is_virtual': cursor.is_virtual_method() if hasattr(cursor, 'is_virtual_method') else False,
+                'is_pure_virtual': cursor.is_pure_virtual_method() if hasattr(cursor,
+                                                                              'is_pure_virtual_method') else False,
+                'return_type': cursor.result_type.spelling if hasattr(cursor, 'result_type') else None,
+            }
+
+            # Aggiorna con le informazioni sulla locazione
+            metadata = update_symbol_metadata(
+                Symbol(name=full_name, symbol_type=symbol_type, line=cursor.location.line,
+                       context="", cursor_kind=cursor.kind, metadata=metadata),
+                location_info
+            )
+
+            symbol = Symbol(
+                name=full_name,
+                symbol_type=symbol_type,
+                line=cursor.location.line,
+                context=self._get_context(source_file.raw_content, cursor.location.line),
+                cursor_kind=cursor.kind,
+                metadata=metadata
+            )
+
+            source_file.add_definition(full_name, symbol_type, cursor.location.line,
+                                       self._get_context(source_file.raw_content, cursor.location.line),
+                                       cursor.kind, metadata)
+            self.symbol_definitions[full_name].append(symbol)
+
+        return enhanced_process_symbol
 
 
 @dataclass

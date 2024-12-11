@@ -1,9 +1,9 @@
 from includeManager import *
 from geminiApi import *
 import json
-from optimizeIncludesFuncs import *
+#from optimizeIncludesFuncs import *
 #from includesManager2 import *
-from includeManager_allInOne import *
+from includesMan_allInOne_2 import *
 
 client = None
 
@@ -62,24 +62,12 @@ def main():
         print("\nOrdine include suggerito:")
         print(custom_json_serializer(result['include_orders']))
     else:
-        analyzer = SourceAnalyzer([project_paths])
+        project_path = "../../hello-idf/components/wasm3-helloesp/platforms/embedded/esp32-idf-wasi/wasm3/wasm3"
+        # Inizializza l'analizzatore
+        analyzer = SourceAnalyzer([project_path])
         analyzer.analyze()
-        
-        #result = optimize_includes(analyzer.files)
-        # Create resolver
-        resolver = ImprovedIncludeResolver(analyzer.files)
 
-        # Run analysis
-        resolver.analyze()
-
-        # Get comprehensive source analysis
-        sources = resolver.get_source_analysis()
-
-        # Verify includes
-        issues = resolver.verify_includes()
-
-        result['sources'] = sources 
-        result['issues'] = issues
+        result = analyzer.output()
 
     # Salva l'oggetto come JSON nel file "result.json"
     saveTo = "result_includeManager.json"
