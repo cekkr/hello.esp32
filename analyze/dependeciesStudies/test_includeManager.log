@@ -1,56 +1,7 @@
-Starting IncludeManager...
-GeminiClient loaded successfully
-
-Trovati 51 file sorgente nel progetto:
-  - wasm3/esp_try.h
-  - extensions/m3_extensions.c
-  - extensions/wasm3_ext.h
-  - extra/coremark_minimal.wasm.h
-  - extra/fib32.wasm.h
-  - extra/fib32_tail.wasm.h
-  - extra/fib64.wasm.h
-  - extra/wasi_core.h
-  - wasm3/m3_api_esp_wasi.c
-  - wasm3/m3_api_esp_wasi.h
-  - wasm3/m3_api_libc.c
-  - wasm3/m3_api_libc.h
-  - wasm3/m3_api_meta_wasi.c
-  - wasm3/m3_api_tracer.c
-  - wasm3/m3_api_tracer.h
-  - wasm3/m3_api_uvwasi.c
-  - wasm3/m3_api_wasi.c
-  - wasm3/m3_api_wasi.h
-  - wasm3/m3_bind.c
-  - wasm3/m3_bind.h
-  - wasm3/m3_code.c
-  - wasm3/m3_code.h
-  - wasm3/m3_compile.c
-  - wasm3/m3_compile.h
-  - wasm3/m3_config.h
-  - wasm3/m3_config_platforms.h
-  - wasm3/m3_core.c
-  - wasm3/m3_core.h
-  - wasm3/m3_env.c
-  - wasm3/m3_env.h
-  - wasm3/m3_exception.c
-  - wasm3/m3_exception.h
-  - wasm3/m3_exec.c
-  - wasm3/m3_exec.h
-  - wasm3/m3_exec_defs.h
-  - wasm3/m3_function.c
-  - wasm3/m3_function.h
-  - wasm3/m3_includes.h
-  - wasm3/m3_info.c
-  - wasm3/m3_info.h
-  - wasm3/m3_math_utils.h
-  - wasm3/m3_module.c
-  - wasm3/m3_module.h
-  - wasm3/m3_parse.c
-  - wasm3/m3_parse.h
-  - wasm3/m3_pointers.c
-  - wasm3/m3_pointers.h
-  - wasm3/m3_segmented_memory.c
-  - wasm3/m3_segmented_memory.h
-  - wasm3/wasm3.h
-  - wasm3/wasm3_defs.h
-Saving result in:  result_includeManager.json
+Traceback (most recent call last):
+  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/test_includeManager.py", line 6, in <module>
+    from includesMan_allInOne_2 import *
+  File "/Users/riccardo/Sources/GitHub/hello.esp32/analyze/dependeciesStudies/includesMan_allInOne_2.py", line 372
+    except Exception as e:
+    ^^^^^^
+SyntaxError: invalid syntax

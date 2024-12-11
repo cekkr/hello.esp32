@@ -369,13 +369,13 @@ class SourceAnalyzer:
                             raw_content=None,
                             is_header=is_header
                         )
-                        except Exception as e:
-                        logger.error(f"Errore durante la scansione di {path}: {e}")
+            except Exception as e:
+                logger.error(f"Errore durante la scansione di {path}: {e}")
 
-                logger.info(f"\nTrovati {len(found_files)} file sorgente nel progetto:")
-                for file_path in sorted(found_files):
-                    rel_path = self._get_relative_path(file_path)
-                    logger.info(f"  - {rel_path}")
+            logger.info(f"\nTrovati {len(found_files)} file sorgente nel progetto:")
+            for file_path in sorted(found_files):
+                rel_path = self._get_relative_path(file_path)
+                logger.info(f"  - {rel_path}")
 
     def _analyze_file(self, file_path: Path, first_pass: bool):
         """Analizza un singolo file usando libclang."""
