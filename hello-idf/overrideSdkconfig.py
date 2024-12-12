@@ -37,7 +37,10 @@ def modify_sdkconfig(sdkconfig_path):
         "CONFIG_ESP_TASK_WDT_CHECK_IDLE_TASK_CPU1": "y",
         "CONFIG_COMPILER_OPTIMIZATION_LEVEL_DEBUG": "y",
         "CONFIG_COMPILER_WARN_WRITE_STRINGS": "n",
-        "CONFIG_COMPILER_DISABLE_GCC8_WARNINGS": "y"
+        "CONFIG_COMPILER_DISABLE_GCC8_WARNINGS": "y",
+        "CONFIG_FATFS_LFN_STACK_BUFFER_SIZE":"256",
+        "CONFIG_FATFS_USE_LFN":"1",
+        "CONFIG_FATFS_MAX_LFN":"255"
     }
 
     # Leggi il file esistente

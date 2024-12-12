@@ -126,8 +126,9 @@ void init_sd_card() {
     ESP_LOGI(TAG, "\nMounting SD card...\n");
     esp_vfs_fat_sdmmc_mount_config_t mount_config = {
         .format_if_mount_failed = false,
-        .max_files = 16, // Il parametro max_files indica il numero massimo di file che possono essere aperti contemporaneamente, non il numero totale di file sulla SD card
-        .allocation_unit_size = 16 * 1024
+        .max_files = 16,
+        .allocation_unit_size = 16 * 1024,
+        .long_filename_support = true 
     };
 
     sdmmc_card_t *card;
@@ -208,6 +209,31 @@ void mostra_info_sd(const char* mount_point) {
 
     ESP_LOGI(TAG, "Output string_printf: %s\n", text);
     LCD_ShowString(10,40,WHITE,BLACK,12,"test output",0);
+}
+
+void list_files(const char* dirname) {
+    DIR *dir = opendir(dirname);
+    if (dir == NULL) {
+        ESP_LOGE(TAG, "Failed to open directory: %s", dirname);
+        return;
+    }
+
+    struct dirent *entry;
+    while ((entry = readdir(dir)) != NULL) {
+        ESP_LOGI(TAG, "Found file: %s", entry->d_name);
+        
+        // Per file che non sono directory
+        if (entry->d_type != DT_DIR) {
+            char fullpath[300];
+            snprintf(fullpath, sizeof(fullpath), "%s/%s", dirname, entry->d_name);
+            
+            struct stat st;
+            if (stat(fullpath, &st) == 0) {
+                ESP_LOGI(TAG, "  Size: %ld bytes", st.st_size);
+            }
+        }
+    }
+    closedir(dir);
 }
 
 #endif

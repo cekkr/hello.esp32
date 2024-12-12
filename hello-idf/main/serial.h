@@ -324,12 +324,12 @@ command_status_t wait_for_command(char* cmd_type, command_params_t* params) {
         //if (uart_read_bytes(UART_NUM_0, &c, 1, portMAX_DELAY) > 0) {
 
         if(incipit == 0){
-            if(c == 0xFF){
-                vTaskDelay(1);            
+            if(c == 0xFF || c == '\0' || c != '$'){
+                vTaskDelay(0.01);            
                 continue;
             }
             else if(c != '$'){
-                vTaskDelay(1);
+                vTaskDelay(0.01);
                 continue;
             }
         }
@@ -340,7 +340,7 @@ command_status_t wait_for_command(char* cmd_type, command_params_t* params) {
         
         if (incipit < 3 && length > 3){
             command_buffer[length] = '\0';
-            ESP_LOGI(TAG, "wait_for_command: RESET (%s)\n", command_buffer);
+            ESP_LOGI(TAG, "wait_for_command: reset (%s) (length: %d) (incipit: %d)\n", command_buffer, length, incipit);
             incipit = 0;
             length = 0;
             continue;

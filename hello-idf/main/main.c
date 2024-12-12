@@ -167,8 +167,8 @@ void init_uart() {
         .parity    = UART_PARITY_DISABLE,
         .stop_bits = UART_STOP_BITS_1,
         .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
-        .source_clk = UART_SCLK_REF_TICK,
-        .rx_flow_ctrl_thresh = 122
+        //.source_clk = UART_SCLK_REF_TICK,
+        //.rx_flow_ctrl_thresh = 122
     };
     
     // Configura la UART
@@ -201,16 +201,16 @@ void app_main(void) {
         //ESP_ERROR_CHECK(heap_trace_start(HEAP_TRACE_LEAKS));
     }
 
+    ESP_LOGI(TAG, "\nStarting SD card test...\n");
+    init_sd_card(); 
+
     // Inizializzazione della seriale
     init_uart();
 
 	// Avvia il thread di gestione seriale
     start_serial_handler();
 
-    //init_spi();
-
-    ESP_LOGI(TAG, "\nStarting SD card test...\n");
-    init_sd_card();  
+    //init_spi(); 
 
     ESP_LOGI(TAG, "Init TFT\n");
     init_tft();      
