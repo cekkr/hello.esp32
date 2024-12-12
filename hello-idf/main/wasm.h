@@ -34,7 +34,7 @@ m3_wasi_context_t* m3_GetWasiContext();
 */
 
 // Definizione della task e configurazione
-#define WASM_STACK_SIZE (64*1024)  // Esempio di dimensione stack
+#define WASM_STACK_SIZE (16*1024)  // Esempio di dimensione stack
 #define WASM_TASK_PRIORITY 5
 
 typedef struct {
