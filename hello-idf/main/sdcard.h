@@ -96,13 +96,13 @@ void init_sd_card() {
         .quadwp_io_num = -1,
         .quadhd_io_num = -1,
         .max_transfer_sz = 4000,
-        .flags = SPICOMMON_BUSFLAG_MASTER,
-                .flags = SPICOMMON_BUSFLAG_MASTER | 
-                SPICOMMON_BUSFLAG_GPIO_PINS |
-                SPICOMMON_BUSFLAG_SCLK |
-                SPICOMMON_BUSFLAG_MISO |
-                SPICOMMON_BUSFLAG_MOSI,
-        .intr_flags = ESP_INTR_FLAG_IRAM
+        .flags = 
+            SPICOMMON_BUSFLAG_MASTER | 
+            SPICOMMON_BUSFLAG_GPIO_PINS |
+            SPICOMMON_BUSFLAG_SCLK |
+            SPICOMMON_BUSFLAG_MISO |
+            SPICOMMON_BUSFLAG_MOSI,
+        .intr_flags =  ESP_INTR_FLAG_IRAM
     };
 
     // Inizializza il bus SPI con frequenza molto bassa
@@ -119,10 +119,7 @@ void init_sd_card() {
     host.slot = SPI2_HOST;
     host.max_freq_khz = 2000; // Ridotto a 400KHz per il debug
 
-    sdspi_device_config_t slot_config = SDSPI_SLOT_CONFIG_DEFAULT();
-    slot_config.gpio_miso = SD_MISO;
-    slot_config.gpio_mosi = SD_MOSI;
-    slot_config.gpio_sck  = SD_CS;
+    sdspi_device_config_t slot_config = SDSPI_DEVICE_CONFIG_DEFAULT();
     slot_config.gpio_cs   = SD_CS;
     slot_config.host_id = host.slot;
 
