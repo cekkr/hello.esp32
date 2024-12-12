@@ -37,7 +37,8 @@ cd "$CUR_DIR"
 #idf.py menuconfig
 
 #idf.py build #-DCMAKE_C_FLAGS="-H" 2>&1 | tee build_output.txt
-idf.py build -DCMAKE_BUILD_TYPE=Release
+#idf.py build -DCMAKE_BUILD_TYPE=Release
+idf.py build -DCMAKE_BUILD_TYPE=Release -DESP_SYSTEM_INIT_DEBUG_INFO=y
 
 #idf.py -p COM3 flash    # Windows
 #idf.py -p /dev/ttyUSB0 flash    # Linux
