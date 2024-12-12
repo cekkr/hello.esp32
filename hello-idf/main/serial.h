@@ -680,6 +680,8 @@ void serial_handler_task(void *pvParameters) {
    
             ESP_LOGI(TAG, "Directory permissions: %lo\n", st.st_mode & 0777);
 
+            list_files(SD_MOUNT_POINT);
+
             ////////////////////////////////
             DIR *dir;
             struct dirent *ent;
@@ -690,7 +692,7 @@ void serial_handler_task(void *pvParameters) {
             if (dir == NULL) {
                 send_response(STATUS_ERROR, "Failed to open directory");
                 continue;
-            }
+            }            
 
             char fullpath[MAX_FILENAME+64];
             while ((ent = readdir(dir)) != NULL) {

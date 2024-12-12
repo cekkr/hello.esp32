@@ -117,17 +117,20 @@ void init_sd_card() {
     // Configurazione host con frequenza molto bassa per il debug
     sdmmc_host_t host = SDSPI_HOST_DEFAULT();
     host.slot = SPI2_HOST;
-    host.max_freq_khz = 400; // Ridotto a 400KHz per il debug
+    host.max_freq_khz = 2000; // Ridotto a 400KHz per il debug
 
-    sdspi_device_config_t slot_config = SDSPI_DEVICE_CONFIG_DEFAULT();
-    slot_config.gpio_cs = SD_CS;
+    sdspi_device_config_t slot_config = SDSPI_SLOT_CONFIG_DEFAULT();
+    slot_config.gpio_miso = SD_MISO;
+    slot_config.gpio_mosi = SD_MOSI;
+    slot_config.gpio_sck  = SD_CS;
+    slot_config.gpio_cs   = SD_CS;
     slot_config.host_id = host.slot;
 
     ESP_LOGI(TAG, "\nMounting SD card...\n");
     esp_vfs_fat_sdmmc_mount_config_t mount_config = {
-        .format_if_mount_failed = false,
+        .format_if_mount_failed = true,
         .max_files = 16,
-        .allocation_unit_size = 16 * 1024
+        .allocation_unit_size = 512
     };
 
     sdmmc_card_t *card;
