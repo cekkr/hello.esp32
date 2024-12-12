@@ -59,13 +59,15 @@ typedef struct {
 ///
 
 int serial_write(char *buffer, size_t size){
-    return uart_write_bytes(UART_NUM_0, buffer, size);
+    int res = uart_write_bytes(UART_NUM_0, buffer, size);
+    uart_wait_tx_done(UART_NUM_0, portMAX_DELAY);
+    return res;
 }
 
 char serial_read_char(){
     char c = '\0';
     while(uart_read_bytes(UART_NUM_0, &c, 1, portMAX_DELAY) == 0){
-        vTaskDelay(1);
+        vTaskDelay(0.01);
     }
 
     return c;
@@ -122,8 +124,7 @@ static void send_response(command_status_t status, const char* message) {
             break;
     }
 
-    serial_write(buffer, strlen(buffer));
-    uart_wait_tx_done(UART_NUM_0, pdMS_TO_TICKS(100));  // timeout di 100ms
+    serial_write(buffer, strlen(buffer));    
 }
 
 
