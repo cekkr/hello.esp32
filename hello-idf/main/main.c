@@ -164,8 +164,7 @@ void init_uart() {
         .stop_bits = UART_STOP_BITS_1,
         .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
         .source_clk = UART_SCLK_APB,
-        .rx_flow_ctrl_thresh = 122,
-        .use_ref_tick = false
+        .rx_flow_ctrl_thresh = 122
     };
     
     // Configura la UART
