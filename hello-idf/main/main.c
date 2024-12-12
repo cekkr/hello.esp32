@@ -3,6 +3,8 @@
 #include <sys/unistd.h>
 #include "driver/gpio.h"
 #include "driver/spi_common.h"
+#include "driver/uart_vfs.h"
+#include "hal/uart_ll.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_heap_trace.h"
@@ -156,6 +158,8 @@ void disable_watchdog(){
     //ESP_ERROR_CHECK(esp_task_wdt_delete(xTaskGetCurrentTaskHandle()));
 }
 
+static const int UART_BUFFER_SIZE = 1024;  // Cambiato da bool a int
+
 void init_uart() {
     uart_config_t uart_config = {
         .baud_rate = 115200,
@@ -163,14 +167,27 @@ void init_uart() {
         .parity    = UART_PARITY_DISABLE,
         .stop_bits = UART_STOP_BITS_1,
         .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
-        .source_clk = UART_SCLK_APB,
+        .source_clk = UART_SCLK_REF_TICK,
         .rx_flow_ctrl_thresh = 122
     };
     
     // Configura la UART
-    ESP_ERROR_CHECK(uart_driver_install(UART_NUM_0, 1024, 1024, 0, NULL, 0));
+    ESP_ERROR_CHECK(uart_driver_install(UART_NUM_0, UART_BUFFER_SIZE, UART_BUFFER_SIZE, 0, NULL, 0));
     ESP_ERROR_CHECK(uart_param_config(UART_NUM_0, &uart_config));
     ESP_ERROR_CHECK(uart_set_pin(UART_NUM_0, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
+
+    // Reindirizza stdout alla UART
+    esp_vfs_dev_uart_use_driver(UART_NUM_0);
+    esp_vfs_dev_uart_port_set_rx_line_endings(UART_NUM_0, ESP_LINE_ENDINGS_CR);
+    esp_vfs_dev_uart_port_set_tx_line_endings(UART_NUM_0, ESP_LINE_ENDINGS_CRLF);
+
+    // Inizializza il VFS per UART
+    const uart_dev_t* uart = UART_LL_GET_HW(UART_NUM_0);
+    esp_vfs_dev_uart_register();
+
+    // Imposta i buffer standard
+    setvbuf(stdin, NULL, _IONBF, 0);
+    setvbuf(stdout, NULL, _IONBF, 0);
 }
 
 void app_main(void) {
@@ -185,8 +202,7 @@ void app_main(void) {
     }
 
     // Inizializzazione della seriale
-    //setvbuf(stdout, NULL, _IONBF, 0);
-	init_uart();
+    init_uart();
 
 	// Avvia il thread di gestione seriale
     start_serial_handler();
