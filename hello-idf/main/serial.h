@@ -13,6 +13,7 @@
 #include "mbedtls/md5.h"
 
 #include "device.h"
+#include "sdcard.h"
 
 // Definizioni
 #define BUF_SIZE 1024
@@ -120,7 +121,7 @@ static void send_response(command_status_t status, const char* message) {
             sprintf(buffer, "OK: %s\n", message);            
             break;
         default:
-            sprintf(buffer, "OK: %s\n", message);
+            sprintf(buffer, "ERROR: %s\n", message);
             break;
     }
 
@@ -470,7 +471,7 @@ void serial_handler_task(void *pvParameters) {
             }
 
             ESP_LOGI(TAG, "Starting reading file...\n");
-            FILE* file = fopen(params->filename, "w");
+            FILE* file = safe_fopen(params->filename, "w");
             if (!file) {
                 char text[FILENAME_MAX + 128];
                 sprintf(text, "Failed to create file %s: %s", 
