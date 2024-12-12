@@ -239,29 +239,4 @@ void list_files(const char* dirname) {
     closedir(dir);
 }
 
-char* normalize_filename(const char* original_name, char* normalized, size_t normalized_size) {
-    // Rimuovi caratteri non validi
-    size_t j = 0;
-    for (size_t i = 0; i < strlen(original_name) && j < normalized_size - 1; i++) {
-        char c = original_name[i];
-        // Mantieni solo caratteri alfanumerici e alcuni simboli
-        if (isalnum(c) || c == '-' || c == '_' || c == '.') {
-            normalized[j++] = c;
-        }
-    }
-    normalized[j] = '\0';
-    return normalized;
-}
-
-FILE* safe_fopen(const char* filename, const char* mode) {
-    char normalized_name[256];
-    normalize_filename(filename, normalized_name, sizeof(normalized_name));
-    
-    char full_path[512];
-    snprintf(full_path, sizeof(full_path), "%s/%s", SD_MOUNT_POINT, normalized_name);
-    
-    ESP_LOGI(TAG, "Opening file: %s", full_path);
-    return fopen(full_path, mode);
-}
-
 #endif

@@ -471,7 +471,7 @@ void serial_handler_task(void *pvParameters) {
             }
 
             ESP_LOGI(TAG, "Starting reading file...\n");
-            FILE* file = safe_fopen(params->filename, "w");
+            FILE* file = fopen(params->filename, "w");
             if (!file) {
                 char text[FILENAME_MAX + 128];
                 sprintf(text, "Failed to create file %s: %s", 
