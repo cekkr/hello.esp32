@@ -75,8 +75,8 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
         .idle_core_mask = (1 << 0), // Monitora il core 0
         .trigger_panic = true       // Genera panic al timeout
     };
-    ESP_ERROR_CHECK(esp_task_wdt_init(&wdt_config));
-    ESP_ERROR_CHECK(esp_task_wdt_add(NULL));    // Aggiunge il task corrente
+    esp_task_wdt_init(&wdt_config);
+    esp_task_wdt_add(NULL);    // Aggiunge il task corrente
 
     M3Result result = m3Err_none;
 
