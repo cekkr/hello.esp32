@@ -44,8 +44,8 @@ def modify_sdkconfig(sdkconfig_path):
         "CONFIG_FATFS_USE_LFN":"1",
         "CONFIG_FATFS_MAX_LFN":"255",
         "CONFIG_ESP32_INSTRUCTION_CACHE_SIZE": "64",
-        "CONFIG_ESP_SYSTEM_MEMPROT_FEATURE": "n",
-        "CONFIG_ESP_HEAP_TASK_STACK_SIZE": "32768",
+        "CONFIG_ESP_SYSTEM_MEMPROT_FEATURE": "y",
+        "CONFIG_ESP_HEAP_TASK_STACK_SIZE": "65536",
         "CONFIG_ESP_MAIN_TASK_STACK_SIZE": "8192",
         "CONFIG_ESP_SYSTEM_MEMPROT_FEATURE":"y",  # Disabilita temporaneamente per debug
         "CONFIG_HEAP_POISONING_DISABLED":"y",  # Per debug

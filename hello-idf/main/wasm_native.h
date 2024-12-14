@@ -175,7 +175,7 @@ const bool HELLOESP_DEBUG_WASM_NATIVE_PRINTF = false;
 M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, void* _mem) {
     if (!runtime || !_sp || !_mem) {
         return m3Err_malformedUtf8;
-    }
+    }    
 
     uint64_t* stack = (uint64_t*)_sp++;
     char formatted_output[512];  // Increased buffer for safety
