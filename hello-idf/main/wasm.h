@@ -152,7 +152,8 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
 
     if (result) FATAL(env, "m3_Call: %s", result);  
 
-    freeEnv:    
+    freeEnv:  
+    ESP_LOGI(TAG, "Freeing WASM3 context\n");  
     if(module) m3_FreeModule(module);
     if(runtime) m3_FreeRuntime(runtime);  
     if(env) m3_FreeEnvironment(env);
