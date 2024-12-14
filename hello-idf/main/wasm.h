@@ -72,17 +72,9 @@ bool prepare_wasm_execution(const uint8_t* wasm_data, size_t size) {
 static const bool HELLOESP_DEBUG_run_wasm = true;
 static void run_wasm(uint8_t* wasm, uint32_t fsize)
 {
-    if(false){ // enable watchdog timer
-        esp_task_wdt_config_t wdt_config = {
-            .timeout_ms = 10000,        // 10 secondi
-            .idle_core_mask = (1 << 0), // Monitora il core 0
-            .trigger_panic = true       // Genera panic al timeout
-        };
-        esp_task_wdt_init(&wdt_config);
-        esp_task_wdt_add(NULL);    // Aggiunge il task corrente
-    }
+    esp_task_wdt_add(NULL);    // Aggiunge il task corrente    
 
-    watchdog_task_register();
+    //watchdog_task_register();
 
     M3Result result = m3Err_none;
 
@@ -101,7 +93,7 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
     //env->memoryLimit = WASM_STACK_SIZE; // it doesn't exists. find a way if needed
 
     if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "run_wasm: m3_NewRuntime\n");
-    IM3Runtime runtime = m3_NewRuntime (env, 64*1024, NULL); //todo: WASM_RUNTIME_MEMORY instead of x*1024
+    IM3Runtime runtime = m3_NewRuntime (env, WASM_STACK_SIZE, NULL); //todo: WASM_RUNTIME_MEMORY instead of x*1024
     if (!runtime) FATAL(env, "m3_NewRuntime failed");
 
     //runtime->memory.maxPages = 1;  // Limita a una pagina
@@ -175,6 +167,8 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
     if(env) m3_FreeEnvironment(env);
 
     //todo: free wasm memory
+
+    esp_task_wdt_delete(NULL);
 }
 
 void app_main_wasm3(void) // just for example

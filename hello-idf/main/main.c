@@ -161,7 +161,14 @@ void disable_watchdog(){
 
     esp_task_wdt_init(&twdt_config);*/
 
-    watchdog_task_register();
+    //watchdog_task_register();
+
+    esp_task_wdt_config_t wdt_config = {
+        .timeout_ms = 10000,        // 10 secondi
+        .idle_core_mask = (1 << 0), // Monitora il core 0
+        .trigger_panic = false       // Genera panic al timeout
+    };
+    esp_task_wdt_init(&wdt_config);
 }
 
 void device_info(){
