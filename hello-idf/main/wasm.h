@@ -92,6 +92,8 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
     IM3Environment env = m3_NewEnvironment ();
     if (!env) FATAL(env, "m3_NewEnvironment failed");
 
+    env->memoryLimit = WASM_STACK_SIZE; 
+
     if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "run_wasm: m3_NewRuntime\n");
     IM3Runtime runtime = m3_NewRuntime (env, 64*1024, NULL); //todo: WASM_RUNTIME_MEMORY instead of x*1024
     if (!runtime) FATAL(env, "m3_NewRuntime failed");
