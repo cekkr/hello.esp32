@@ -181,8 +181,13 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _s
     char formatted_output[512];  // Increased buffer for safety
     
     // Recupera e valida il puntatore al formato
-    uint32_t format_offset = (uint32_t)stack[0];
-    const char* format = m3ApiOffsetToPtr(format_offset);
+    const char* format = m3ApiOffsetToPtr(stack[0]);
+    if (!format) {
+        ESP_LOGE("WASM3", "Invalid format string pointer");
+        return m3Err_malformedUtf8;
+    }
+
+    void* args_ptr = m3ApiOffsetToPtr(stack[1]);
     if (!format) {
         ESP_LOGE("WASM3", "Invalid format string pointer");
         return m3Err_malformedUtf8;
@@ -210,18 +215,18 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _s
                 }
 
                 // Processa l'argomento basandosi sul tipo
+                void* stack_ptr = m3ApiOffsetToPtr(args_ptr);
                 switch (*fmt_ptr) {
                     case 'd': case 'i': case 'u': case 'x': case 'X':
-                        args[arg_count].i = (int32_t)stack[arg_count + 1];
+                        args[arg_count].i = m3ApiReadMem32(stack_ptr);
                         break;
                     case 'f':
                         // Gestione float con controllo del tipo
-                        args[arg_count].f = *(float*)&stack[arg_count + 1];
+                        args[arg_count].f = *(float*)stack_ptr;
                         break;
                     case 's': {
                         // Gestione stringhe con validazione del puntatore
-                        uint32_t str_offset = (uint32_t)stack[arg_count + 1];
-                        args[arg_count].s = m3ApiOffsetToPtr(str_offset);
+                        args[arg_count].s = m3ApiOffsetToPtr(stack_ptr);
                         if (!args[arg_count].s) {
                             ESP_LOGE("WASM3", "Invalid string pointer");
                             return m3Err_malformedUtf8;
@@ -230,11 +235,11 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _s
                     }
                     case 'p': {
                         // Gestione puntatori
-                        uint32_t ptr_offset = (uint32_t)stack[arg_count + 1];
-                        args[arg_count].p = m3ApiOffsetToPtr(ptr_offset);
+                        args[arg_count].p = m3ApiOffsetToPtr(stack_ptr);
                         break;
-                    }
+                    }                    
                 }
+                args_ptr += sizeof(uint64_t*);
                 arg_count++;
             }
         }
@@ -242,7 +247,7 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _s
     }
 
     // Debug logging
-    ESP_LOGD("WASM3", "Format: %s, ArgCount: %d", format, arg_count);
+    if(HELLOESP_DEBUG_WASM_NATIVE_PRINTF) ESP_LOGD("WASM3", "Format: %s, ArgCount: %d", format, arg_count);
 
     // Formatta l'output usando vsnprintf
     int result = snprintf(formatted_output, sizeof(formatted_output),
