@@ -102,13 +102,65 @@ void wasm_esp_printf__(uint8_t* format, int32_t* args, int32_t arg_count) { // c
 
 m3ApiRawFunction(wasm_esp_printf__2) {
     ESP_LOGD(TAG, "wasm_esp_printf__2 called");
-    m3ApiGetArgMem(const char*, format);    // Questo gestisce automaticamente la conversione della memoria
-    m3ApiGetArg(int32_t, value);
     
-    // Esegui la printf
-    ESP_LOGI(format, value);
+    m3ApiReturnType(int32_t)
     
-    m3ApiSuccess();
+    // Ottieni il puntatore al formato dalla memoria WASM
+    m3ApiGetArgMem(const char*, format);
+    
+    // Buffer per il risultato formattato
+    char formatted_output[256];
+    int result = 0;
+    
+    // Ottieni gli argomenti variabili basati sul formato
+    const char* ptr = format;
+    int arg_count = 0;
+    
+    // Conta i parametri nel formato
+    while (*ptr) {
+        if (*ptr == '%') {
+            ptr++;
+            if (*ptr != '%') {  // Ignora %%
+                arg_count++;
+            }
+        }
+        ptr++;
+    }
+    
+    // Gestisci fino a 8 argomenti
+    int32_t args[8] = {0};
+    for (int i = 0; i < arg_count && i < 8; i++) {
+        m3ApiGetArg(int32_t, value);
+        args[i] = value;
+    }
+    
+    // Formatta l'output in base al numero di argomenti
+    switch (arg_count) {
+        case 0:
+            result = snprintf(formatted_output, sizeof(formatted_output), format);
+            break;
+        case 1:
+            result = snprintf(formatted_output, sizeof(formatted_output), format, args[0]);
+            break;
+        case 2:
+            result = snprintf(formatted_output, sizeof(formatted_output), format, args[0], args[1]);
+            break;
+        case 3:
+            result = snprintf(formatted_output, sizeof(formatted_output), format, args[0], args[1], args[2]);
+            break;
+        case 4:
+            result = snprintf(formatted_output, sizeof(formatted_output), format, args[0], args[1], args[2], args[3]);
+            break;
+        default:
+            ESP_LOGW(TAG, "Too many format arguments (max 4 supported)");
+            result = -1;
+    }
+    
+    if (result >= 0) {
+        ESP_LOGI(TAG, "%s", formatted_output);
+    }
+    
+    m3ApiReturn(result);
 }
 
 ///
