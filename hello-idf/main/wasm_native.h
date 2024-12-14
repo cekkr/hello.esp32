@@ -172,83 +172,93 @@ m3ApiRawFunction(wasm_esp_printf__2) {
 ///
 
 const bool HELLOESP_DEBUG_WASM_NATIVE_PRINTF = false;
-M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext _ctx, uint64_t* _sp, void* _mem) {
-    uint64_t* stack = (uint64_t*)_sp;
-    char formatted_output[256];
-    int result = 0;
-    
-    // Ottieni il puntatore al formato
-    const char* format = m3ApiOffsetToPtr((uint32_t)stack[0]);
-    if (!format) {
+M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, void* _mem) {
+    if (!runtime || !_sp || !_mem) {
         return m3Err_malformedUtf8;
     }
+
+    uint64_t* stack = (uint64_t*)_sp;
+    char formatted_output[512];  // Increased buffer for safety
     
-    // Debug dello stack completo
-    ESP_LOGD("WASM3", "Format string: %s", format);
-    ESP_LOGD("WASM3", "Stack dump:");
-    ESP_LOGD("WASM3", "  Stack[0]: 0x%llx (format ptr)", stack[0]);
-    ESP_LOGD("WASM3", "  Stack[1]: 0x%llx (arg1 offset)", stack[1]);
-    ESP_LOGD("WASM3", "  Stack[2]: 0x%llx (arg2 value)", stack[2]);
-    
-    // Parse format string per contare gli argomenti
+    // Recupera e valida il puntatore al formato
+    uint32_t format_offset = (uint32_t)stack[0];
+    const char* format = m3ApiOffsetToPtr(format_offset);
+    if (!format) {
+        ESP_LOGE("WASM3", "Invalid format string pointer");
+        return m3Err_malformedUtf8;
+    }
+
+    // Array per memorizzare gli argomenti processati
+    union {
+        int32_t i;
+        uint32_t u;
+        float f;
+        const char* s;
+        void* p;
+    } args[16];  // Supporta fino a 16 argomenti
     int arg_count = 0;
-    const char* ptr = format;
-    while (*ptr) {
-        if (*ptr == '%') {
-            ptr++;
-            if (*ptr != '%') {
+
+    // Analizza la stringa di formato per determinare il numero di argomenti
+    const char* fmt_ptr = format;
+    while (*fmt_ptr) {
+        if (*fmt_ptr == '%') {
+            fmt_ptr++;
+            if (*fmt_ptr != '%') {  // Ignora %%
+                if (arg_count >= 16) {
+                    ESP_LOGE("WASM3", "Too many arguments");
+                    return m3Err_malformedUtf8;
+                }
+
+                // Processa l'argomento basandosi sul tipo
+                switch (*fmt_ptr) {
+                    case 'd': case 'i': case 'u': case 'x': case 'X':
+                        args[arg_count].i = (int32_t)stack[arg_count + 1];
+                        break;
+                    case 'f':
+                        // Gestione float con controllo del tipo
+                        args[arg_count].f = *(float*)&stack[arg_count + 1];
+                        break;
+                    case 's': {
+                        // Gestione stringhe con validazione del puntatore
+                        uint32_t str_offset = (uint32_t)stack[arg_count + 1];
+                        args[arg_count].s = m3ApiOffsetToPtr(str_offset);
+                        if (!args[arg_count].s) {
+                            ESP_LOGE("WASM3", "Invalid string pointer");
+                            return m3Err_malformedUtf8;
+                        }
+                        break;
+                    }
+                    case 'p': {
+                        // Gestione puntatori
+                        uint32_t ptr_offset = (uint32_t)stack[arg_count + 1];
+                        args[arg_count].p = m3ApiOffsetToPtr(ptr_offset);
+                        break;
+                    }
+                }
                 arg_count++;
             }
         }
-        ptr++;
+        fmt_ptr++;
     }
-    
-    // Leggi gli argomenti
-    int32_t values[8] = {0};
-    
-    // Primo argomento
-    if (arg_count > 0) {
-        uint32_t offset = (uint32_t)stack[1];
-        void* ptr = m3ApiOffsetToPtr(offset);
-        if (ptr) {
-            values[0] = m3ApiReadMem32(ptr);
-            ESP_LOGD("WASM3", "Arg 1: offset=0x%x, ptr=%p, value=%d", 
-                    offset, ptr, values[0]);
-        }
-    }
-    
-    // Secondo argomento - direttamente dal valore nello stack
-    if (arg_count > 1) {
-        values[1] = (int32_t)stack[2];  // Prendi il valore direttamente
-        ESP_LOGD("WASM3", "Arg 2: raw value=%d", values[1]);
-    }
-    
-    ESP_LOGD("WASM3", "Final values for printf: %d, %d", values[0], values[1]);
-    
-    // Formatta l'output
-    switch (arg_count) {
-        case 0:
-            result = snprintf(formatted_output, sizeof(formatted_output), format);
-            break;
-        case 1:
-            result = snprintf(formatted_output, sizeof(formatted_output), format, 
-                values[0]);
-            break;
-        case 2:
-            result = snprintf(formatted_output, sizeof(formatted_output), format, 
-                values[0], values[1]);
-            break;
-        default:
-            ESP_LOGW("WASM3", "Too many format arguments (max 2 supported)");
-            return m3Err_malformedUtf8;
-    }
-    
+
+    // Debug logging
+    ESP_LOGD("WASM3", "Format: %s, ArgCount: %d", format, arg_count);
+
+    // Formatta l'output usando vsnprintf
+    int result = snprintf(formatted_output, sizeof(formatted_output),
+                         format,
+                         args[0].i, args[1].i, args[2].i, args[3].i,
+                         args[4].i, args[5].i, args[6].i, args[7].i,
+                         args[8].i, args[9].i, args[10].i, args[11].i,
+                         args[12].i, args[13].i, args[14].i, args[15].i);
+
     if (result >= 0 && result < sizeof(formatted_output)) {
         ESP_LOGI("WASM3", "%s", formatted_output);
     } else {
         ESP_LOGE("WASM3", "Formatting error");
+        return m3Err_malformedUtf8;
     }
-    
+
     return m3Err_none;
 }
 
