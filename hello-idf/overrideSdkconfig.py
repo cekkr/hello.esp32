@@ -56,7 +56,10 @@ def modify_sdkconfig(sdkconfig_path):
         "CONFIG_ESP_SYSTEM_MEMPROT_FEATURE":"n",
         "CONFIG_ESP_SYSTEM_MEMPROT_FEATURE_LOCK":"n",
         "CONFIG_FREERTOS_ASSERT_DISABLE":"y",
-        "CONFIG_COMPILER_STACK_CHECK_MODE_NONE":"y"
+        "CONFIG_COMPILER_STACK_CHECK_MODE_NONE":"y",
+        "CONFIG_HEAP_POISONING_DISABLED":"y",
+        "CONFIG_HEAP_ABORT_WHEN_ALLOCATION_FAILS":"n",
+        "CONFIG_HEAP_CORRUPTION_DETECTION_LIGHT":"y"
     }
 
     # Leggi il file esistente
