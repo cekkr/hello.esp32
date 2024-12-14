@@ -46,7 +46,7 @@ typedef struct {
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 
-#define FATAL(env, msg, ...) { ESP_LOGI(TAG, "ERROR: Fatal: " msg "\n", ##__VA_ARGS__); if(env != NULL) m3_FreeEnvironment(env); return; }
+#define FATAL(env, msg, ...) { ESP_LOGI(TAG, "ERROR: Fatal: " msg "\n", ##__VA_ARGS__); goto freeEnv; }
 
 bool prepare_wasm_execution(const uint8_t* wasm_data, size_t size) {
     // Stima della memoria necessaria (questo valore andrà calibrato)
@@ -143,9 +143,19 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
     wasi_ctx->argv = i_argv;
 
     if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "run_wasm: m3_CallV\n");
+
+    if(f->module->runtime == NULL){
+        FATAL(env, "run_wasm: f->module->runtime is null");
+    }
+
     result = m3_CallV(f);
 
-    if (result) FATAL(env, "m3_Call: %s", result);    
+    if (result) FATAL(env, "m3_Call: %s", result);  
+
+    freeEnv:    
+    if(module) m3_FreeModule(module);
+    if(runtime) m3_FreeRuntime(runtime);  
+    if(env) m3_FreeEnvironment(env);
 }
 
 void app_main_wasm3(void) // just for example
@@ -274,6 +284,7 @@ static void run_wasm_thread_safe(uint8_t* wasm, uint32_t fsize)
     if (result) FATAL_SAFE(ctx->env, "m3_Call: %s", result); 
 
     // Alla fine del run_wasm, pulisci il contesto
+    freeEnv:
     cleanup_wasm_context(ctx);
 }
 
@@ -310,7 +321,7 @@ static void wasm_task(void* pvParameters) {
     wasm_task_params_t* params = (wasm_task_params_t*)pvParameters;
     
     // Esegui WASM in un contesto isolato
-    run_wasm_thread_safe(params->wasm_data, params->wasm_size);
+    run_wasm(params->wasm_data, params->wasm_size);
     
     // Libera la memoria
     free(params->wasm_data);

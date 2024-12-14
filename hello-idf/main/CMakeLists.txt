@@ -18,4 +18,4 @@ idf_component_register(
         wasm3   
 )
 
-target_compile_options(${COMPONENT_LIB} PRIVATE -Wno-format)
+target_compile_options(${COMPONENT_LIB} PRIVATE -Wno-format -Wno-error=maybe-uninitialized)

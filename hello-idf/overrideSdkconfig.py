@@ -51,7 +51,12 @@ def modify_sdkconfig(sdkconfig_path):
         "CONFIG_HEAP_POISONING_DISABLED":"y",  # Per debug
         "CONFIG_HEAP_TRACING_STANDALONE":"n",
         "CONFIG_ESP32_ENABLE_COREDUMP_TO_FLASH":"y",
-        "CONFIG_ESP32_ENABLE_COREDUMP":"y"
+        "CONFIG_ESP32_ENABLE_COREDUMP":"y",
+        "CONFIG_HEAP_POISONING_COMPREHENSIVE":"y",
+        "CONFIG_ESP_SYSTEM_MEMPROT_FEATURE":"n",
+        "CONFIG_ESP_SYSTEM_MEMPROT_FEATURE_LOCK":"n",
+        "CONFIG_FREERTOS_ASSERT_DISABLE":"y",
+        "CONFIG_COMPILER_STACK_CHECK_MODE_NONE":"y"
     }
 
     # Leggi il file esistente
