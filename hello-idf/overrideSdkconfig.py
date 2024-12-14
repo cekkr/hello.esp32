@@ -47,9 +47,9 @@ def modify_sdkconfig(sdkconfig_path):
         "CONFIG_ESP_SYSTEM_MEMPROT_FEATURE": "n",
         "CONFIG_ESP_HEAP_TASK_STACK_SIZE": "32768",
         "CONFIG_ESP_MAIN_TASK_STACK_SIZE": "8192",
-        "CONFIG_ESP_SYSTEM_MEMPROT_FEATURE":"n",  # Disabilita temporaneamente per debug
-        "CONFIG_HEAP_POISONING_DISABLED":"n",  # Per debug
-        "CONFIG_HEAP_TRACING_STANDALONE":"y",
+        "CONFIG_ESP_SYSTEM_MEMPROT_FEATURE":"y",  # Disabilita temporaneamente per debug
+        "CONFIG_HEAP_POISONING_DISABLED":"y",  # Per debug
+        "CONFIG_HEAP_TRACING_STANDALONE":"n",
         "CONFIG_ESP32_ENABLE_COREDUMP_TO_FLASH":"y",
         "CONFIG_ESP32_ENABLE_COREDUMP":"y"
     }
