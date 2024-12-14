@@ -177,7 +177,7 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _s
         return m3Err_malformedUtf8;
     }
 
-    uint64_t* stack = (uint64_t*)_sp;
+    uint64_t* stack = (uint64_t*)_sp++;
     char formatted_output[512];  // Increased buffer for safety
     
     // Recupera e valida il puntatore al formato

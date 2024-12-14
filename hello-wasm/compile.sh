@@ -12,8 +12,8 @@ emcc samples/fibonacciPrint.c -o output/fibonacciPrint.wasm \
     -s STANDALONE_WASM=1 \
     -s IMPORTED_MEMORY=0 \
     -s INITIAL_MEMORY=65536 \
-    -s STACK_SIZE=1024 \
-    -s ALLOW_MEMORY_GROWTH=0 \
+    -s STACK_SIZE=2048 \
+    -s ALLOW_MEMORY_GROWTH=1 \
     -s EXPORTED_FUNCTIONS='["_start"]' \
     --no-entry 
     
