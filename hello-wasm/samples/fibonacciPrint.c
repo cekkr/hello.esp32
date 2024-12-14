@@ -5,6 +5,7 @@
 #include "../bindings/bindings.c"
 
 // Funzione che calcola l'n-esimo numero di Fibonacci
+EMSCRIPTEN_KEEPALIVE
 uint32_t fib(uint32_t n) {
     if (n <= 1) return n;
     uint32_t prev = 0, curr = 1;
