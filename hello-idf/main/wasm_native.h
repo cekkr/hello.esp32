@@ -102,7 +102,7 @@ void wasm_esp_printf__(uint8_t* format, int32_t* args, int32_t arg_count) { // c
 
 m3ApiRawFunction(wasm_esp_printf__2) {
     ESP_LOGD(TAG, "wasm_esp_printf__2 called");
-    
+
     m3ApiReturnType(int32_t)
     
     // Ottieni il puntatore al formato dalla memoria WASM
@@ -167,247 +167,79 @@ m3ApiRawFunction(wasm_esp_printf__2) {
 ///
 ///
 
-// Struttura per definire una funzione da importare
-typedef struct {
-    const char* moduleName;
-    const char* functionName;
-    const char* signature;  // "v(ii)" format
-    void* function;
-} FunctionToLink;
-
-// Converte il formato signature WASM3 in formato WAT
-const char* convertSignatureToWAT(const char* signature) {
-    static char watSig[64];
-    memset(watSig, 0, sizeof(watSig));
-    
-    char* wat = watSig;
-    *wat++ = '(';
-    
-    // Salta il tipo di ritorno all'inizio (prima del '(')
-    const char* sig = strchr(signature, '(');
-    if (!sig) return NULL;
-    sig++;  // Salta la '('
-    
-    // Converti i parametri
-    while (*sig && *sig != ')') {
-        if (wat != watSig) *wat++ = ' ';
-        switch (*sig) {
-            case 'i': strcat(wat, "i32"); wat += 3; break;
-            case 'I': strcat(wat, "i64"); wat += 3; break;
-            case 'f': strcat(wat, "f32"); wat += 3; break;
-            case 'F': strcat(wat, "f64"); wat += 3; break;
-            default: return NULL;
-        }
-        sig++;
-    }
-    
-    *wat++ = ')';
-    
-    // Aggiungi il tipo di ritorno
-    switch (signature[0]) {
-        case 'v': strcat(wat, " (result)"); break;
-        case 'i': strcat(wat, " (result i32)"); break;
-        case 'I': strcat(wat, " (result i64)"); break;
-        case 'f': strcat(wat, " (result f32)"); break;
-        case 'F': strcat(wat, " (result f64)"); break;
-        default: return NULL;
-    }
-    
-    return watSig;
-}
-
-// Genera il modulo WASM con le dichiarazioni di import
-M3Result generateAndParseImports(IM3Environment env, IM3Module* out_module, const FunctionToLink* functions) {
-    // Buffer per il codice WAT
-    char watCode[4096];
-    int offset = 0;
-    
-    // Inizia il modulo
-    offset += snprintf(watCode + offset, sizeof(watCode) - offset, "(module\n");
-    
-    // Aggiungi ogni funzione come import
-    for (const FunctionToLink* f = functions; f->moduleName != NULL; f++) {
-        const char* watSig = convertSignatureToWAT(f->signature);
-        if (!watSig) {
-            return "Invalid signature format";
-        }
-        
-        offset += snprintf(watCode + offset, sizeof(watCode) - offset,
-            "  (import \"%s\" \"%s\" (func $%s %s))\n",
-            f->moduleName, f->functionName, f->functionName, watSig);
-    }
-    
-    // Chiudi il modulo
-    offset += snprintf(watCode + offset, sizeof(watCode) - offset, ")\n");
-    
-    // Debug output
-    ESP_LOGI(TAG, "Generated WAT:\n%s", watCode);
-    
-    // Converti WAT in WASM e parsalo
-    uint8_t* wasm = NULL;
-    size_t wasmSize = 0;
-    
-    // Nota: qui dovresti usare una libreria WAT->WASM come wabt
-    // Per semplicità, usiamo un WASM pre-generato di esempio
-    static const uint8_t basicImportWasm[] = {
-        0x00, 0x61, 0x73, 0x6D, 0x01, 0x00, 0x00, 0x00, // magic + version
-        0x01, 0x05, 0x01, 0x60, 0x02, 0x7F, 0x7F, 0x00  // type section
-        // ... altri bytes necessari per il modulo base
-    };
-    
-    return m3_ParseModule(env, out_module, basicImportWasm, sizeof(basicImportWasm));
-}
-
-// Funzione principale di linking che usa la generazione automatica
-M3Result linkWASMFunctions_gen(IM3Environment env, IM3Runtime runtime) {
-    M3Result result;
-    
-    // Definisci le funzioni da linkare
-    FunctionToLink functions[] = {
-        { "env", "esp_printf", "v(ii)", &wasm_esp_printf__2 },
-        // Aggiungi altre funzioni qui
-        { NULL, NULL, NULL, NULL }  // Terminatore
-    };
-    
-    // Genera e parsa il modulo con gli import
-    IM3Module importModule;
-    result = generateAndParseImports(env, &importModule, functions);
-    if (result) return result;
-    
-    // Carica il modulo nel runtime
-    result = m3_LoadModule(runtime, importModule);
-    if (result) return result;
-    
-    // Esegui il linking delle funzioni
-    for (const FunctionToLink* f = functions; f->moduleName != NULL; f++) {
-        result = m3_LinkRawFunction(
-            importModule,
-            f->moduleName,
-            f->functionName,
-            f->signature,
-            f->function
-        );
-        
-        if (result) {
-            ESP_LOGE(TAG, "Failed to link %s.%s: %s", 
-                f->moduleName, f->functionName, result);
-            return result;
-        }
-    }
-    
-    return m3Err_none;
-}
-
-////
-////
-////
-
-static const uint8_t import_wasm[] = {
-    // Header
-    0x00, 0x61, 0x73, 0x6d,    // Magic number (\0asm)
-    0x01, 0x00, 0x00, 0x00,    // Version 1 (as little-endian)
-    
-    // Type section (1)
-    0x01,                       // Section code
-    0x07,                       // Section size
-    0x01,                       // Number of types
-    0x60,                       // Function type
-    0x02,                       // Number of parameters
-    0x7f,                       // i32
-    0x7f,                       // i32
-    0x00,                       // Number of results (0)
-    
-    // Import section (2)
-    0x02,                       // Section code
-    0x0d,                       // Section size
-    0x01,                       // Number of imports
-    0x03,                       // Length of module name
-    'e', 'n', 'v',             // Module name "env"
-    0x09,                       // Length of function name
-    'e', 's', 'p', '_',        // Function name "esp_printf"
-    'p', 'r', 'i', 'n',
-    't', 'f',
-    0x00,                       // Import kind (function)
-    0x00                        // Type index
-};
-
-M3Result linkWASMFunctions(IM3Environment env, IM3Runtime runtime, IM3Module module) {
-    M3Result result;
-    
-    /*
-    if(HELLO_DEBUG_WASM_NATIVE) ESP_LOGI(TAG, "linkWASMFunctions: m3_ParseModule");
-    // Parsa il modulo di import
-    IM3Module module;
-    result = m3_ParseModule(env, &module, import_wasm, sizeof(import_wasm));
-    if (result) {
-        ESP_LOGE(TAG, "Failed to parse import module: %s", result);
-        return result;
-    }
-    */
-    
-    if(HELLO_DEBUG_WASM_NATIVE) ESP_LOGI(TAG, "linkWASMFunctions: m3_LoadModule");
-    // Carica il modulo nel runtime
-    result = m3_LoadModule(runtime, module);
-    if (result) {
-        ESP_LOGE(TAG, "Failed to load module: %s", result);
-        return result;
-    }
-    
-    if(HELLO_DEBUG_WASM_NATIVE) ESP_LOGI(TAG, "linkWASMFunctions: m3_LinkRawFunction");
-    // Link la funzione
-    result = m3_LinkRawFunction(
-        module,
-        "env",
-        "esp_printf",
-        "v(ii)",
-        &wasm_esp_printf__2
-    );
-    
-    if (result) {
-        ESP_LOGE(TAG, "Failed to link function: %s", result);
-        return result;
-    }
-    
-    return m3Err_none;
-}
-
-static M3Result justLinkWASMFunctions(IM3Module module) {
-    ESP_LOGI(TAG, "linkWASMFunctions: m3_LinkRawFunction");
-    return m3_LinkRawFunction(module, "env", "esp_printf", "v(ii)", &wasm_esp_printf__2);
-}
-
-////
-////
-////
-
-// Esempio di utilizzo
-/*void init_example_linkWASMFunctions() {
-    IM3Environment env = m3_NewEnvironment();
-    IM3Runtime runtime = m3_NewRuntime(env, 8192, NULL);
-    
-    M3Result result = linkWASMFunctions(env, runtime);
-    if (result) {
-        ESP_LOGE(TAG, "WASM linking failed: %s", result);
-    }
-}*/
 
 ///
 ///
 ///
 
 M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext _ctx, uint64_t* _sp, void* _mem) {
-    // Leggi i due argomenti i32 dallo stack
-    int32_t arg1 = m3ApiReadMem32(_sp);
-    int32_t arg2 = m3ApiReadMem32(_sp + 1);
+    ESP_LOGD(TAG, "wasm_esp_printf called");
+
+    int32_t* args = (int32_t*)_sp;
+    char formatted_output[256];
+    int result = 0;
     
-    // Il primo argomento è un offset nella memoria lineare
-    const char* format = m3ApiOffsetToPtr(arg1);
-    
+    // Ottieni il puntatore al formato dalla memoria lineare
+    const char* format = m3ApiOffsetToPtr(args[0]);
     if (!format) {
-        return "null format string pointer";
+        return m3Err_malformedUtf8;
     }
     
-    printf(format, arg2);
+    // Verifica la validità del puntatore al formato
+    if (!runtime) {
+        return m3Err_malformedUtf8;
+    }
+    
+    // Conta i parametri nel formato
+    const char* ptr = format;
+    int arg_count = 0;
+    while (*ptr) {
+        if (*ptr == '%') {
+            ptr++;
+            if (*ptr != '%') {  // Ignora %%
+                arg_count++;
+            }
+        }
+        ptr++;
+    }
+    
+    // Array per memorizzare gli argomenti
+    int32_t values[8] = {0};
+    
+    // Leggi gli argomenti dallo stack
+    for (int i = 0; i < arg_count && i < 8; i++) {
+        values[i] = m3ApiReadMem32(_sp + i + 1);
+    }
+    
+    // Formatta in base al numero di argomenti
+    switch (arg_count) {
+        case 0:
+            result = snprintf(formatted_output, sizeof(formatted_output), format);
+            break;
+        case 1:
+            result = snprintf(formatted_output, sizeof(formatted_output), format, values[0]);
+            break;
+        case 2:
+            result = snprintf(formatted_output, sizeof(formatted_output), format, values[0], values[1]);
+            break;
+        case 3:
+            result = snprintf(formatted_output, sizeof(formatted_output), format, values[0], values[1], values[2]);
+            break;
+        case 4:
+            result = snprintf(formatted_output, sizeof(formatted_output), format, values[0], values[1], values[2], values[3]);
+            break;
+        default:
+            ESP_LOGW("WASM3", "Too many format arguments (max 4 supported)");
+            return m3Err_malformedUtf8;
+    }
+    
+    if (result < 0 || result >= sizeof(formatted_output)) {
+        return m3Err_malformedUtf8;
+    }
+    
+    // Stampa l'output formattato
+    ESP_LOGI("WASM3", "%s", formatted_output);
+    
     return m3Err_none;
 }
 
@@ -415,7 +247,7 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext _ctx, uint64_t* _s
 const WasmFunctionEntry functionTable[] = {
     { 
         .name = (const char*)"esp_printf",           // Nome della funzione in WASM
-        .func = wasm_esp_printf,    // Puntatore alla funzione
+        .func = wasm_esp_printf__2,    // Puntatore alla funzione
         .signature = (const char*)"v(ii)"        // Signature: void (raw_ptr, int32)
     },
     // Altre funzioni possono essere aggiunte qui
