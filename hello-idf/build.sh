@@ -3,6 +3,8 @@
 #export IDF_PATH="/Users/riccardo/Sources/Libs/esp-idf-v5.3.1"
 #alias python=python3
 
+python3 overrideSdkconfig.py
+
 CUR_DIR=$(pwd)
 
 cd "$IDF_PATH"
