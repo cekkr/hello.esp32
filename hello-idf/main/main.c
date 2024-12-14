@@ -31,6 +31,8 @@ static const char *TAG = "HELLOESP";
 // CMDs
 #include "cmd.h"
 
+#include "device.h"
+
 ///
 /// SD
 ///
@@ -149,7 +151,7 @@ void disable_watchdog(){
     rtc_wdt_disable();
     
     // Disabilita il Task Watchdog Timer (TWDT)
-    esp_task_wdt_config_t twdt_config = {
+    /*esp_task_wdt_config_t twdt_config = {
         .timeout_ms = 9999*9999,  // timeout in millisecondi
         .idle_core_mask = (1 << portNUM_PROCESSORS) - 1,  // bitmask di tutti i core
         .trigger_panic = false
@@ -157,8 +159,15 @@ void disable_watchdog(){
     //ESP_ERROR_CHECK(esp_task_wdt_init(&twdt_config));
     //ESP_ERROR_CHECK(esp_task_wdt_delete(xTaskGetCurrentTaskHandle()));
 
-    esp_task_wdt_init(twdt_config);
-    esp_task_wdt_delete(xTaskGetIdleTaskHandle());
+    esp_task_wdt_init(&twdt_config);*/
+
+    watchdog_task_register();
+}
+
+void device_info(){
+    uint32_t flash_size;
+    esp_flash_get_size(NULL, &flash_size);
+    ESP_LOGI(TAG, "Flash size: %d bytes\n", flash_size);
 }
 
 static const int UART_BUFFER_SIZE = 1024;  // Cambiato da bool a int
@@ -198,6 +207,8 @@ void enable_log_debug(){
 }
 
 void app_main(void) {
+    device_info();
+
     disable_watchdog();
 
     init_error_handling();

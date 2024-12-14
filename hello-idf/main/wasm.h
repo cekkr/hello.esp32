@@ -12,6 +12,8 @@
 
 #include "wasm_native.h"
 
+#include "device.h"
+
 
 ////////////////////////////////////////////////////////////////////////
 //#include "m3_core.h"
@@ -79,6 +81,8 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
         esp_task_wdt_init(&wdt_config);
         esp_task_wdt_add(NULL);    // Aggiunge il task corrente
     }
+
+    watchdog_task_register();
 
     M3Result result = m3Err_none;
 

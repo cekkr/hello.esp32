@@ -10,4 +10,9 @@ void restart_device(void) {
     esp_restart();
 }
 
+void watchdog_task_register(){
+    esp_task_wdt_add(NULL);  // Registra il task corrente
+    esp_task_wdt_reset(); 
+}
+
 #endif  // HELLOESP_DEVICE_H
