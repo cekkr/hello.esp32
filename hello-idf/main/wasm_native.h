@@ -11,6 +11,8 @@ static const bool HELLO_DEBUG_WASM_NATIVE = true;
 
 // Implementazione della funzione printf per WASM
 void wasm_esp_printf__(uint8_t* format, int32_t* args, int32_t arg_count) { // currently not used
+    ESP_LOGD(TAG, "Called wasm_esp_printf");
+    
     char message[256];
     char* current = message;
     const uint8_t* format_ptr = format;
