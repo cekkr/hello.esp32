@@ -171,14 +171,15 @@ m3ApiRawFunction(wasm_esp_printf__2) {
 ///
 ///
 
+const bool HELLOESP_DEBUG_WASM_NATIVE_PRINTF = false;
 M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext _ctx, uint64_t* _sp, void* _mem) {
-    ESP_LOGD(TAG, "wasm_esp_printf called");
+    if(HELLOESP_DEBUG_WASM_NATIVE_PRINTF) ESP_LOGD(TAG, "wasm_esp_printf called");
 
     int32_t* args = (int32_t*)_sp;
     char formatted_output[256];
     int result = 0;
     
-    ESP_LOGD(TAG, "wasm_esp_printf: args[0] ptr: %p, converted: %p", args[0], m3ApiOffsetToPtr(args[0]));
+    if(HELLOESP_DEBUG_WASM_NATIVE_PRINTF) ESP_LOGD(TAG, "wasm_esp_printf: args[0] ptr: %p, converted: %p", args[0], m3ApiOffsetToPtr(args[0]));
 
     // Ottieni il puntatore al formato dalla memoria lineare    
     const char* format = m3ApiOffsetToPtr(args[0]);
