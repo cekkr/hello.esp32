@@ -80,7 +80,7 @@ static int cmd_run(int argc, char** argv) {
 
     uint8_t* data = NULL;
     size_t size = 0;
-    esp_err_t result = read_file_to_memory(fullpath, &data, &size);
+    esp_err_t result = read_file_to_executable_memory(fullpath, &data, &size);
     free(fullpath);
 
     if (result == ESP_OK) {
