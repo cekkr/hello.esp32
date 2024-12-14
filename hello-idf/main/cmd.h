@@ -98,13 +98,16 @@ static int cmd_run(int argc, char** argv) {
             params,
             WASM_TASK_PRIORITY,
             &task_handle
-        );
+        );        
         
         if (ret != pdPASS) {
             ESP_LOGE(TAG, "Failed to create WASM task");
             free(data);
             free(params);
             return -1;
+        }
+        else {
+            esp_task_wdt_delete(task_handle);
         }
         
         return 0;

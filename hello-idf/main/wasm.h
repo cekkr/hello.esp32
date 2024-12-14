@@ -70,9 +70,10 @@ bool prepare_wasm_execution(const uint8_t* wasm_data, size_t size) {
 }
 
 static const bool HELLOESP_DEBUG_run_wasm = true;
+static const bool HELLOESP_RUN_WASM_WDT = false;
 static void run_wasm(uint8_t* wasm, uint32_t fsize)
 {
-    esp_task_wdt_add(NULL);    // Aggiunge il task corrente    
+    if(HELLOESP_RUN_WASM_WDT) esp_task_wdt_add(NULL);    // Aggiunge il task corrente    
 
     //watchdog_task_register();
 
@@ -168,7 +169,7 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
 
     //todo: free wasm memory
 
-    esp_task_wdt_delete(NULL);
+    if(HELLOESP_RUN_WASM_WDT) esp_task_wdt_delete(NULL);
 }
 
 void app_main_wasm3(void) // just for example
