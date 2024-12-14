@@ -10,10 +10,10 @@ emcc samples/fibonacciPrint.c -o output/fibonacciPrint.wasm \
     -O3 \
     -s WASM=1 \
     -s STANDALONE_WASM=1 \
-    -s IMPORTED_MEMORY=1 \
+    -s IMPORTED_MEMORY=0 \
     -s INITIAL_MEMORY=65536 \
-    -s STACK_SIZE=4096 \
-    -s ALLOW_MEMORY_GROWTH=1 \
+    -s STACK_SIZE=2048 \
+    -s ALLOW_MEMORY_GROWTH=0 \
     -s EXPORTED_FUNCTIONS='["_start"]' \
     --no-entry 
     
