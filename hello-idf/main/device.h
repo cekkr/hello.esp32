@@ -4,8 +4,7 @@
 #include "esp_system.h"
 
 void restart_device(void) {
-    // Breve attesa prima del riavvio
-    vTaskDelay(pdMS_TO_TICKS(100));
+    ESP_LOGI(TAG, "restart requested");
     
     // Esegue il riavvio del dispositivo
     esp_restart();

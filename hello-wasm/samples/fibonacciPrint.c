@@ -23,7 +23,6 @@ uint32_t fib(uint32_t n) {
 }
 
 // Funzione principale che stampa la serie con debug minimo
-EMSCRIPTEN_KEEPALIVE
 void print_fibonacci(uint32_t n) {
     const char* fmt1 = "Fibonacci series up to %d:\n";
     const char* fmt2 = "F(%d) = %d\n";
