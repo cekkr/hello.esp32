@@ -42,6 +42,6 @@ idf.py build #-DCMAKE_C_FLAGS="-H" 2>&1 | tee build_output.txt
 
 #idf.py -p COM3 flash    # Windows
 #idf.py -p /dev/ttyUSB0 flash    # Linux
-idf.py -p /dev/tty.usbserial-1120 flash -b 115200    # MacOS
+idf.py -p /dev/tty.usbserial-120 flash -b 115200    # MacOS
 
 #idf.py monitor
