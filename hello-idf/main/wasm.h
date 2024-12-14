@@ -163,6 +163,146 @@ void app_main_wasm3(void) // just for example
     esp_restart();
 }
 
+///
+/// Thread safe
+///
+
+
+// Aggiungi in cima al file, dopo gli include
+typedef struct {
+    SemaphoreHandle_t memMutex;
+    IM3Runtime runtime;
+    IM3Environment env;
+    // Puoi aggiungere altri campi necessari
+} Wasm3Context;
+
+// Funzione helper per la pulizia
+static void cleanup_wasm_context(Wasm3Context* ctx) {
+    if (ctx) {
+        if (ctx->memMutex) {
+            vSemaphoreDelete(ctx->memMutex);
+        }
+        if (ctx->runtime) {
+            m3_FreeRuntime(ctx->runtime);
+        }
+        if (ctx->env) {
+            m3_FreeEnvironment(ctx->env);
+        }
+        free(ctx);
+    }
+}
+
+// Modifica la funzione run_wasm per utilizzare il contesto
+#define FATAL_SAFE(env, msg, ...) { ESP_LOGI(TAG, "ERROR: Fatal: " msg "\n", ##__VA_ARGS__); if(env != NULL) { cleanup_wasm_context(ctx); m3_FreeEnvironment(env); return; } }
+
+static void run_wasm_thread_safe(uint8_t* wasm, uint32_t fsize)
+{
+    M3Result result = m3Err_none;
+    Wasm3Context* ctx = NULL;
+
+    if (!prepare_wasm_execution(wasm, fsize)) {
+        FATAL(NULL, "failed to prepare memory for WASM execution");
+        return;
+    }
+
+    // Alloca e inizializza il contesto
+    ctx = (Wasm3Context*)malloc(sizeof(Wasm3Context));
+    if (!ctx) FATAL(NULL, "failed to allocate WASM3 context");
+    
+    ctx->memMutex = xSemaphoreCreateMutex();
+    if (!ctx->memMutex) {
+        free(ctx);
+        FATAL(NULL, "failed to create mutex");
+    }
+
+    if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "Loading WebAssembly...\n");
+
+    ctx->env = m3_NewEnvironment();
+    if (!ctx->env) {
+        vSemaphoreDelete(ctx->memMutex);
+        free(ctx);
+        FATAL(NULL, "m3_NewEnvironment failed");
+    }
+
+    ctx->runtime = m3_NewRuntime(ctx->env, 64*1024, NULL);
+    if (!ctx->runtime) {
+        vSemaphoreDelete(ctx->memMutex);
+        m3_FreeEnvironment(ctx->env);
+        free(ctx);
+        FATAL(NULL, "m3_NewRuntime failed");
+    }
+
+    // Salva il contesto nel runtime per accedervi dalle callback
+    ctx->runtime->userdata = ctx;
+
+    IM3Module module;
+    if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "run_wasm: m3_ParseModule\n");
+    result = m3_ParseModule(ctx->env, &module, wasm, fsize);
+    if (result) FATAL_SAFE(NULL, "m3_ParseModule: %s", result);    
+
+    // Finally, load the module
+    if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "run_wasm: m3_LoadModule\n");
+    result = m3_LoadModule (ctx->runtime, module);
+    if (result) FATAL_SAFE(ctx->env, "m3_LoadModule: %s", result);
+
+    if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "run_wasm: m3_LinkEspWASI_Hello\n");
+    result = m3_LinkEspWASI_Hello (ctx->runtime->modules);
+    if (result) FATAL_SAFE(ctx->env, "m3_LinkEspWASI: %s", result);
+
+    if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "run_wasm: registerNativeWASMFunctions\n");
+    result = registerNativeWASMFunctions(module);
+    if (result) FATAL_SAFE(ctx->env, "registerNativeWASMFunctions: %s", result);
+
+    // Execution
+    if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "run_wasm: m3_FindFunction\n");
+    IM3Function f;
+    result = m3_FindFunction(&f, ctx->runtime, "start");
+    if (result) FATAL_SAFE(ctx->env, "m3_FindFunction: %s", result);
+
+    ESP_LOGI(TAG, "run_wasm: Starting call\n");
+
+    const char* i_argv[] = {"main.wasm", NULL}; //todo: set right wasm name(?)
+
+    if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "run_wasm: m3_GetWasiContext\n");
+    m3_wasi_context_t* wasi_ctx = m3_GetWasiContext();
+    wasi_ctx->argc = 1;
+    wasi_ctx->argv = i_argv;
+
+    if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "run_wasm: m3_CallV\n");
+    result = m3_CallV(f);
+
+    if (result) FATAL_SAFE(ctx->env, "m3_Call: %s", result); 
+
+    // Alla fine del run_wasm, pulisci il contesto
+    cleanup_wasm_context(ctx);
+}
+
+// Funzione sicura per l'accesso alla memoria
+M3Result wasm_example_safe_memory_access(IM3Runtime runtime, void* mem_ptr, size_t offset, size_t size) {
+    Wasm3Context* ctx = (Wasm3Context*)runtime->userdata;
+    if (!ctx || !ctx->memMutex) return m3Err_mallocFailed;
+
+    M3Result result = m3Err_none;
+    
+    if (xSemaphoreTake(ctx->memMutex, pdMS_TO_TICKS(100)) == pdTRUE) {
+        void* dest = m3SegmentedMemAccess(mem_ptr, offset, size);
+        if (!dest) {
+            result = "Failed memory access"; //m3Err_memoryAccess;
+        } else {
+            // Esegui le operazioni di memoria qui
+        }
+        xSemaphoreGive(ctx->memMutex);
+    } else {
+        result = "Timeout";//m3Err_timeout;
+    }
+
+    return result;
+}
+
+///
+///
+///
+
 // WASM3 Task
 static void wasm_task(void* pvParameters) {
     ESP_LOGI(TAG, "Calling wasm_task");
@@ -170,7 +310,7 @@ static void wasm_task(void* pvParameters) {
     wasm_task_params_t* params = (wasm_task_params_t*)pvParameters;
     
     // Esegui WASM in un contesto isolato
-    run_wasm(params->wasm_data, params->wasm_size);
+    run_wasm_thread_safe(params->wasm_data, params->wasm_size);
     
     // Libera la memoria
     free(params->wasm_data);
