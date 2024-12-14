@@ -150,12 +150,15 @@ void disable_watchdog(){
     
     // Disabilita il Task Watchdog Timer (TWDT)
     esp_task_wdt_config_t twdt_config = {
-        .timeout_ms = 5000,  // timeout in millisecondi
+        .timeout_ms = 9999*9999,  // timeout in millisecondi
         .idle_core_mask = (1 << portNUM_PROCESSORS) - 1,  // bitmask di tutti i core
         .trigger_panic = false
     };
     //ESP_ERROR_CHECK(esp_task_wdt_init(&twdt_config));
     //ESP_ERROR_CHECK(esp_task_wdt_delete(xTaskGetCurrentTaskHandle()));
+
+    esp_task_wdt_init(twdt_config);
+    esp_task_wdt_delete(xTaskGetIdleTaskHandle());
 }
 
 static const int UART_BUFFER_SIZE = 1024;  // Cambiato da bool a int
