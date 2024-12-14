@@ -6,6 +6,7 @@
 #include "esp_log.h"
 
 #include "m3_env.h"
+#include "m3_segmented_memory.h"
 
 static const bool HELLO_DEBUG_WASM_NATIVE = true;
 
@@ -177,7 +178,9 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext _ctx, uint64_t* _s
     char formatted_output[256];
     int result = 0;
     
-    // Ottieni il puntatore al formato dalla memoria lineare
+    ESP_LOGD(TAG, "wasm_esp_printf: args[0] ptr: %p, converted: %p", args[0], m3ApiOffsetToPtr(args[0]));
+
+    // Ottieni il puntatore al formato dalla memoria lineare    
     const char* format = m3ApiOffsetToPtr(args[0]);
     if (!format) {
         return m3Err_malformedUtf8;
