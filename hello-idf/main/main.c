@@ -190,6 +190,10 @@ void init_uart() {
     setvbuf(stdout, NULL, _IONBF, 0);
 }
 
+void enable_log_debug(){
+    esp_log_level_set("*", ESP_LOG_VERBOSE);
+}
+
 void app_main(void) {
     disable_watchdog();
 

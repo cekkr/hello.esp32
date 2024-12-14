@@ -70,6 +70,9 @@ bool prepare_wasm_execution(const uint8_t* wasm_data, size_t size) {
 static const bool HELLOESP_DEBUG_run_wasm = true;
 static void run_wasm(uint8_t* wasm, uint32_t fsize)
 {
+    esp_task_wdt_init(10, true); // 10 secondi timeout
+    esp_task_wdt_add(NULL);      // Aggiungi il task corrente al watchdog
+
     M3Result result = m3Err_none;
 
     // Prima verifica la disponibilità di memoria
