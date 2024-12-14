@@ -107,6 +107,8 @@ m3ApiRawFunction(wasm_esp_printf__2) {
     
     // Ottieni il puntatore al formato dalla memoria WASM
     m3ApiGetArgMem(const char*, format);
+
+    ESP_LOGD(TAG, "wasm_esp_printf__2: format: %s", format);
     
     // Buffer per il risultato formattato
     char formatted_output[256];
@@ -162,10 +164,6 @@ m3ApiRawFunction(wasm_esp_printf__2) {
     
     m3ApiReturn(result);
 }
-
-///
-///
-///
 
 
 ///

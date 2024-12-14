@@ -13,4 +13,4 @@ declare function esp_get_temperature(): number;
 declare function esp_wifi_scan(): number;
 
 // Printf-like function for ESP32
-declare function esp_printf(format: string, ...args: ...number[]): void;
+declare function esp_printf(format: string | number, ...args: number[]): void;

@@ -21,11 +21,15 @@ uint32_t fib(uint32_t n) {
 // Funzione principale che stampa la serie
 EMSCRIPTEN_KEEPALIVE
 void print_fibonacci(uint32_t n) {
-    esp_printf("Fibonacci series up to %d:\n", n);
+    // Usa stringhe di formato statiche
+    const char* fmt1 = "Fibonacci series up to %d:\n";
+    const char* fmt2 = "F(%d) = %d\n";
+    
+    esp_printf(fmt1, n);
     
     for(uint32_t i = 0; i <= n; i++) {
         uint32_t result = fib(i);
-        esp_printf("F(%d) = %d\n", i, result);
+        esp_printf(fmt2, i, result);
     }
 }
 
