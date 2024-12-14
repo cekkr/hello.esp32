@@ -169,6 +169,8 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
     //if(module) m3_FreeModule(module);
     if(runtime) m3_FreeRuntime(runtime);  
     if(env) m3_FreeEnvironment(env);
+
+    //todo: free wasm memory
 }
 
 void app_main_wasm3(void) // just for example
