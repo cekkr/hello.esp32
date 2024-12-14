@@ -70,13 +70,15 @@ bool prepare_wasm_execution(const uint8_t* wasm_data, size_t size) {
 static const bool HELLOESP_DEBUG_run_wasm = true;
 static void run_wasm(uint8_t* wasm, uint32_t fsize)
 {
-    esp_task_wdt_config_t wdt_config = {
-        .timeout_ms = 10000,        // 10 secondi
-        .idle_core_mask = (1 << 0), // Monitora il core 0
-        .trigger_panic = true       // Genera panic al timeout
-    };
-    esp_task_wdt_init(&wdt_config);
-    esp_task_wdt_add(NULL);    // Aggiunge il task corrente
+    if(false){ // enable watchdog timer
+        esp_task_wdt_config_t wdt_config = {
+            .timeout_ms = 10000,        // 10 secondi
+            .idle_core_mask = (1 << 0), // Monitora il core 0
+            .trigger_panic = true       // Genera panic al timeout
+        };
+        esp_task_wdt_init(&wdt_config);
+        esp_task_wdt_add(NULL);    // Aggiunge il task corrente
+    }
 
     M3Result result = m3Err_none;
 
