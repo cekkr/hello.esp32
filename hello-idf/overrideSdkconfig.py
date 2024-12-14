@@ -43,7 +43,9 @@ def modify_sdkconfig(sdkconfig_path):
         "CONFIG_FATFS_LFN_STACK_BUFFER_SIZE":"256",
         "CONFIG_FATFS_USE_LFN":"1",
         "CONFIG_FATFS_MAX_LFN":"255",
-        "CONFIG_ESP32_INSTRUCTION_CACHE_SIZE": "64"
+        "CONFIG_ESP32_INSTRUCTION_CACHE_SIZE": "64",
+        "CONFIG_ESP_SYSTEM_MEMPROT_FEATURE": "n",
+        "CONFIG_ESP_HEAP_TASK_STACK_SIZE": "32768"
     }
 
     # Leggi il file esistente
