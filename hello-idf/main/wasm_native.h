@@ -245,7 +245,7 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext _ctx, uint64_t* _s
 const WasmFunctionEntry functionTable[] = {
     { 
         .name = (const char*)"esp_printf",           // Nome della funzione in WASM
-        .func = wasm_esp_printf__2,    // Puntatore alla funzione
+        .func = wasm_esp_printf,    // Puntatore alla funzione
         .signature = (const char*)"v(ii)"        // Signature: void (raw_ptr, int32)
     },
     // Altre funzioni possono essere aggiunte qui
