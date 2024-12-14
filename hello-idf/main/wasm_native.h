@@ -12,7 +12,7 @@ static const bool HELLO_DEBUG_WASM_NATIVE = true;
 // Implementazione della funzione printf per WASM
 void wasm_esp_printf__(uint8_t* format, int32_t* args, int32_t arg_count) { // currently not used
     ESP_LOGD(TAG, "Called wasm_esp_printf");
-    
+
     char message[256];
     char* current = message;
     const uint8_t* format_ptr = format;
@@ -101,11 +101,12 @@ void wasm_esp_printf__(uint8_t* format, int32_t* args, int32_t arg_count) { // c
 ///
 
 m3ApiRawFunction(wasm_esp_printf__2) {
+    ESP_LOGD(TAG, "wasm_esp_printf__2 called");
     m3ApiGetArgMem(const char*, format);    // Questo gestisce automaticamente la conversione della memoria
     m3ApiGetArg(int32_t, value);
     
     // Esegui la printf
-    printf(format, value);
+    ESP_LOGI(format, value);
     
     m3ApiSuccess();
 }
