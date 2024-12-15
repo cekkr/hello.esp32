@@ -29,7 +29,7 @@ void print_fibonacci(uint32_t n) {
     
     esp_printf(fmt1, n);
     
-    for(uint32_t i = 3; i <= n+3; i++) {
+    for(uint32_t i = 0; i <= n; i++) {
         // Solo un debug print prima del calcolo
         esp_printf("Calling fib with n=%d\n", i);
         

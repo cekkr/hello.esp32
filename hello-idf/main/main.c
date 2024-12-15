@@ -190,7 +190,7 @@ void enable_log_debug(){
 void app_main(void) {
     device_info();
 
-    disable_watchdog();
+    enable_watchdog();
 
     init_error_handling();
     //heap_caps_malloc_extmem_enable(20); // no PSRAM available, ergo useless
