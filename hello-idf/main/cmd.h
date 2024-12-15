@@ -125,15 +125,18 @@ static int cmd_run(int argc, char** argv) {
             free(params->wasm_data);
             free(params);
             free(params);
+
+            return -1;
         }
         else {
             //esp_task_wdt_delete(task_handle);
         }
     } else {
         ESP_LOGE(TAG, "Errore nella lettura del file: %d\n", result);
-    }
+        return -1;
+    }    
 
-    vTaskDelete(NULL); 
+    return 0;  // Comando eseguito con successo
 }
 
 // Handler per il comando "echo"
