@@ -184,7 +184,7 @@ void mostra_info_sd(const char* mount_point) {
 
     // Sector size is typically 512 bytes
     // fs->ssize contiene il sector size in bytes
-    size_t sector_size = fs->ssize;
+    size_t sector_size = fs->csize;
     total_bytes = total_sectors * sector_size;
     free_bytes = free_sectors * sector_size;
     
