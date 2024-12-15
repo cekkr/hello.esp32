@@ -9,6 +9,7 @@
 #include "esp_log.h"
 
 #include "device.h"
+#include "defines.h"
 
 // WASM
 #include "wasm.h"
@@ -95,17 +96,7 @@ static int cmd_run(int argc, char** argv) {
         TaskHandle_t task_handle;
         BaseType_t ret;
 
-        if(true){
-            ret = xTaskCreate(
-                wasm_task,
-                "wasm_executor",
-                WASM_STACK_SIZE*2,
-                params,
-                WASM_TASK_PRIORITY,
-                &task_handle
-            );      
-        } 
-        else {
+        if(WASM_TASK_ADV){
             ret = xTaskCreatePinnedToCore(
                 wasm_task,
                 "wasm_executor",
@@ -115,6 +106,16 @@ static int cmd_run(int argc, char** argv) {
                 &task_handle,           // Non ci serve l'handle
                 1               // Core 1
             );
+        } 
+        else {
+            ret = xTaskCreate(
+                wasm_task,
+                "wasm_executor",
+                WASM_STACK_SIZE*2,
+                params,
+                WASM_TASK_PRIORITY,
+                &task_handle
+            );    
         }
         
         if (ret != pdPASS) {

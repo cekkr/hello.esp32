@@ -13,6 +13,7 @@
 #include <dirent.h>
 #include "mbedtls/md5.h"
 
+#include "defines.h"
 #include "device.h"
 #include "sdcard.h"
 
@@ -801,7 +802,7 @@ cleanup:
 // Funzione per avviare il task
 esp_err_t start_serial_handler(void) {
     BaseType_t ret;
-    if(false){
+    if(SERIAL_TASK_ADV){
         ret = xTaskCreatePinnedToCore(
             serial_handler_task,
             "serial_handler",

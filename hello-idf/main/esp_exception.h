@@ -171,7 +171,8 @@ static void custom_log_handler(esp_log_level_t level, const char* tag, const cha
             tag,
             buffer);
 
-    esp_backtrace_print(10);
+    if(level == ESP_LOG_ERROR)
+        esp_backtrace_print(10);
 }
 
 // Funzione di inizializzazione
