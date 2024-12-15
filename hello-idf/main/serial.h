@@ -315,7 +315,7 @@ static command_status_t parse_command(const char* command, char* cmd_type, comma
     return STATUS_OK;
 }
 
-command_status_t wait_for_command(char* cmd_type, command_params_t* params) {
+command_status_t wait_for_command(char* cmd_type, command_params_t* params) {    
     char command_buffer[1536] = {0};
     size_t length = 0;
     
@@ -405,7 +405,7 @@ static bool is_filename_valid(const char* filename) {
 }
 
 // Funzione per la scrittura del file
-void serial_handler_task(void *pvParameters) {
+void serial_handler_task(void *pvParameters) {    
     esp_task_wdt_add(NULL);
 
     //char* command = malloc(BUF_SIZE);

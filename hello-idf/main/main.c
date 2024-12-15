@@ -215,6 +215,7 @@ void app_main(void) {
     ESP_LOGI(TAG, "Init TFT\n");
     init_tft();      
 
+    esp_task_wdt_add(NULL);
     while(1){        
         esp_task_wdt_reset();
 		vTaskDelay(100 / portTICK_PERIOD_MS);
