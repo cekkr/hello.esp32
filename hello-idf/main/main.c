@@ -187,10 +187,11 @@ void enable_log_debug(){
     esp_log_level_set("*", ESP_LOG_DEBUG);
 }
 
-void app_main(void) {
+void app_main(void) {    
     device_info();
 
-    handle_watchdog();
+    //handle_watchdog();
+    WATCHDOG_ADD
 
     init_error_handling();
     init_custom_logging();
