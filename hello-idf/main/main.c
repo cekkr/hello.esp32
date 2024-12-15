@@ -60,6 +60,8 @@ static const char *TAG = "HELLOESP";
 
 static void Draw(void *pvParameters)
 {
+    WATCHDOG_ADD
+
 	uint16_t CurrentColor = BLUE;
 	while (1){
 		if(xpt2046_read()){
@@ -93,6 +95,8 @@ static void Draw(void *pvParameters)
 		vTaskDelay(10 / portTICK_PERIOD_MS);
 
 	}
+
+    WATCHDOG_END
 	vTaskDelete(NULL);
 }
 void init_tft(void)
@@ -190,7 +194,7 @@ void enable_log_debug(){
 void app_main(void) {    
     //handle_watchdog();
     WATCHDOG_ADD
-    
+
     device_info();    
 
     init_error_handling();
