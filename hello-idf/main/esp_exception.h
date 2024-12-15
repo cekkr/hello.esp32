@@ -10,6 +10,10 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
+#include "esp_debug_helpers.h"
+#include "esp_private/panic_internal.h"
+
+
 // Definizione degli eventi personalizzati per errori
 ESP_EVENT_DEFINE_BASE(ERROR_EVENTS);
 enum {
@@ -45,9 +49,9 @@ static void error_event_handler(void* handler_args, esp_event_base_t base, int32
 }
 
 // Funzione di panic handler personalizzata
-static void custom_panic_handler(void) {
-    uint32_t error_code = 0xDEAD;
-    ESP_ERROR_CHECK(esp_event_post(ERROR_EVENTS, ERROR_EVENT_PANIC, &error_code, sizeof(error_code), portMAX_DELAY));
+void custom_panic_handler(void* frame, panic_info_t* info) {
+    ESP_LOGE(TAG, "Custom panic handler");
+    esp_backtrace_print(100);
 }
 
 // Inizializzazione del sistema di gestione errori
@@ -70,11 +74,13 @@ esp_err_t init_error_handling(void) {
         NULL,                  // Handler argument
         NULL                   // Handler instance (optional)
     );
-
+    
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Failed to register event handler: %d", ret);
         return ret;
     }
+
+    //esp_set_panic_handler(custom_panic_handler);
 
     ESP_LOGI(TAG, "Error handling system initialized");
     return ESP_OK;

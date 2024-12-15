@@ -27,11 +27,11 @@ static const char *TAG = "HELLOESP";
 // General functions
 #include "io.h"
 #include "esp_exception.h"
+#include "device.h"
 
 // CMDs
 #include "cmd.h"
 
-#include "device.h"
 
 ///
 /// SD
