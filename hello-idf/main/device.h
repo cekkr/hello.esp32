@@ -16,8 +16,6 @@ void restart_device(void) {
     esp_restart();
 }
 
-#define ENABLE_WATCHDOG 1
-
 #if ENABLE_WATCHDOG
 void watchdog_task_register(){
     return;
