@@ -107,7 +107,7 @@ static int cmd_run(int argc, char** argv) {
             return -1;
         }
         else {
-            esp_task_wdt_delete(task_handle);
+            //esp_task_wdt_delete(task_handle);
         }
         
         return 0;
