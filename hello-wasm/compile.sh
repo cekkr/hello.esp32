@@ -13,7 +13,7 @@ emcc samples/fibonacciPrint.c -o output/fibonacciPrint.wasm \
     -s INITIAL_MEMORY=65536 \
     -s STACK_SIZE=4096 \
     -s ALLOW_MEMORY_GROWTH=1 \
-    -s EXPORTED_FUNCTIONS='["_start"]' \
+    -s EXPORTED_FUNCTIONS='["_start", "_print_fibonacci", "_fib"]' \
     -O3 \
     --no-entry 
 

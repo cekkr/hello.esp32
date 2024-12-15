@@ -197,7 +197,7 @@ void app_main(void) {
 
     device_info();    
 
-    init_error_handling();
+    //init_error_handling();
     //init_custom_logging(); // this crash everything
     enable_log_debug();
 
