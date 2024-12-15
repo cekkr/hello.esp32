@@ -8,6 +8,7 @@
 #include "esp_log.h"
 #include <errno.h>
 #include "driver/uart.h"     // Per UART_NUM_0 e altre costanti UART
+#include "esp_task_wdt.h"
 
 #include <dirent.h>
 #include "mbedtls/md5.h"
@@ -417,6 +418,9 @@ void serial_handler_task(void *pvParameters) {
     ESP_LOGI(TAG, "Serial handler started\n");
 
     while(1) {
+
+        esp_task_wdt_reset();
+
         if (uxTaskGetStackHighWaterMark(NULL) < 512) {
             ESP_LOGW(TAG, "Stack getting low! %d bytes remaining\n",
                      uxTaskGetStackHighWaterMark(NULL));
