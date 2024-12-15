@@ -35,8 +35,9 @@ void disable_watchdog() {
     #endif
 
     // 4. Disabilita Timer Group Watchdogs
+    // https://gitlab.informatik.uni-bremen.de/fbrning/esp-idf/-/blob/master/components/soc/esp32s3/include/soc/timer_group_struct.h
     TIMERG0.wdtwprotect.wdt_wkey = TIMG_WDT_WKEY_V;
-    TIMERG0.wdtconfig0.wdt_en = 0; // https://gitlab.informatik.uni-bremen.de/fbrning/esp-idf/-/blob/master/components/soc/esp32s3/include/soc/timer_group_struct.h
+    TIMERG0.wdtconfig0.wdt_en = 0; 
     TIMERG0.wdtwprotect.val = 0;
     
     TIMERG1.wdtwprotect.wdt_wkey = TIMG_WDT_WKEY_V;
