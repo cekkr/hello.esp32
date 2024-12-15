@@ -154,7 +154,7 @@ void disable_watchdog(){
 
     // Disabilita il Task Watchdog Timer (TWDT)
     esp_task_wdt_config_t twdt_config = {
-        .timeout_ms = 0,  // timeout in millisecondi
+        .timeout_ms = 60*1000,  // timeout in millisecondi
         .idle_core_mask = (1 << portNUM_PROCESSORS) - 1,  // bitmask di tutti i core
         .trigger_panic = false
     };
