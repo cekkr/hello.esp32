@@ -8,7 +8,7 @@
 #define ENABLE_WATCHDOG 1
 
 #if ENABLE_WATCHDOG
-#define WATCHDOG_RESET WATCHDOG_RESET
+#define WATCHDOG_RESET esp_task_wdt_reset();
 #else 
 #define WATCHDOG_RESET
 #endif

@@ -49,18 +49,18 @@ void handle_watchdog() {
 
     // 1. Disabilita RTC WDT
     #if ENABLE_WATCHDOG
-    if(false){
+    if(true){
         //rtc_wdt_protect_off();
         //rtc_wdt_disable();
         //rtc_wdt_protect_on();
 
         // 2. Disabilita Task WDT
-        esp_task_wdt_deinit();
+        //esp_task_wdt_deinit();
 
         // Configurazione del Task Watchdog
         esp_task_wdt_config_t twdt_config = {
             .timeout_ms = 60000,                // timeout di 3 secondi
-            .idle_core_mask = (1 << 0),        // monitora il core 0
+            .idle_core_mask = (1 << 0) | (1 << 1),        // monitora il core 0 + 1
             .trigger_panic = false              // genera panic in caso di timeout
         };
         esp_task_wdt_init(&twdt_config);       
@@ -68,7 +68,7 @@ void handle_watchdog() {
 
      // Sottoscrivi il task corrente al watchdog
     esp_task_wdt_add(NULL);
-    
+
     #endif   
 }
 #else
