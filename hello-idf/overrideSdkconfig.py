@@ -74,8 +74,10 @@ def modify_sdkconfig(sdkconfig_path):
         "CONFIG_ESP_SYSTEM_MEMPROT_FEATURE":"y",
         "CONFIG_ESP_SYSTEM_MEMPROT_FEATURE_LOCK":"y",
 
-        "CONFIG_ESP_TASK_WDT_DEBUG":"y",
+        "CONFIG_ESP_TASK_WDT_DEBUG":"y",        
+    }
 
+    ''' Removed configurations
         # Configurazione dello stack size per i task
         "CONFIG_ESP_MAIN_TASK_STACK_SIZE":"65536",
         "CONFIG_FREERTOS_IDLE_TASK_STACKSIZE":"65536",
@@ -86,11 +88,11 @@ def modify_sdkconfig(sdkconfig_path):
 
         # Configurazione aggiuntiva consigliata per stack grandi
         "CONFIG_FREERTOS_TIMER_TASK_STACK_DEPTH":"65536",
-        "CONFIG_FREERTOS_ISR_STACKSIZE":"65536",
+        "CONFIG_FREERTOS_ISR_STACKSIZE":"65536",       
 
         # Aumentare heap se necessario
         "CONFIG_ESP_SYSTEM_PANIC_STACK_SIZE":"65536"
-    }
+    '''
 
     # Leggi il file esistente
     try:

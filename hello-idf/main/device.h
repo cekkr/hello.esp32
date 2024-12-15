@@ -26,7 +26,7 @@ void watchdog_task_register(){
     #endif
 }
 
-void enable_watchdog() {
+void handle_watchdog() {
 // 1. Disabilita RTC WDT
     #if ENABLE_WATCHDOG
     //rtc_wdt_protect_off();
@@ -71,7 +71,7 @@ void enable_watchdog() {
 }
 #else
 void watchdog_task_register(){}
-void disable_watchdog() {
+void handle_watchdog() {
     // https://gitlab.informatik.uni-bremen.de/fbrning/esp-idf/-/blob/master/components/soc/esp32s3/include/soc/timer_group_struct.h
     TIMERG0.wdtwprotect.wdt_wkey = TIMG_WDT_WKEY_V;
     TIMERG0.wdtfeed.val = 1;

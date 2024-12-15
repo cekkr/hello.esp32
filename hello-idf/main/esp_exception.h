@@ -146,6 +146,8 @@ static const log_mapping_t log_mappings[] = {
 
 // Handler personalizzato per i log
 static void custom_log_handler(esp_log_level_t level, const char* tag, const char* fmt, va_list args) {
+    ESP_LOGI(TAG, "custom_log_handler called");
+    
     char buffer[512];
     vsnprintf(buffer, sizeof(buffer), fmt, args);
 
@@ -172,16 +174,17 @@ static void custom_log_handler(esp_log_level_t level, const char* tag, const cha
             buffer);
 
     if(level == ESP_LOG_ERROR)
-        esp_backtrace_print(10);
+        esp_backtrace_print(10);   
 }
 
 // Funzione di inizializzazione
 void init_custom_logging(void) {
     // Imposta il livello minimo di log
-    esp_log_level_set("*", ESP_LOG_INFO);
-    
+     //esp_log_level_set("*", ESP_LOG_INFO);
+    esp_log_level_set("*", ESP_LOG_INFO);  // ESP_LOG_NONE ESP_LOG_INFO
+
     // Registra l'handler personalizzato
-    esp_log_set_vprintf(custom_log_handler);
+    //esp_log_set_vprintf(custom_log_handler); // uncomment to make this work
 }
 
 #endif // HELLOESP_ESP_EXCEPTION_H

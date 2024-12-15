@@ -19,7 +19,7 @@
 
 // Definizioni
 #define BUF_SIZE 1024
-#define STACK_SIZE 8192
+#define STACK_SIZE 1024*32
 #define CHUNK_SIZE 1024
 
 // Comandi
@@ -797,7 +797,7 @@ cleanup:
     //free(command);
     free(cmd_type);
     free(params);
-        
+
     vTaskDelete(NULL);
 }
 
@@ -832,7 +832,10 @@ esp_err_t start_serial_handler(void) {
         return ESP_FAIL;
     }
     
+    #if ENABLE_WATCHDOG
     esp_task_wdt_delete(NULL);
+    #endif
+    
     return ESP_OK;
 }
 

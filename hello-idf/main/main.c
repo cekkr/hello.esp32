@@ -190,7 +190,7 @@ void enable_log_debug(){
 void app_main(void) {
     device_info();
 
-    //enable_watchdog();
+    handle_watchdog();
 
     init_error_handling();
     init_custom_logging();
@@ -219,7 +219,7 @@ void app_main(void) {
     #if ENABLE_WATCHDOG
     esp_task_wdt_add(NULL);
     #endif 
-    
+
     while(1){        
         WATCHDOG_RESET
 		vTaskDelay(100 / portTICK_PERIOD_MS);

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-python3 overrideSdkconfig.py
+#python3 overrideSdkconfig.py
 
 #export IDF_PATH="/Users/riccardo/Sources/Libs/esp-idf-v5.3.1"
 #alias python=python3
