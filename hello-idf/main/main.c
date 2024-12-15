@@ -184,7 +184,7 @@ void init_uart() {
 }
 
 void enable_log_debug(){
-    esp_log_level_set("*", ESP_LOG_VERBOSE);
+    esp_log_level_set("*", ESP_LOG_DEBUG);
 }
 
 void app_main(void) {
@@ -194,6 +194,7 @@ void app_main(void) {
 
     init_error_handling();
     init_custom_logging();
+    enable_log_debug();
     //heap_caps_malloc_extmem_enable(20); // no PSRAM available, ergo useless
 
     if(false){
@@ -241,8 +242,11 @@ void __wrap_esp_panic_handler (void* info) {
     ESP_LOGE(TAG, "Kernel Panic Handler triggered");
     
     //todo: print info
+    vTaskDelay(pdMS_TO_TICKS(100));
 
     esp_backtrace_print(100);    
+
+    vTaskDelay(pdMS_TO_TICKS(1000));
 
     /* Call the original panic handler function to finish processing this error (creating a core dump for example...) */
     //__real_esp_panic_handler(info);

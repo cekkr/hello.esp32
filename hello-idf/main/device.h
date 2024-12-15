@@ -21,7 +21,7 @@ void watchdog_task_register(){
     return;
 
     #if ENABLE_WATCHDOG
-    esp_task_wdt_add(NULL);  // Registra il task corrente
+    // Registra il task corrente
     WATCHDOG_RESET;
     #endif
 }
@@ -66,7 +66,7 @@ void handle_watchdog() {
         esp_task_wdt_config_t twdt_config = {
             .timeout_ms = 60000,                // timeout di 3 secondi
             .idle_core_mask = (1 << 0) | (1 << 1),        // monitora il core 0 + 1
-            .trigger_panic = false              // genera panic in caso di timeout
+            .trigger_panic = true              // genera panic in caso di timeout
         };
         esp_task_wdt_init(&twdt_config);       
     }

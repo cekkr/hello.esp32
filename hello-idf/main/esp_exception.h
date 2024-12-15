@@ -15,6 +15,9 @@
 
 #include "esp_log.h"
 #include "esp_timer.h"
+#include "esp_log.h"
+#include "freertos/FreeRTOS.h"
+
 
 
 // Definizione degli eventi personalizzati per errori
@@ -26,6 +29,9 @@ enum {
 
 // Handler per gli eventi di errore
 static void error_event_handler(void* handler_args, esp_event_base_t base, int32_t id, void* event_data) {
+    ESP_LOGW(TAG, "error_event_handler called");
+    //backtrace_print(100);
+
     switch (id) {
         case ERROR_EVENT_PANIC:
             ESP_LOGE(TAG, "Sistema in panic!");
@@ -147,24 +153,18 @@ static const log_mapping_t log_mappings[] = {
 // Handler personalizzato per i log
 static void custom_log_handler(esp_log_level_t level, const char* tag, const char* fmt, va_list args) {
     ESP_LOGI(TAG, "custom_log_handler called");
-    
-    char buffer[512];
+
+    char buffer[512];  // Assicurati che sia abbastanza grande
     vsnprintf(buffer, sizeof(buffer), fmt, args);
 
-    // Cerca una mappatura corrispondente
-    for (int i = 0; i < sizeof(log_mappings) / sizeof(log_mapping_t); i++) {
-        if (strcmp(tag, log_mappings[i].tag) == 0 && 
-            strstr(buffer, log_mappings[i].custom_description) != NULL) {
-            // Stampa il messaggio originale con la descrizione personalizzata
-            printf("%c (%d) %s: %s\nDescrizione: %s\n",
-                   log_level_to_char(level),
-                   get_log_timestamp(),
-                   tag,
-                   buffer,
-                   log_mappings[i].custom_description);
-            return;
-        }
-    }
+    if(level == ESP_LOG_ERROR) ESP_LOGE(TAG, "%s", buffer);
+    if(level == ESP_LOG_WARN) ESP_LOGW(TAG, "%s", buffer);
+    if(level == ESP_LOG_INFO) ESP_LOGI(TAG, "%s", buffer);
+    if(level == ESP_LOG_DEBUG) ESP_LOGD(TAG, "%s", buffer);
+    if(level == ESP_LOG_VERBOSE) ESP_LOGV(TAG, "%s", buffer);
+
+    vTaskDelay(pdMS_TO_TICKS(100));
+    return;
 
     // Se non viene trovata una mappatura, stampa il messaggio originale
     printf("%c (%d) %s: %s\n",
@@ -180,11 +180,10 @@ static void custom_log_handler(esp_log_level_t level, const char* tag, const cha
 // Funzione di inizializzazione
 void init_custom_logging(void) {
     // Imposta il livello minimo di log
-     //esp_log_level_set("*", ESP_LOG_INFO);
-    esp_log_level_set("*", ESP_LOG_INFO);  // ESP_LOG_NONE ESP_LOG_INFO
+    //esp_log_level_set("*", ESP_LOG_INFO);  // ESP_LOG_NONE ESP_LOG_INFO    
 
     // Registra l'handler personalizzato
-    //esp_log_set_vprintf(custom_log_handler); // uncomment to make this work
+    esp_log_set_vprintf(custom_log_handler); // uncomment to make this work
 }
 
 #endif // HELLOESP_ESP_EXCEPTION_H
