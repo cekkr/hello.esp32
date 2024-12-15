@@ -188,10 +188,10 @@ void enable_log_debug(){
 }
 
 void app_main(void) {    
-    device_info();
-
     //handle_watchdog();
     WATCHDOG_ADD
+    
+    device_info();    
 
     init_error_handling();
     init_custom_logging();
