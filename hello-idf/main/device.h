@@ -7,6 +7,8 @@
 #include "driver/timer.h"
 #include "soc/timer_group_reg.h"
 
+#include "defines.h"
+
 void restart_device(void) {
     ESP_LOGI(TAG, "restart requested");
     
