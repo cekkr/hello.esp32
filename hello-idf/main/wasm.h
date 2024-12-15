@@ -166,8 +166,8 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
     ESP_LOGI(TAG, "Freeing WASM3 context\n");  
     
     if(false){
-        if(runtime) m3_FreeRuntime(runtime);  
         if(env) m3_FreeEnvironment(env);
+        if(runtime) m3_FreeRuntime(runtime);         
     }
 
     free(wasi_ctx);

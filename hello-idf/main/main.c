@@ -222,7 +222,8 @@ void app_main(void) {
 
     while(1){        
         WATCHDOG_RESET
-		vTaskDelay(100 / portTICK_PERIOD_MS);
+        reset_wdt();
+		vTaskDelay(pdMS_TO_TICKS(100));
 	}
 }
 
