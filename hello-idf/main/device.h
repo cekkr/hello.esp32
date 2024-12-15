@@ -56,6 +56,8 @@ void disable_watchdog() {
     TIMERG0.wdtconfig0.wdt_en = 0;
     TIMERG0.wdtconfig0.wdt_stg0 = RTC_WDT_STG_SEL_OFF;
     TIMERG0.wdtconfig0.wdt_stg1 = RTC_WDT_STG_SEL_OFF;
+    TIMERG0.wdtconfig0.wdt_stg2 = RTC_WDT_STG_SEL_OFF;
+    TIMERG0.wdtconfig0.wdt_stg3 = RTC_WDT_STG_SEL_OFF;
     TIMERG0.wdtwprotect.val = 0;
 
     TIMERG1.wdtwprotect.wdt_wkey = TIMG_WDT_WKEY_V;
@@ -63,6 +65,8 @@ void disable_watchdog() {
     TIMERG1.wdtconfig0.wdt_en = 0;
     TIMERG1.wdtconfig0.wdt_stg0 = RTC_WDT_STG_SEL_OFF;
     TIMERG1.wdtconfig0.wdt_stg1 = RTC_WDT_STG_SEL_OFF;
+    TIMERG1.wdtconfig0.wdt_stg2 = RTC_WDT_STG_SEL_OFF;
+    TIMERG1.wdtconfig0.wdt_stg3 = RTC_WDT_STG_SEL_OFF;
     TIMERG1.wdtwprotect.val = 0;
 }
 #endif
