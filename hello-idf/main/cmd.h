@@ -95,7 +95,7 @@ static int cmd_run(int argc, char** argv) {
         TaskHandle_t task_handle;
         BaseType_t ret;
 
-        if(false){
+        if(true){
             ret = xTaskCreate(
                 wasm_task,
                 "wasm_executor",
