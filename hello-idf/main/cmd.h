@@ -120,7 +120,8 @@ static int cmd_run(int argc, char** argv) {
         
         if (ret != pdPASS) {
             ESP_LOGE(TAG, "Failed to create WASM task");
-            free(data);
+            free(params->wasm_data);
+            free(params);
             free(params);
             return -1;
         }
