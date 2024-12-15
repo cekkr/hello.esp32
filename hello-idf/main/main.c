@@ -244,3 +244,28 @@ void app_main(void) {
 		vTaskDelay(1000 / portTICK_PERIOD_MS);
 	}
 }
+
+////
+////
+////
+
+/* Declare the real panic handler function. We'll be able to call it after executing our custom code */
+void __real_esp_panic_handler(void*);
+
+/* This function will be considered the esp_panic_handler to call in case a panic occurs */
+void __wrap_esp_panic_handler (void* info) {
+    /* Custom code, count the number of panics or simply print a message */
+    //esp_rom_printf("Panic has been triggered by the program!\n");
+    ESP_LOGE(TAG, "Kernel Panic Handler triggered");
+    
+    //todo: print info
+
+    esp_backtrace_print(100);
+
+    /* Call the original panic handler function to finish processing this error (creating a core dump for example...) */
+    //__real_esp_panic_handler(info);
+}
+
+////
+////
+////

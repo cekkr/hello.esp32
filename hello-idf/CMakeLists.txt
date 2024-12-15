@@ -5,8 +5,8 @@ cmake_minimum_required(VERSION 3.5)
 set(EXTRA_COMPONENT_DIRS components/wasm3-helloesp/platforms/embedded/esp32-idf-wasi/wasm3)
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+idf_build_set_property(LINK_OPTIONS "-Wl,--wrap=esp_panic_handler" APPEND)
 project(hello-idf)
-
 
 # Create a SPIFFS image from the contents of the 'font' directory
 # that fits the partition named 'storage'. FLASH_IN_PROJECT indicates that
