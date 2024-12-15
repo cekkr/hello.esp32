@@ -72,7 +72,9 @@ def modify_sdkconfig(sdkconfig_path):
         "CONFIG_ESP_SYSTEM_MEMPROT_FEATURE_LOCK": "y",
 
         "CONFIG_ESP_SYSTEM_MEMPROT_FEATURE":"y",
-        "CONFIG_ESP_SYSTEM_MEMPROT_FEATURE_LOCK":"y"
+        "CONFIG_ESP_SYSTEM_MEMPROT_FEATURE_LOCK":"y",
+
+        "CONFIG_ESP_TASK_WDT_DEBUG":"y"
     }
 
     # Leggi il file esistente
