@@ -14,6 +14,9 @@ void restart_device(void) {
     esp_restart();
 }
 
+#define ENABLE_WATCHDOG 0
+
+#if ENABLE_WATCHDOG
 void watchdog_task_register(){
     return;
     esp_task_wdt_add(NULL);  // Registra il task corrente
@@ -44,5 +47,9 @@ void disable_watchdog() {
     TIMERG1.wdtconfig0.wdt_en = 0;
     TIMERG1.wdtwprotect.val = 0;
 }
+#else
+void watchdog_task_register(){}
+void disable_watchdog() {}
+#endif
 
 #endif  // HELLOESP_DEVICE_H
