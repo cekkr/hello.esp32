@@ -190,7 +190,7 @@ void enable_log_debug(){
 void app_main(void) {
     device_info();
 
-    enable_watchdog();
+    //enable_watchdog();
 
     init_error_handling();
     init_custom_logging();
