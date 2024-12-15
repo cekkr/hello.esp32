@@ -149,30 +149,21 @@ void disable_watchdog(){
 // Disabilita il watchdog del timer RTC
     rtc_wdt_protect_off();
     rtc_wdt_disable();
-    disableCore0WDT();
-    disableCore1WDT();
-    
-    return; 
+
+    //disableCore0WDT();
 
     // Disabilita il Task Watchdog Timer (TWDT)
-    /*esp_task_wdt_config_t twdt_config = {
-        .timeout_ms = 9999*9999,  // timeout in millisecondi
+    esp_task_wdt_config_t twdt_config = {
+        .timeout_ms = 0,  // timeout in millisecondi
         .idle_core_mask = (1 << portNUM_PROCESSORS) - 1,  // bitmask di tutti i core
         .trigger_panic = false
     };
     //ESP_ERROR_CHECK(esp_task_wdt_init(&twdt_config));
     //ESP_ERROR_CHECK(esp_task_wdt_delete(xTaskGetCurrentTaskHandle()));
 
-    esp_task_wdt_init(&twdt_config);*/
+    esp_task_wdt_init(&twdt_config);
 
     //watchdog_task_register();
-
-    esp_task_wdt_config_t wdt_config = {
-        .timeout_ms = 10000,        // 10 secondi
-        .idle_core_mask = (1 << 0), // Monitora il core 0
-        .trigger_panic = false       // Genera panic al timeout
-    };
-    esp_task_wdt_init(&wdt_config);
 }
 
 void device_info(){
