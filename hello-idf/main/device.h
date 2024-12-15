@@ -27,28 +27,6 @@ void watchdog_task_register(){
 }
 
 void handle_watchdog() {
-// 1. Disabilita RTC WDT
-    #if ENABLE_WATCHDOG
-    //rtc_wdt_protect_off();
-    //rtc_wdt_disable();
-    //rtc_wdt_protect_on();
-
-    // 2. Disabilita Task WDT
-    esp_task_wdt_deinit();
-
-    // Configurazione del Task Watchdog
-    esp_task_wdt_config_t twdt_config = {
-        .timeout_ms = 60000,                // timeout di 3 secondi
-        .idle_core_mask = (1 << 0),        // monitora il core 0
-        .trigger_panic = false              // genera panic in caso di timeout
-    };
-    esp_task_wdt_init(&twdt_config);
-
-    // Sottoscrivi il task corrente al watchdog
-    esp_task_wdt_add(NULL);
-
-    #endif
-
     // 4. Disabilita Timer Group Watchdogs
     // https://gitlab.informatik.uni-bremen.de/fbrning/esp-idf/-/blob/master/components/soc/esp32s3/include/soc/timer_group_struct.h
     TIMERG0.wdtwprotect.wdt_wkey = TIMG_WDT_WKEY_V;
@@ -67,7 +45,31 @@ void handle_watchdog() {
     TIMERG1.wdtconfig0.wdt_stg1 = RTC_WDT_STG_SEL_OFF;
     TIMERG1.wdtconfig0.wdt_stg2 = RTC_WDT_STG_SEL_OFF;
     TIMERG1.wdtconfig0.wdt_stg3 = RTC_WDT_STG_SEL_OFF;
-    TIMERG1.wdtwprotect.val = 0;    
+    TIMERG1.wdtwprotect.val = 0; 
+
+    // 1. Disabilita RTC WDT
+    #if ENABLE_WATCHDOG
+    if(false){
+        //rtc_wdt_protect_off();
+        //rtc_wdt_disable();
+        //rtc_wdt_protect_on();
+
+        // 2. Disabilita Task WDT
+        esp_task_wdt_deinit();
+
+        // Configurazione del Task Watchdog
+        esp_task_wdt_config_t twdt_config = {
+            .timeout_ms = 60000,                // timeout di 3 secondi
+            .idle_core_mask = (1 << 0),        // monitora il core 0
+            .trigger_panic = false              // genera panic in caso di timeout
+        };
+        esp_task_wdt_init(&twdt_config);       
+    }
+
+     // Sottoscrivi il task corrente al watchdog
+    esp_task_wdt_add(NULL);
+    
+    #endif   
 }
 #else
 void watchdog_task_register(){}
