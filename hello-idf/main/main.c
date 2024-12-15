@@ -216,7 +216,8 @@ void app_main(void) {
     init_tft();      
 
     while(1){        
-		vTaskDelay(1000 / portTICK_PERIOD_MS);
+        esp_task_wdt_reset();
+		vTaskDelay(100 / portTICK_PERIOD_MS);
 	}
 }
 
@@ -235,7 +236,7 @@ void __wrap_esp_panic_handler (void* info) {
     
     //todo: print info
 
-    esp_backtrace_print(100);
+    esp_backtrace_print(100);    
 
     /* Call the original panic handler function to finish processing this error (creating a core dump for example...) */
     //__real_esp_panic_handler(info);
