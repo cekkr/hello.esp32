@@ -145,27 +145,6 @@ void init_spi(){
     esp_err_t ret = spi_bus_initialize(SPI2_HOST, &bus_config, SPI_DMA_DISABLED);
 }
 
-void disable_watchdog(){
-// Disabilita il watchdog del timer RTC
-    rtc_wdt_protect_off();
-    rtc_wdt_disable();
-
-    //disableCore0WDT();
-
-    // Disabilita il Task Watchdog Timer (TWDT)
-    esp_task_wdt_config_t twdt_config = {
-        .timeout_ms = 60*1000,  // timeout in millisecondi
-        .idle_core_mask = (1 << portNUM_PROCESSORS) - 1,  // bitmask di tutti i core
-        .trigger_panic = false
-    };
-    //ESP_ERROR_CHECK(esp_task_wdt_init(&twdt_config));
-    //ESP_ERROR_CHECK(esp_task_wdt_delete(xTaskGetCurrentTaskHandle()));
-
-    esp_task_wdt_init(&twdt_config);
-
-    //watchdog_task_register();
-}
-
 void device_info(){
     uint32_t flash_size;
     esp_flash_get_size(NULL, &flash_size);

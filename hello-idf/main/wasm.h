@@ -73,6 +73,7 @@ static const bool HELLOESP_DEBUG_run_wasm = true;
 static const bool HELLOESP_RUN_WASM_WDT = false;
 static void run_wasm(uint8_t* wasm, uint32_t fsize)
 {
+    disable_watchdog();
     if(HELLOESP_RUN_WASM_WDT) esp_task_wdt_add(NULL);    // Aggiunge il task corrente    
 
     //watchdog_task_register();
