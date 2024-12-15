@@ -810,7 +810,7 @@ esp_err_t start_serial_handler(void) {
             NULL,
             5,              // Priorità media
             NULL,           // Non ci serve l'handle
-            1               // Core 1
+            TASK_CORE               // Core 1
         );
     }
     else {

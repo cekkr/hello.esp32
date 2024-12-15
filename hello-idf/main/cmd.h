@@ -111,9 +111,9 @@ static int cmd_run(int argc, char** argv) {
             ret = xTaskCreate(
                 wasm_task,
                 "wasm_executor",
-                WASM_STACK_SIZE*2,
+                WASM_STACK_SIZE,
                 params,
-                WASM_TASK_PRIORITY,
+                TASK_CORE,
                 &task_handle
             );    
         }
