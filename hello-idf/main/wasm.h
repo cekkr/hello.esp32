@@ -74,7 +74,7 @@ static const bool HELLOESP_RUN_WASM_WDT = true && ENABLE_WATCHDOG;
 static void run_wasm(uint8_t* wasm, uint32_t fsize)
 {
     //disable_watchdog();
-    if(HELLOESP_RUN_WASM_WDT) WATCHDOG_ADD    // Aggiunge il task corrente    
+    if(HELLOESP_RUN_WASM_WDT) { WATCHDOG_ADD }   // Aggiunge il task corrente    
 
     //watchdog_task_register();
 

@@ -191,9 +191,8 @@ void enable_log_debug(){
     esp_log_level_set("*", ESP_LOG_DEBUG);
 }
 
-void app_main(void) {   
-    reset_wdt(); 
-    //handle_watchdog();
+void app_main(void) {       
+    handle_watchdog();
     WATCHDOG_ADD
 
     device_info();    

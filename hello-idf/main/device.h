@@ -16,16 +16,6 @@ void restart_device(void) {
     esp_restart();
 }
 
-#if ENABLE_WATCHDOG
-void watchdog_task_register(){
-    return;
-
-    #if ENABLE_WATCHDOG
-    // Registra il task corrente
-    WATCHDOG_RESET;
-    #endif
-}
-
 void reset_wdt(){
     // https://gitlab.informatik.uni-bremen.de/fbrning/esp-idf/-/blob/master/components/soc/esp32s3/include/soc/timer_group_struct.h
     TIMERG0.wdtwprotect.wdt_wkey = TIMG_WDT_WKEY_V;
@@ -47,14 +37,25 @@ void reset_wdt(){
     TIMERG1.wdtwprotect.val = 0; 
 }
 
+#if ENABLE_WATCHDOG
+void watchdog_task_register(){
+    return;
+
+    #if ENABLE_WATCHDOG
+    // Registra il task corrente
+    WATCHDOG_RESET;
+    #endif
+}
+
 void handle_watchdog() {
     // 4. Disabilita Timer Group Watchdogs
     // https://gitlab.informatik.uni-bremen.de/fbrning/esp-idf/-/blob/master/components/soc/esp32s3/include/soc/timer_group_struct.h
     
+    reset_wdt(); 
 
     // 1. Disabilita RTC WDT
     #if ENABLE_WATCHDOG
-    if(true){
+    if(false){
         //rtc_wdt_protect_off();
         //rtc_wdt_disable();
         //rtc_wdt_protect_on();

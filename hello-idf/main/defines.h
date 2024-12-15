@@ -6,7 +6,8 @@
 #define WASM_TASK_CORE 1
 #define SERIAL_TASK_CORE 0
 
-#define ENABLE_WATCHDOG 1
+
+#define ENABLE_WATCHDOG 0
 
 #if ENABLE_WATCHDOG
 #define WATCHDOG_RESET  esp_task_wdt_reset();
