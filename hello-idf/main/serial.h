@@ -791,15 +791,28 @@ cleanup:
 
 // Funzione per avviare il task
 esp_err_t start_serial_handler(void) {
-    BaseType_t ret = xTaskCreatePinnedToCore(
-        serial_handler_task,
-        "serial_handler",
-        STACK_SIZE,     // Aumentato a 8KB
-        NULL,
-        5,              // Priorità media
-        NULL,           // Non ci serve l'handle
-        1               // Core 1
-    );
+    BaseType_t ret;
+    if(false){
+        ret = xTaskCreatePinnedToCore(
+            serial_handler_task,
+            "serial_handler",
+            STACK_SIZE,     // Aumentato a 8KB
+            NULL,
+            5,              // Priorità media
+            NULL,           // Non ci serve l'handle
+            1               // Core 1
+        );
+    }
+    else {
+        ret = xTaskCreate(
+                serial_handler_task,
+                "wasm_executor",
+                STACK_SIZE,
+                NULL, // params
+                5,
+                NULL // handler
+            );      
+    }
     
     if (ret != pdPASS) {
         ESP_LOGE(TAG, "Failed to create serial handler task");

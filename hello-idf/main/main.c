@@ -200,12 +200,12 @@ void app_main(void) {
         //ESP_ERROR_CHECK(heap_trace_start(HEAP_TRACE_LEAKS));
     }    
 
+    // Inizializzazione della seriale
+    init_uart();
+
     ESP_LOGI(TAG, "\nStarting SD card test...\n");
     init_sd_card(); 
 
-    // Inizializzazione della seriale
-    init_uart();
-    
 	// Avvia il thread di gestione seriale
     ESP_LOGI(TAG, "\nStarting serial handler...\n");
     start_serial_handler();
@@ -213,7 +213,7 @@ void app_main(void) {
     //init_spi(); 
 
     ESP_LOGI(TAG, "Init TFT\n");
-    init_tft();      
+    //init_tft();      
 
     while(1){        
 		vTaskDelay(1000 / portTICK_PERIOD_MS);

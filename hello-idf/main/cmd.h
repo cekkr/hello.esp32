@@ -96,7 +96,7 @@ static int cmd_run(int argc, char** argv) {
         BaseType_t ret;
 
         if(false){
-            BaseType_t ret = xTaskCreate(
+            ret = xTaskCreate(
                 wasm_task,
                 "wasm_executor",
                 WASM_STACK_SIZE*2,
@@ -106,7 +106,7 @@ static int cmd_run(int argc, char** argv) {
             );      
         } 
         else {
-            BaseType_t ret = xTaskCreatePinnedToCore(
+            ret = xTaskCreatePinnedToCore(
                 wasm_task,
                 "wasm_executor",
                 WASM_STACK_SIZE*2,     // Aumentato a 8KB
