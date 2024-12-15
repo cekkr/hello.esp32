@@ -8,6 +8,8 @@
 
 #include "esp_log.h"
 
+#include "device.h"
+
 // WASM
 #include "wasm.h"
 
@@ -91,14 +93,29 @@ static int cmd_run(int argc, char** argv) {
         
         // Crea la task
         TaskHandle_t task_handle;
-        BaseType_t ret = xTaskCreate(
-            wasm_task,
-            "wasm_executor",
-            WASM_STACK_SIZE*2,
-            params,
-            WASM_TASK_PRIORITY,
-            &task_handle
-        );        
+        BaseType_t ret;
+
+        if(false){
+            BaseType_t ret = xTaskCreate(
+                wasm_task,
+                "wasm_executor",
+                WASM_STACK_SIZE*2,
+                params,
+                WASM_TASK_PRIORITY,
+                &task_handle
+            );      
+        } 
+        else {
+            BaseType_t ret = xTaskCreatePinnedToCore(
+                wasm_task,
+                "wasm_executor",
+                WASM_STACK_SIZE*2,     // Aumentato a 8KB
+                NULL,
+                5,              // Priorità media
+                &task_handle,           // Non ci serve l'handle
+                1               // Core 1
+            );
+        }
         
         if (ret != pdPASS) {
             ESP_LOGE(TAG, "Failed to create WASM task");

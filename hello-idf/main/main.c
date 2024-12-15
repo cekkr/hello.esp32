@@ -190,7 +190,7 @@ void enable_log_debug(){
 void app_main(void) {
     device_info();
 
-    disable_watchdog();
+    //disable_watchdog();
 
     init_error_handling();
     //heap_caps_malloc_extmem_enable(20); // no PSRAM available, ergo useless
@@ -198,15 +198,16 @@ void app_main(void) {
     if(false){
         //ESP_ERROR_CHECK(heap_trace_init_standalone(heap_trace_records, HEAP_TRACE_ALL));
         //ESP_ERROR_CHECK(heap_trace_start(HEAP_TRACE_LEAKS));
-    }
+    }    
 
     ESP_LOGI(TAG, "\nStarting SD card test...\n");
     init_sd_card(); 
 
     // Inizializzazione della seriale
     init_uart();
-
+    
 	// Avvia il thread di gestione seriale
+    ESP_LOGI(TAG, "\nStarting serial handler...\n");
     start_serial_handler();
 
     //init_spi(); 
