@@ -216,7 +216,10 @@ void app_main(void) {
     ESP_LOGI(TAG, "Init TFT\n");
     init_tft();      
 
+    #if ENABLE_WATCHDOG
     esp_task_wdt_add(NULL);
+    #endif 
+    
     while(1){        
         WATCHDOG_RESET
 		vTaskDelay(100 / portTICK_PERIOD_MS);
