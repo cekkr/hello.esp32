@@ -96,7 +96,7 @@ static int cmd_run(int argc, char** argv) {
         TaskHandle_t task_handle;
         BaseType_t ret;
 
-        UBaseType_t priority = 4 | tskIDLE_PRIORITY;
+        UBaseType_t priority = 5 | portPRIVILEGE_BIT;
 
         if(WASM_TASK_ADV){
             ret = xTaskCreatePinnedToCore(
@@ -125,17 +125,15 @@ static int cmd_run(int argc, char** argv) {
             free(params->wasm_data);
             free(params);
             free(params);
-            return -1;
         }
         else {
             //esp_task_wdt_delete(task_handle);
         }
-        
-        return 0;
     } else {
         ESP_LOGE(TAG, "Errore nella lettura del file: %d\n", result);
-        return -1;
     }
+
+    vTaskDelete(NULL); 
 }
 
 // Handler per il comando "echo"

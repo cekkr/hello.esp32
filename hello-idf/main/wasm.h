@@ -168,16 +168,15 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
     if(false){
         if(env) m3_FreeEnvironment(env);
         if(runtime) m3_FreeRuntime(runtime);         
-    }
-
-    free(wasi_ctx);
-    free(wasm);
+    }    
 
     //todo: free wasm memory
 
     if(HELLOESP_RUN_WASM_WDT){ 
         WATCHDOG_END
-    }
+    }   
+
+    ESP_LOGI(TAG, "run_wasm: end of function"); 
 }
 
 void app_main_wasm3(void) // just for example
@@ -345,12 +344,14 @@ static void wasm_task(void* pvParameters) {
     // Esegui WASM in un contesto isolato
     run_wasm(params->wasm_data, params->wasm_size);
     
+    ESP_LOGI(TAG, "wasm_task: after run_wasm execution");
+
     // Libera la memoria
     free(params->wasm_data);
     free(params);
     
     // Elimina la task
-    //vTaskDelete(NULL);
+    vTaskDelete(NULL);
 }
 
 #endif // HELLOESP_WASM
