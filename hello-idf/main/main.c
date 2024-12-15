@@ -149,9 +149,11 @@ void disable_watchdog(){
 // Disabilita il watchdog del timer RTC
     rtc_wdt_protect_off();
     rtc_wdt_disable();
+    disableCore0WDT();
+    disableCore1WDT();
     
     return; 
-    
+
     // Disabilita il Task Watchdog Timer (TWDT)
     /*esp_task_wdt_config_t twdt_config = {
         .timeout_ms = 9999*9999,  // timeout in millisecondi
