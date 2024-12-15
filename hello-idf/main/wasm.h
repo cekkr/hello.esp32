@@ -170,7 +170,11 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
 
     //todo: free wasm memory
 
-    if(HELLOESP_RUN_WASM_WDT) esp_task_wdt_delete(NULL);
+    if(HELLOESP_RUN_WASM_WDT){ 
+        esp_task_wdt_reset();  
+        vTaskDelay(pdMS_TO_TICKS(10)); 
+        esp_task_wdt_delete(NULL);
+    }
 }
 
 void app_main_wasm3(void) // just for example
