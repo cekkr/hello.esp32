@@ -4,7 +4,7 @@
 #include "esp_system.h"
 #include "esp_task_wdt.h"
 #include "soc/timer_group_struct.h"
-#include "driver/timer.h"
+#include "driver/timer.h"      
 #include "soc/timer_group_reg.h"
 
 #include "defines.h"
@@ -22,7 +22,7 @@ void restart_device(void) {
 void watchdog_task_register(){
     return;
     esp_task_wdt_add(NULL);  // Registra il task corrente
-    WATCHDOG_RESET 
+    WATCHDOG_RESET;
 }
 
 void enable_watchdog() {
