@@ -70,7 +70,7 @@ int serial_write(char *buffer, size_t size){
 char serial_read_char(){
     char c = '\0';
     while(uart_read_bytes(UART_NUM_0, &c, 1, portMAX_DELAY) == 0){
-        esp_task_wdt_reset();
+        WATCHDOG_RESET
         vTaskDelay(0.01);
     }
 
@@ -325,7 +325,7 @@ command_status_t wait_for_command(char* cmd_type, command_params_t* params) {
         //char c = getchar();        
 
         char c = serial_read_char();
-        esp_task_wdt_reset();
+        WATCHDOG_RESET
 
         //if (uart_read_bytes(UART_NUM_0, &c, 1, portMAX_DELAY) > 0) {
 
@@ -407,7 +407,9 @@ static bool is_filename_valid(const char* filename) {
 
 // Funzione per la scrittura del file
 void serial_handler_task(void *pvParameters) {    
+    #if ENABLE_WATCHDOG
     esp_task_wdt_add(NULL);
+    #endif
 
     //char* command = malloc(BUF_SIZE);
     char* cmd_type = malloc(BUF_SIZE);
@@ -424,7 +426,7 @@ void serial_handler_task(void *pvParameters) {
     ESP_LOGI(TAG, "Serial handler started\n");
 
     while(1) {        
-        esp_task_wdt_reset();
+        WATCHDOG_RESET
 
         if (uxTaskGetStackHighWaterMark(NULL) < 512) {
             ESP_LOGW(TAG, "Stack getting low! %d bytes remaining\n",
@@ -531,7 +533,7 @@ void serial_handler_task(void *pvParameters) {
                 while (total_read < to_read) {
                     //ESP_LOGI(TAG, "serial_read_char()\n");
                     int c = serial_read_char();
-                    esp_task_wdt_reset();
+                    WATCHDOG_RESET
                     //ESP_LOGI(TAG, "serial_read_char() complete: %c\n", c);
 
                     if (c == EOF) {
@@ -795,6 +797,7 @@ cleanup:
     //free(command);
     free(cmd_type);
     free(params);
+        
     vTaskDelete(NULL);
 }
 

@@ -20,7 +20,7 @@ void restart_device(void) {
 void watchdog_task_register(){
     return;
     esp_task_wdt_add(NULL);  // Registra il task corrente
-    esp_task_wdt_reset(); 
+    WATCHDOG_RESET 
 }
 
 void enable_watchdog() {

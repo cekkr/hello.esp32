@@ -218,7 +218,7 @@ void app_main(void) {
 
     esp_task_wdt_add(NULL);
     while(1){        
-        esp_task_wdt_reset();
+        WATCHDOG_RESET
 		vTaskDelay(100 / portTICK_PERIOD_MS);
 	}
 }
