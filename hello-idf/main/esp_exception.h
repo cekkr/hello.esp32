@@ -49,13 +49,20 @@ static void error_event_handler(void* handler_args, esp_event_base_t base, int32
 }
 
 // Funzione di panic handler personalizzata
-void custom_panic_handler(void* frame, panic_info_t* info) {
+static void custom_panic_handler(void* frame, panic_info_t* info) {
     ESP_LOGE(TAG, "Custom panic handler");
+    esp_backtrace_print(100);
+}
+
+static void custom_shutdown_handler(void){
+    ESP_LOGE(TAG, "Called shutdown handler");
     esp_backtrace_print(100);
 }
 
 // Inizializzazione del sistema di gestione errori
 esp_err_t init_error_handling(void) {
+    esp_register_shutdown_handler(custom_shutdown_handler);
+
     // Prima creiamo e verifichiamo l'event loop
     esp_err_t ret = esp_event_loop_create_default();
     if (ret != ESP_OK && ret != ESP_ERR_INVALID_STATE) {
