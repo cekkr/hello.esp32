@@ -49,7 +49,22 @@ void disable_watchdog() {
 }
 #else
 void watchdog_task_register(){}
-void disable_watchdog() {}
+void disable_watchdog() {
+    // https://gitlab.informatik.uni-bremen.de/fbrning/esp-idf/-/blob/master/components/soc/esp32s3/include/soc/timer_group_struct.h
+    TIMERG0.wdtwprotect.wdt_wkey = TIMG_WDT_WKEY_V;
+    TIMERG0.wdtfeed.val = 1;
+    TIMERG0.wdtconfig0.wdt_en = 0;
+    TIMERG0.wdtconfig0.wdt_stg0 = RTC_WDT_STG_SEL_OFF;
+    TIMERG0.wdtconfig0.wdt_stg1 = RTC_WDT_STG_SEL_OFF;
+    TIMERG0.wdtwprotect.val = 0;
+
+    TIMERG1.wdtwprotect.wdt_wkey = TIMG_WDT_WKEY_V;
+    TIMERG1.wdtfeed.val = 1;
+    TIMERG1.wdtconfig0.wdt_en = 0;
+    TIMERG1.wdtconfig0.wdt_stg0 = RTC_WDT_STG_SEL_OFF;
+    TIMERG1.wdtconfig0.wdt_stg1 = RTC_WDT_STG_SEL_OFF;
+    TIMERG1.wdtwprotect.val = 0;
+}
 #endif
 
 #endif  // HELLOESP_DEVICE_H
