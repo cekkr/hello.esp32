@@ -407,9 +407,7 @@ static bool is_filename_valid(const char* filename) {
 
 // Funzione per la scrittura del file
 void serial_handler_task(void *pvParameters) {    
-    #if ENABLE_WATCHDOG
-    esp_task_wdt_add(NULL);
-    #endif
+    WATCHDOG_ADD
 
     //char* command = malloc(BUF_SIZE);
     char* cmd_type = malloc(BUF_SIZE);
@@ -798,6 +796,8 @@ cleanup:
     free(cmd_type);
     free(params);
 
+    WATCHDOG_END
+
     vTaskDelete(NULL);
 }
 
@@ -813,7 +813,7 @@ esp_err_t start_serial_handler(void) {
             NULL,
             5,              // Priorità media
             NULL,           // Non ci serve l'handle
-            TASK_CORE               // Core 1
+            SERIAL_TASK_CORE               // Core 1
         );
     }
     else {

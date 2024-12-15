@@ -74,7 +74,7 @@ static const bool HELLOESP_RUN_WASM_WDT = true && ENABLE_WATCHDOG;
 static void run_wasm(uint8_t* wasm, uint32_t fsize)
 {
     //disable_watchdog();
-    if(HELLOESP_RUN_WASM_WDT) esp_task_wdt_add(NULL);    // Aggiunge il task corrente    
+    if(HELLOESP_RUN_WASM_WDT) WATCHDOG_ADD    // Aggiunge il task corrente    
 
     //watchdog_task_register();
 
@@ -176,9 +176,7 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
     //todo: free wasm memory
 
     if(HELLOESP_RUN_WASM_WDT){ 
-        esp_task_wdt_reset();  
-        vTaskDelay(pdMS_TO_TICKS(10)); 
-        esp_task_wdt_delete(NULL);
+        WATCHDOG_END
     }
 }
 
@@ -352,7 +350,7 @@ static void wasm_task(void* pvParameters) {
     free(params);
     
     // Elimina la task
-    vTaskDelete(NULL);
+    //vTaskDelete(NULL);
 }
 
 #endif // HELLOESP_WASM

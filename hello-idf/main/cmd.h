@@ -96,15 +96,17 @@ static int cmd_run(int argc, char** argv) {
         TaskHandle_t task_handle;
         BaseType_t ret;
 
+        UBaseType_t priority = tskIDLE_PRIORITY | portPRIVILEGE_BIT;
+
         if(WASM_TASK_ADV){
             ret = xTaskCreatePinnedToCore(
                 wasm_task,
                 "wasm_executor",
                 WASM_STACK_SIZE*2,     // Aumentato a 8KB
                 NULL,
-                5,              // Priorità media
+                priority,              // Priorità media
                 &task_handle,           // Non ci serve l'handle
-                1               // Core 1
+                WASM_TASK_CORE               // Core 1
             );
         } 
         else {
@@ -113,7 +115,7 @@ static int cmd_run(int argc, char** argv) {
                 "wasm_executor",
                 WASM_STACK_SIZE,
                 params,
-                TASK_CORE,
+                priority,
                 &task_handle
             );    
         }
