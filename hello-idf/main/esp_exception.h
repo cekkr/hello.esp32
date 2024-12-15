@@ -13,6 +13,9 @@
 #include "esp_debug_helpers.h"
 #include "esp_private/panic_internal.h"
 
+#include "esp_log.h"
+#include "esp_timer.h"
+
 
 // Definizione degli eventi personalizzati per errori
 ESP_EVENT_DEFINE_BASE(ERROR_EVENTS);
@@ -106,6 +109,78 @@ void trigger_error_event(uint32_t error_code) {
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Impossibile inviare l'evento di errore: %d", ret);
     }
+}
+
+////
+////
+////
+
+// Funzione per ottenere il timestamp in millisecondi
+static uint32_t get_log_timestamp(void) {
+    return (uint32_t)(esp_timer_get_time() / 1000ULL);
+}
+
+// Funzione per convertire il livello di log in carattere
+static char log_level_to_char(esp_log_level_t level) {
+    switch (level) {
+        case ESP_LOG_ERROR:    return 'E';
+        case ESP_LOG_WARN:     return 'W';
+        case ESP_LOG_INFO:     return 'I';
+        case ESP_LOG_DEBUG:    return 'D';
+        case ESP_LOG_VERBOSE:  return 'V';
+        default:              return '?';
+    }
+}
+
+// Struttura per memorizzare informazioni aggiuntive sui messaggi
+typedef struct {
+    const char* tag;
+    const char* custom_description;
+} log_mapping_t;
+
+// Array di mappature messaggi-descrizioni
+static const log_mapping_t log_mappings[] = {
+    {"task_wdt", "add_entry(192): task is already subscribed", "Il task è già registrato nel watchdog timer"},
+    // Aggiungi altre mappature qui
+};
+
+// Handler personalizzato per i log
+static void custom_log_handler(esp_log_level_t level, const char* tag, const char* fmt, va_list args) {
+    char buffer[512];
+    vsnprintf(buffer, sizeof(buffer), fmt, args);
+
+    // Cerca una mappatura corrispondente
+    for (int i = 0; i < sizeof(log_mappings) / sizeof(log_mapping_t); i++) {
+        if (strcmp(tag, log_mappings[i].tag) == 0 && 
+            strstr(buffer, log_mappings[i].custom_description) != NULL) {
+            // Stampa il messaggio originale con la descrizione personalizzata
+            printf("%c (%d) %s: %s\nDescrizione: %s\n",
+                   log_level_to_char(level),
+                   get_log_timestamp(),
+                   tag,
+                   buffer,
+                   log_mappings[i].custom_description);
+            return;
+        }
+    }
+
+    // Se non viene trovata una mappatura, stampa il messaggio originale
+    printf("%c (%d) %s: %s\n",
+            log_level_to_char(level),
+            get_log_timestamp(),
+            tag,
+            buffer);
+
+    esp_backtrace_print(10);
+}
+
+// Funzione di inizializzazione
+void init_custom_logging(void) {
+    // Imposta il livello minimo di log
+    esp_log_level_set("*", ESP_LOG_INFO);
+    
+    // Registra l'handler personalizzato
+    esp_log_set_vprintf(custom_log_handler);
 }
 
 #endif // HELLOESP_ESP_EXCEPTION_H

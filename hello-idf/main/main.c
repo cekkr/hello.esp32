@@ -193,6 +193,7 @@ void app_main(void) {
     enable_watchdog();
 
     init_error_handling();
+    init_custom_logging();
     //heap_caps_malloc_extmem_enable(20); // no PSRAM available, ergo useless
 
     if(false){
