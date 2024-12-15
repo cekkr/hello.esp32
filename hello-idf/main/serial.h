@@ -18,7 +18,7 @@
 
 // Definizioni
 #define BUF_SIZE 1024
-#define STACK_SIZE (32768)
+#define STACK_SIZE 8192
 #define CHUNK_SIZE 1024
 
 // Comandi
@@ -814,13 +814,13 @@ esp_err_t start_serial_handler(void) {
     }
     else {
         ret = xTaskCreate(
-                serial_handler_task,
-                "wasm_executor",
-                STACK_SIZE,
-                NULL, // params
-                5,
-                NULL // handler
-            );      
+            serial_handler_task,
+            "serial_handler",
+            STACK_SIZE,
+            NULL, // params
+            5,
+            NULL // handler
+        );      
     }
     
     if (ret != pdPASS) {
