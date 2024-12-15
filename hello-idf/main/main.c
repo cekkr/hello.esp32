@@ -198,8 +198,9 @@ void app_main(void) {
     device_info();    
 
     init_error_handling();
-    init_custom_logging();
+    //init_custom_logging(); // this crash everything
     enable_log_debug();
+
     //heap_caps_malloc_extmem_enable(20); // no PSRAM available, ergo useless
 
     if(false){
@@ -207,11 +208,11 @@ void app_main(void) {
         //ESP_ERROR_CHECK(heap_trace_start(HEAP_TRACE_LEAKS));
     }    
 
-    // Inizializzazione della seriale
-    init_uart();
-
     ESP_LOGI(TAG, "\nStarting SD card test...\n");
     init_sd_card(); 
+
+    // Inizializzazione della seriale
+    init_uart();
 
 	// Avvia il thread di gestione seriale
     ESP_LOGI(TAG, "\nStarting serial handler...\n");

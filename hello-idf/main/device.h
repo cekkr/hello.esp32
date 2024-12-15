@@ -80,7 +80,7 @@ void handle_watchdog() {
 #else
 void watchdog_task_register(){}
 void handle_watchdog() {
-
+    reset_wdt();
 }
 #endif
 
