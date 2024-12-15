@@ -403,7 +403,7 @@ static bool is_filename_valid(const char* filename) {
 
 // Funzione per la scrittura del file
 void serial_handler_task(void *pvParameters) {
-    esp_task_wdt_add(NULL)
+    esp_task_wdt_add(NULL);
 
     //char* command = malloc(BUF_SIZE);
     char* cmd_type = malloc(BUF_SIZE);
