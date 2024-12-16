@@ -30,7 +30,7 @@ enum {
 // Handler per gli eventi di errore
 static void error_event_handler(void* handler_args, esp_event_base_t base, int32_t id, void* event_data) {
     ESP_LOGW(TAG, "error_event_handler called");
-    //backtrace_print(100);
+    backtrace_print(100);
 
     switch (id) {
         case ERROR_EVENT_PANIC:
@@ -55,6 +55,8 @@ static void error_event_handler(void* handler_args, esp_event_base_t base, int32
             }
             break;
     }
+
+    vTaskDelay(pdMS_TO_TICKS(1000));
 }
 
 // Funzione di panic handler personalizzata
