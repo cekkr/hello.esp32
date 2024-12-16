@@ -1,3 +1,6 @@
-cd hello-idf
-./build.sh
+#/bin/bash
 
+cd ./hello-idf
+
+clear
+./build.sh
