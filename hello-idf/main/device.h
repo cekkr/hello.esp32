@@ -90,10 +90,7 @@ void handle_watchdog() {
     }
 
     reset_wdt(); 
-    disable_wdt_reg();  
-
-     // Sottoscrivi il task corrente al watchdog
-    esp_task_wdt_add(NULL);
+    //disable_wdt_reg();  
 
     #endif   
 }

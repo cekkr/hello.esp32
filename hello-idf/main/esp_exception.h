@@ -186,8 +186,10 @@ static void custom_shutdown_handler(void){
 
 // Inizializzazione del sistema di gestione errori
 esp_err_t init_error_handling(void) {
-    print_core_dump_info();
+    // Print last error message
+    print_core_dump_info();    
 
+    // Register error handler
     esp_register_shutdown_handler(custom_shutdown_handler);
 
     // Prima creiamo e verifichiamo l'event loop

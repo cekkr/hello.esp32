@@ -100,7 +100,7 @@ static int cmd_run(int argc, char** argv) {
         TaskHandle_t task_handle;
         BaseType_t ret;
 
-        UBaseType_t priority = 5; // | portPRIVILEGE_BIT;
+        UBaseType_t priority = 5 | portPRIVILEGE_BIT;
 
         if(WASM_TASK_ADV){
             ret = xTaskCreatePinnedToCore(
