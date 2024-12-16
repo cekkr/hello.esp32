@@ -14,7 +14,7 @@
 #define WATCHDOG_ADD    esp_task_wdt_add(NULL); WATCHDOG_RESET
 #define WATCHDOG_END    WATCHDOG_RESET vTaskDelay(pdMS_TO_TICKS(10)); esp_task_wdt_delete(NULL);
 #else 
-#define WATCHDOG_RESET
-#define WATCHDOG_ADD
+#define WATCHDOG_RESET reset_wdt();
+#define WATCHDOG_ADD reset_wdt();
 #define WATCHDOG_END
 #endif
