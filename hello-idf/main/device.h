@@ -71,10 +71,19 @@ void handle_watchdog() {
         // 2. Disabilita Task WDT
         //esp_task_wdt_deinit();
 
+
+
         // Configurazione del Task Watchdog
+        bool enableCore0 = false;
+        bool enableCore1 = true;
+        uint32_t core_mask = 0;
+
+        if(enableCore0) core_mask |= (1 << 0);
+        if(enableCore1) core_mask |= (1 << 1);
+
         esp_task_wdt_config_t twdt_config = {
             .timeout_ms = 60000,                // timeout di 3 secondi
-            .idle_core_mask = (1 << 0) | (1 << 1),        // monitora il core 0 + 1
+            .idle_core_mask = core_mask,        
             .trigger_panic = true              // genera panic in caso di timeout
         };
         esp_task_wdt_init(&twdt_config);       
