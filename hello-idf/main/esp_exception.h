@@ -103,17 +103,14 @@ void print_core_dump_info() {
     printf( "\nEPC registers:");
     for (int i = 0; i < EPCx_REGISTER_COUNT; i++) {
         if (summary->ex_info.epcx_reg_bits & (1 << i)) {
-            printf( "EPC%d: 0x%08x", i+1, summary->ex_info.epcx[i]);
+            printf( " EPC%d: 0x%08x ", i+1, summary->ex_info.epcx[i]);
         }
     }
 
     // Print backtrace
     printf("\nBacktrace %s: ", summary->exc_bt_info.corrupted ? "(corrupted)" : "");
-    for (size_t i = 0; i < summary->exc_bt_info.depth && i < 16; i++) {
-        if (i > 0) {
-            printf(" ");  // Spazio tra le entries, ma non all'inizio
-        }
-        printf("0x%08x:0x%08x", summary->exc_bt_info.bt[i], 
+    for (size_t i = 0; i < 16; i++) { // i < summary->exc_bt_info.depth &&
+        printf("0x%08x:0x%08x ", summary->exc_bt_info.bt[i], 
                i + 1 < summary->exc_bt_info.depth ? summary->exc_bt_info.bt[i + 1] : 0);
     }
     printf("\n");
