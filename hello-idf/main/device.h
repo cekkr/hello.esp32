@@ -37,7 +37,9 @@ void reset_wdt(){
     TIMERG1.wdtconfig0.wdt_stg3 = RTC_WDT_STG_SEL_OFF;
     TIMERG1.wdtwprotect.val = 0; 
 
-    WRITE_PERI_REG(RTC_CNTL_WDTCONFIG0_REG, 0);   // Disabilita RTC WDT
+    #if !ENABLE_WATCHDOG
+    WRITE_PERI_REG(RTC_CNTL_WDTCONFIG0_REG, 0);   // Disabilita RTC WDT    
+    #endif
     WRITE_PERI_REG(RTC_CNTL_WDTWPROTECT_REG, 0);  // Rimuovi protezione scrittura
 }
 

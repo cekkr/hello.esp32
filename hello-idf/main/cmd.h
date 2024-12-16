@@ -96,13 +96,13 @@ static int cmd_run(int argc, char** argv) {
         TaskHandle_t task_handle;
         BaseType_t ret;
 
-        UBaseType_t priority = 5 | portPRIVILEGE_BIT;
+        UBaseType_t priority = 5; // | portPRIVILEGE_BIT;
 
         if(WASM_TASK_ADV){
             ret = xTaskCreatePinnedToCore(
                 wasm_task,
                 "wasm_executor",
-                WASM_STACK_SIZE*2,     // Aumentato a 8KB
+                WASM_STACK_SIZE,     // Aumentato a 8KB
                 NULL,
                 priority,              // Priorità media
                 &task_handle,           // Non ci serve l'handle
