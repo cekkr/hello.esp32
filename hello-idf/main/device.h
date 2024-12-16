@@ -65,7 +65,7 @@ void handle_watchdog() {
 
     // 1. Disabilita RTC WDT
     #if ENABLE_WATCHDOG
-    if(true){
+    if(false){
         //rtc_wdt_protect_off();
         //rtc_wdt_disable();
         //rtc_wdt_protect_on();
