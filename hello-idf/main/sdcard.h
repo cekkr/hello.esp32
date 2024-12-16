@@ -102,8 +102,8 @@ void init_sd_card() {
             SPICOMMON_BUSFLAG_SCLK |
             SPICOMMON_BUSFLAG_MISO |
             SPICOMMON_BUSFLAG_MOSI,
-        #if INTR_FLAG_IRAM_SPI
-        .intr_flags =  ESP_INTR_FLAG_IRAM_SPI // or Component config -> Driver configurations -> SPI configuration -> (x) Place SPI driver ISR function into IRAM        
+        #if ENABLE_INTR_FLAG_IRAM_SPI
+        .intr_flags =  ESP_INTR_FLAG_IRAM // or Component config -> Driver configurations -> SPI configuration -> (x) Place SPI driver ISR function into IRAM        
         #endif
     };
 

@@ -144,8 +144,8 @@ void init_spi(){
                 SPICOMMON_BUSFLAG_SCLK |
                 SPICOMMON_BUSFLAG_MISO |
                 SPICOMMON_BUSFLAG_MOSI,
-        #if INTR_FLAG_IRAM_SPI
-        .intr_flags =  ESP_INTR_FLAG_IRAM_SPI // or Component config -> Driver configurations -> SPI configuration -> (x) Place SPI driver ISR function into IRAM        
+        #if ENABLE_INTR_FLAG_IRAM_SPI
+        .intr_flags =  ESP_INTR_FLAG_IRAM // or Component config -> Driver configurations -> SPI configuration -> (x) Place SPI driver ISR function into IRAM        
         #endif
     };
 
@@ -210,13 +210,13 @@ void app_main(void) {
     if(false){
         //ESP_ERROR_CHECK(heap_trace_init_standalone(heap_trace_records, HEAP_TRACE_ALL));
         //ESP_ERROR_CHECK(heap_trace_start(HEAP_TRACE_LEAKS));
-    }    
-
-    // Inizializzazione della seriale
-    init_uart();
+    }        
 
     ESP_LOGI(TAG, "\nStarting SD card test...\n");
     init_sd_card(); 
+
+    // Inizializzazione della seriale
+    init_uart();
 
 	// Avvia il thread di gestione seriale
     ESP_LOGI(TAG, "\nStarting serial handler...\n");
