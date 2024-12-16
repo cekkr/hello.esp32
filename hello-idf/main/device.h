@@ -71,10 +71,8 @@ void handle_watchdog() {
         // 2. Disabilita Task WDT
         //esp_task_wdt_deinit();
 
-
-
         // Configurazione del Task Watchdog
-        bool enableCore0 = false;
+        bool enableCore0 = true;
         bool enableCore1 = true;
         uint32_t core_mask = 0;
 
