@@ -160,8 +160,13 @@ static int cmd_ls(int argc, char** argv) {
     return 0;
 }
 
-static int cmd_restart(){
+static int cmd_restart(int argc, char** argv){
     restart_device();
+    return 0;
+}
+
+static int cmd_core_dump(int argc, char** argv){
+    print_core_dump_info();
     return 0;
 }
 
@@ -171,6 +176,7 @@ static const command_entry_t commands[] = {
     {"echo", cmd_echo},
     {"ls", cmd_ls},
     {"restart", cmd_restart},
+    {"core_dump", cmd_core_dump},
     {NULL, NULL}  // Terminatore
 };
 
