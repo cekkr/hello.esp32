@@ -6,6 +6,7 @@
 #include "soc/timer_group_struct.h"
 #include "driver/timer.h"      
 #include "soc/timer_group_reg.h"
+#include "soc/rtc_cntl_reg.h"
 
 #include "defines.h"
 
@@ -35,6 +36,9 @@ void reset_wdt(){
     TIMERG1.wdtconfig0.wdt_stg2 = RTC_WDT_STG_SEL_OFF;
     TIMERG1.wdtconfig0.wdt_stg3 = RTC_WDT_STG_SEL_OFF;
     TIMERG1.wdtwprotect.val = 0; 
+
+    WRITE_PERI_REG(RTC_CNTL_WDTCONFIG0_REG, 0);   // Disabilita RTC WDT
+    WRITE_PERI_REG(RTC_CNTL_WDTWPROTECT_REG, 0);  // Rimuovi protezione scrittura
 }
 
 #if ENABLE_WATCHDOG
