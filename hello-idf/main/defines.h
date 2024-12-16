@@ -3,7 +3,7 @@
 #define SERIAL_TASK_ADV 1
 #define WASM_TASK_ADV 1
 
-#define WASM_TASK_CORE 0
+#define WASM_TASK_CORE 1
 #define SERIAL_TASK_CORE 0
 
 
