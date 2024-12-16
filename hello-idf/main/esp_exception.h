@@ -25,6 +25,10 @@
 ///
 
 void print_core_dump_info() {
+
+    ESP_LOGI(TAG, "================================================================");
+    ESP_LOGI(TAG, "================================================================\n");
+
     const esp_partition_t *core_dump_partition = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_COREDUMP, NULL);
     if (core_dump_partition == NULL) {
         ESP_LOGW(TAG, "Core dump partition not found");
@@ -96,6 +100,9 @@ void print_core_dump_info() {
 
     free(summary);
     ESP_LOGI(TAG, "\nCore dump analysis complete");
+
+    ESP_LOGI(TAG, "\n================================================================");
+    ESP_LOGI(TAG, "================================================================\n");
 }
 
 ///
