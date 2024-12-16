@@ -60,7 +60,7 @@ static const char *TAG = "HELLOESP";
 
 static void Draw(void *pvParameters)
 {
-    //WATCHDOG_ADD
+    WATCHDOG_ADD
 
 	uint16_t CurrentColor = BLUE;
 	while (1){
@@ -92,10 +92,12 @@ static void Draw(void *pvParameters)
 				LCD_DrawPoint1(TouchX,TouchY,CurrentColor);//画点 
 			}
 		}
+
+        WATCHDOG_RESET
 		vTaskDelay(10 / portTICK_PERIOD_MS);
 	}
 
-    //WATCHDOG_END
+    WATCHDOG_END
 	vTaskDelete(NULL);
 }
 void init_tft(void)
