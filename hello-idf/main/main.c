@@ -60,7 +60,7 @@ static const char *TAG = "HELLOESP";
 
 static void Draw(void *pvParameters)
 {
-    WATCHDOG_ADD
+    //WATCHDOG_ADD
 
 	uint16_t CurrentColor = BLUE;
 	while (1){
@@ -95,7 +95,7 @@ static void Draw(void *pvParameters)
 		vTaskDelay(10 / portTICK_PERIOD_MS);
 	}
 
-    WATCHDOG_END
+    //WATCHDOG_END
 	vTaskDelete(NULL);
 }
 void init_tft(void)
@@ -192,7 +192,7 @@ void enable_log_debug(){
 
 void app_main(void) {       
     handle_watchdog();
-    WATCHDOG_ADD
+    //WATCHDOG_ADD
 
     device_info();    
 
@@ -222,13 +222,8 @@ void app_main(void) {
     ESP_LOGI(TAG, "Init TFT\n");
     init_tft();      
 
-    #if ENABLE_WATCHDOG
-    esp_task_wdt_add(NULL);
-    #endif 
-
     while(1){        
-        WATCHDOG_RESET
-        reset_wdt();
+        //WATCHDOG_RESET
 		vTaskDelay(pdMS_TO_TICKS(100));
 	}
 }
