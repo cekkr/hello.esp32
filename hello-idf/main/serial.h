@@ -69,12 +69,34 @@ int serial_write(char *buffer, size_t size){
 
 char serial_read_char(){
     char c = '\0';
-    while(uart_read_bytes(UART_NUM_0, &c, 1, portMAX_DELAY) == 0){
+    const TickType_t timeout = pdMS_TO_TICKS(10); // 10ms timeout // or portMAX_DELAY
+
+    while(true){
+        if(uart_read_bytes(UART_NUM_0, &c, 1, timeout) > 0){
+            break;            
+        }
+        else {
+            vTaskDelay(timeout);
+        }
+
         WATCHDOG_RESET
-        vTaskDelay(0.01);
     }
 
     return c;
+}
+
+char serial_read_char_or_null() {
+    char c = '\0';
+    const TickType_t timeout = pdMS_TO_TICKS(10); // 10ms timeout
+    
+    // Legge un byte con timeout
+    size_t bytes_read = uart_read_bytes(UART_NUM_0, &c, 1, timeout);
+    
+    // Resetta il watchdog ad ogni tentativo
+    WATCHDOG_RESET;
+    
+    // Restituisce '\0' se non ci sono dati, altrimenti il carattere letto
+    return (bytes_read == 0) ? '\0' : c;
 }
 
 ///
@@ -324,7 +346,8 @@ command_status_t wait_for_command(char* cmd_type, command_params_t* params) {
     while (length < sizeof(command_buffer) - 1) {
         //char c = getchar();        
 
-        char c = serial_read_char();
+        char c = serial_read_char();    
+
         WATCHDOG_RESET
 
         //if (uart_read_bytes(UART_NUM_0, &c, 1, portMAX_DELAY) > 0) {
