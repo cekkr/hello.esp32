@@ -25,10 +25,11 @@
 ///
 
 void print_core_dump_info() {
-
     ESP_LOGI(TAG, "================================================================");
     ESP_LOGI(TAG, "================================================================\n");
 
+    esp_err_t err;
+    
     const esp_partition_t *core_dump_partition = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_COREDUMP, NULL);
     if (core_dump_partition == NULL) {
         ESP_LOGW(TAG, "Core dump partition not found");
@@ -37,6 +38,28 @@ void print_core_dump_info() {
 
     ESP_LOGI(TAG, "Core dump partition found: size=%d, addr=0x%x", 
              core_dump_partition->size, core_dump_partition->address);
+    
+    // Read first few bytes to check if partition is blank
+    uint8_t buf[4];
+    err = esp_partition_read(core_dump_partition, 0, buf, sizeof(buf));
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to read core dump partition: %s", esp_err_to_name(err));
+        return;
+    }
+    
+    // Check if partition is blank (all 0xFF)
+    bool is_blank = true;
+    for (int i = 0; i < sizeof(buf); i++) {
+        if (buf[i] != 0xFF) {
+            is_blank = false;
+            break;
+        }
+    }
+    
+    if (is_blank) {
+        ESP_LOGW(TAG, "Core dump partition is blank - no crash data available");
+        return;
+    }
     
     if (!esp_core_dump_image_check()) {
         ESP_LOGW(TAG, "No valid core dump found in flash");
@@ -51,7 +74,7 @@ void print_core_dump_info() {
         return;
     }
 
-    esp_err_t err = esp_core_dump_get_summary(summary);
+    err = esp_core_dump_get_summary(summary);
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Failed to get core dump summary: %s", esp_err_to_name(err));
         free(summary);
@@ -101,7 +124,7 @@ void print_core_dump_info() {
     free(summary);
     ESP_LOGI(TAG, "\nCore dump analysis complete");
 
-    ESP_LOGI(TAG, "\n================================================================");
+    ESP_LOGI(TAG, "================================================================");
     ESP_LOGI(TAG, "================================================================\n");
 }
 
