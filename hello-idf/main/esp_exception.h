@@ -25,8 +25,8 @@
 ///
 
 void print_core_dump_info() {
-    ESP_LOGI(TAG, "================================================================");
-    ESP_LOGI(TAG, "================================================================\n");
+    printf( "================================================================");
+    printf( "================================================================\n");
 
     esp_err_t err;
     
@@ -36,7 +36,7 @@ void print_core_dump_info() {
         return;
     }
 
-    ESP_LOGI(TAG, "Core dump partition found: size=%d, addr=0x%x", 
+    printf( "Core dump partition found: size=%d, addr=0x%x", 
              core_dump_partition->size, core_dump_partition->address);
     
     // Read first few bytes to check if partition is blank
@@ -66,7 +66,7 @@ void print_core_dump_info() {
         return;
     }
 
-    ESP_LOGI(TAG, "Valid core dump found, processing...");
+    printf( "Valid core dump found, processing...");
 
     esp_core_dump_summary_t *summary = malloc(sizeof(esp_core_dump_summary_t));
     if (summary == NULL) {
@@ -82,50 +82,54 @@ void print_core_dump_info() {
     }
 
     // Print basic crash information
-    ESP_LOGI(TAG, "\nCore dump details:");
-    ESP_LOGI(TAG, "Crashed task: %s", summary->exc_task);
-    ESP_LOGI(TAG, "Task TCB: 0x%x", summary->exc_tcb);
-    ESP_LOGI(TAG, "Exception PC: 0x%x", summary->exc_pc);
-    ESP_LOGI(TAG, "Core dump version: %lu", summary->core_dump_version);
+    printf( "\nCore dump details:");
+    printf( "Crashed task: %s", summary->exc_task);
+    printf( "Task TCB: 0x%x", summary->exc_tcb);
+    printf( "Exception PC: 0x%x", summary->exc_pc);
+    printf( "Core dump version: %lu", summary->core_dump_version);
     
     // Print exception info
-    ESP_LOGI(TAG, "\nException details:");
-    ESP_LOGI(TAG, "Cause: 0x%x", summary->ex_info.exc_cause);
-    ESP_LOGI(TAG, "Virtual address: 0x%x", summary->ex_info.exc_vaddr);
+    printf( "\nException details:");
+    printf( "Cause: 0x%x", summary->ex_info.exc_cause);
+    printf( "Virtual address: 0x%x", summary->ex_info.exc_vaddr);
     
     // Print registers
-    ESP_LOGI(TAG, "\nRegister dump:");
+    printf( "\nRegister dump:");
     for (int i = 0; i < 16; i++) {
-        ESP_LOGI(TAG, "A%d: 0x%08x", i, summary->ex_info.exc_a[i]);
+        printf( "A%d: 0x%08x", i, summary->ex_info.exc_a[i]);
     }
     
     // Print EPC registers if available
-    ESP_LOGI(TAG, "\nEPC registers:");
+    printf( "\nEPC registers:");
     for (int i = 0; i < EPCx_REGISTER_COUNT; i++) {
         if (summary->ex_info.epcx_reg_bits & (1 << i)) {
-            ESP_LOGI(TAG, "EPC%d: 0x%08x", i+1, summary->ex_info.epcx[i]);
+            printf( "EPC%d: 0x%08x", i+1, summary->ex_info.epcx[i]);
         }
     }
 
     // Print backtrace
-    ESP_LOGI(TAG, "\nBacktrace %s:", 
-             summary->exc_bt_info.corrupted ? "(corrupted)" : "");
+    printf("\nBacktrace %s: ", summary->exc_bt_info.corrupted ? "(corrupted)" : "");
     for (size_t i = 0; i < summary->exc_bt_info.depth && i < 16; i++) {
-        ESP_LOGI(TAG, "#%d: 0x%08x", i, summary->exc_bt_info.bt[i]);
+        if (i > 0) {
+            printf(" ");  // Spazio tra le entries, ma non all'inizio
+        }
+        printf("0x%08x:0x%08x", summary->exc_bt_info.bt[i], 
+               i + 1 < summary->exc_bt_info.depth ? summary->exc_bt_info.bt[i + 1] : 0);
     }
+    printf("\n");
 
     // Print SHA256 of the app
-    ESP_LOGI(TAG, "\nApp ELF SHA256: ");
+    printf( "\nApp ELF SHA256: ");
     for(int i = 0; i < APP_ELF_SHA256_SZ; i++) {
         printf("%02x", summary->app_elf_sha256[i]);
     }
     printf("\n");
 
     free(summary);
-    ESP_LOGI(TAG, "\nCore dump analysis complete");
+    printf(TAG, "\nCore dump analysis complete");
 
-    ESP_LOGI(TAG, "================================================================");
-    ESP_LOGI(TAG, "================================================================\n");
+    printf(TAG, "================================================================");
+    printf(TAG, "================================================================\n");
 }
 
 ///
@@ -218,7 +222,7 @@ esp_err_t init_error_handling(void) {
 
     //esp_set_panic_handler(custom_panic_handler);
 
-    ESP_LOGI(TAG, "Error handling system initialized");
+    printf( "Error handling system initialized");
     return ESP_OK;
 }
 
