@@ -853,11 +853,7 @@ esp_err_t start_serial_handler(void) {
     if (ret != pdPASS) {
         ESP_LOGE(TAG, "Failed to create serial handler task");
         return ESP_FAIL;
-    }
-    
-    #if ENABLE_WATCHDOG
-    esp_task_wdt_delete(NULL);
-    #endif
+    }    
     
     return ESP_OK;
 }
