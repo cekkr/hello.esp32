@@ -6,13 +6,15 @@
 #include <unistd.h>
 #include "esp_log.h"
 
+#include "defines.h"
+#include "device.h"
+
 #include "wasm3.h"
 #include "m3_env.h"
 #include "m3_api_esp_wasi.h"
 
 #include "wasm_native.h"
 
-#include "device.h"
 
 
 ////////////////////////////////////////////////////////////////////////
