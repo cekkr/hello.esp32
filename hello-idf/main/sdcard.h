@@ -102,7 +102,7 @@ void init_sd_card() {
             SPICOMMON_BUSFLAG_SCLK |
             SPICOMMON_BUSFLAG_MISO |
             SPICOMMON_BUSFLAG_MOSI,
-        .intr_flags =  ESP_INTR_FLAG_IRAM
+        //.intr_flags =  ESP_INTR_FLAG_IRAM // or Component config -> Driver configurations -> SPI configuration -> (x) Place SPI driver ISR function into IRAM        
     };
 
     // Inizializza il bus SPI con frequenza molto bassa
