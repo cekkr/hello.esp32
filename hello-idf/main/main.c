@@ -212,11 +212,11 @@ void app_main(void) {
         //ESP_ERROR_CHECK(heap_trace_start(HEAP_TRACE_LEAKS));
     }    
 
-    ESP_LOGI(TAG, "\nStarting SD card test...\n");
-    init_sd_card(); 
-
     // Inizializzazione della seriale
     init_uart();
+
+    ESP_LOGI(TAG, "\nStarting SD card test...\n");
+    init_sd_card(); 
 
 	// Avvia il thread di gestione seriale
     ESP_LOGI(TAG, "\nStarting serial handler...\n");

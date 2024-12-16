@@ -21,4 +21,4 @@
 
 ////////////////////////////////////////////////////////////////////////
 // or Component config -> Driver configurations -> SPI configuration -> (x) Place SPI driver ISR function into IRAM   
-#define INTR_FLAG_IRAM 1 // for SPI interrupts
+#define INTR_FLAG_IRAM 0 // for SPI interrupts
