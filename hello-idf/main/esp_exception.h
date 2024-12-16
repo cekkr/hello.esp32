@@ -108,6 +108,7 @@ void print_core_dump_info() {
     }
 
     // Print backtrace
+    if(summary->exc_bt_info.corrupted) printf("\nBacktrace corrupted up to %d", summary->exc_bt_info.depth);
     printf("\nBacktrace %s: ", summary->exc_bt_info.corrupted ? "(corrupted)" : "");
     for (size_t i = 0; i < 16; i++) { // i < summary->exc_bt_info.depth &&
         printf("0x%08x:0x%08x ", summary->exc_bt_info.bt[i], 

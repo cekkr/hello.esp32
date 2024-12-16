@@ -6,7 +6,7 @@
 #define WASM_TASK_CORE 0
 #define SERIAL_TASK_CORE 0
 
-
+////////////////////////////////////////////////////////////////////////
 #define ENABLE_WATCHDOG 1
 
 #if ENABLE_WATCHDOG
@@ -18,3 +18,7 @@
 #define WATCHDOG_ADD reset_wdt();
 #define WATCHDOG_END
 #endif
+
+////////////////////////////////////////////////////////////////////////
+// or Component config -> Driver configurations -> SPI configuration -> (x) Place SPI driver ISR function into IRAM   
+#define INTR_FLAG_IRAM 1 // for SPI interrupts

@@ -25,6 +25,7 @@ static const char *TAG = "HELLOESP";
 #define MAX_FILENAME 256
 
 // General functions
+#include "defines.h"
 #include "io.h"
 #include "esp_exception.h"
 #include "device.h"
@@ -143,7 +144,9 @@ void init_spi(){
                 SPICOMMON_BUSFLAG_SCLK |
                 SPICOMMON_BUSFLAG_MISO |
                 SPICOMMON_BUSFLAG_MOSI,
-        .intr_flags = ESP_INTR_FLAG_IRAM
+        #if INTR_FLAG_IRAM
+        .intr_flags =  ESP_INTR_FLAG_IRAM // or Component config -> Driver configurations -> SPI configuration -> (x) Place SPI driver ISR function into IRAM        
+        #endif
     };
 
     // Add flags to initialize SPI without DMA
