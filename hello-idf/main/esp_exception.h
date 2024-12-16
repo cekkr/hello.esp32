@@ -17,8 +17,7 @@
 #include "esp_timer.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
-
-
+#include "esp_private/panic_internal.h"
 
 // Definizione degli eventi personalizzati per errori
 ESP_EVENT_DEFINE_BASE(ERROR_EVENTS);
@@ -29,8 +28,7 @@ enum {
 
 // Handler per gli eventi di errore
 static void error_event_handler(void* handler_args, esp_event_base_t base, int32_t id, void* event_data) {
-    ESP_LOGW(TAG, "error_event_handler called");
-    backtrace_print(100);
+    ESP_LOGW(TAG, "error_event_handler called");   
 
     switch (id) {
         case ERROR_EVENT_PANIC:
@@ -54,6 +52,9 @@ static void error_event_handler(void* handler_args, esp_event_base_t base, int32
                 ESP_LOGE(TAG, "Codice errore: %lu", *error_data);
             }
             break;
+        
+        default:
+            esp_backtrace_print(10);
     }
 
     vTaskDelay(pdMS_TO_TICKS(1000));
