@@ -13,11 +13,94 @@
 #include "esp_debug_helpers.h"
 #include "esp_private/panic_internal.h"
 
-#include "esp_log.h"
 #include "esp_timer.h"
-#include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "esp_private/panic_internal.h"
+
+#include "esp_core_dump.h"
+#include "esp_partition.h"
+
+/// 
+///
+///
+
+void print_core_dump_info() {
+    const esp_partition_t *core_dump_partition = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_COREDUMP, NULL);
+    if (core_dump_partition == NULL) {
+        ESP_LOGW(TAG, "Core dump partition not found");
+        return;
+    }
+
+    ESP_LOGI(TAG, "Core dump partition found: size=%d, addr=0x%x", 
+             core_dump_partition->size, core_dump_partition->address);
+    
+    if (!esp_core_dump_image_check()) {
+        ESP_LOGW(TAG, "No valid core dump found in flash");
+        return;
+    }
+
+    ESP_LOGI(TAG, "Valid core dump found, processing...");
+
+    esp_core_dump_summary_t *summary = malloc(sizeof(esp_core_dump_summary_t));
+    if (summary == NULL) {
+        ESP_LOGE(TAG, "Failed to allocate memory for core dump summary");
+        return;
+    }
+
+    esp_err_t err = esp_core_dump_get_summary(summary);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to get core dump summary: %s", esp_err_to_name(err));
+        free(summary);
+        return;
+    }
+
+    // Print basic crash information
+    ESP_LOGI(TAG, "\nCore dump details:");
+    ESP_LOGI(TAG, "Crashed task: %s", summary->exc_task);
+    ESP_LOGI(TAG, "Task TCB: 0x%x", summary->exc_tcb);
+    ESP_LOGI(TAG, "Exception PC: 0x%x", summary->exc_pc);
+    ESP_LOGI(TAG, "Core dump version: %lu", summary->core_dump_version);
+    
+    // Print exception info
+    ESP_LOGI(TAG, "\nException details:");
+    ESP_LOGI(TAG, "Cause: 0x%x", summary->ex_info.exc_cause);
+    ESP_LOGI(TAG, "Virtual address: 0x%x", summary->ex_info.exc_vaddr);
+    
+    // Print registers
+    ESP_LOGI(TAG, "\nRegister dump:");
+    for (int i = 0; i < 16; i++) {
+        ESP_LOGI(TAG, "A%d: 0x%08x", i, summary->ex_info.exc_a[i]);
+    }
+    
+    // Print EPC registers if available
+    ESP_LOGI(TAG, "\nEPC registers:");
+    for (int i = 0; i < EPCx_REGISTER_COUNT; i++) {
+        if (summary->ex_info.epcx_reg_bits & (1 << i)) {
+            ESP_LOGI(TAG, "EPC%d: 0x%08x", i+1, summary->ex_info.epcx[i]);
+        }
+    }
+
+    // Print backtrace
+    ESP_LOGI(TAG, "\nBacktrace %s:", 
+             summary->exc_bt_info.corrupted ? "(corrupted)" : "");
+    for (size_t i = 0; i < summary->exc_bt_info.depth && i < 16; i++) {
+        ESP_LOGI(TAG, "#%d: 0x%08x", i, summary->exc_bt_info.bt[i]);
+    }
+
+    // Print SHA256 of the app
+    ESP_LOGI(TAG, "\nApp ELF SHA256: ");
+    for(int i = 0; i < APP_ELF_SHA256_SZ; i++) {
+        printf("%02x", summary->app_elf_sha256[i]);
+    }
+    printf("\n");
+
+    free(summary);
+    ESP_LOGI(TAG, "\nCore dump analysis complete");
+}
+
+///
+///
+///
 
 // Definizione degli eventi personalizzati per errori
 ESP_EVENT_DEFINE_BASE(ERROR_EVENTS);
@@ -73,6 +156,8 @@ static void custom_shutdown_handler(void){
 
 // Inizializzazione del sistema di gestione errori
 esp_err_t init_error_handling(void) {
+    print_core_dump_info();
+
     esp_register_shutdown_handler(custom_shutdown_handler);
 
     // Prima creiamo e verifichiamo l'event loop

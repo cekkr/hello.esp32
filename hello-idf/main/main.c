@@ -257,6 +257,13 @@ void __wrap_esp_panic_handler (void* info) {
     //__real_esp_panic_handler(info);
 }
 
+///
+
+void shutdown_handler(void) {
+    ESP_LOGE("SHUTDOWN", "Sistema in fase di riavvio!");
+    // Puoi salvare informazioni importanti qui
+}
+
 ////
 ////
 ////

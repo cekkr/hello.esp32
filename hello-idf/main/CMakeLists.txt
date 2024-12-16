@@ -15,7 +15,8 @@ idf_component_register(
         freertos        # per il supporto ai thread
         mbedtls
         driver     
-        wasm3          
+        wasm3  
+        espcoredump        
 )
 
 target_compile_options(${COMPONENT_LIB} PRIVATE -Wno-format -Wno-error=maybe-uninitialized)
