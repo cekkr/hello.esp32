@@ -254,7 +254,7 @@ void __wrap_esp_panic_handler (void* info) {
     vTaskDelay(pdMS_TO_TICKS(1000));
 
     /* Call the original panic handler function to finish processing this error (creating a core dump for example...) */
-    //__real_esp_panic_handler(info);
+    __real_esp_panic_handler(info);
 }
 
 ///
