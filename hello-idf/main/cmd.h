@@ -70,6 +70,10 @@ static int parse_arguments(char* input, char** argv) {
     return argc;
 }
 
+////
+////
+////
+
 // Handler per il comando "run"
 static int cmd_run(int argc, char** argv) {
     if (argc < 1) {
@@ -156,13 +160,23 @@ static int cmd_ls(int argc, char** argv) {
     return 0;
 }
 
+static int cmd_restart(){
+    restart_device();
+    return 0;
+}
+
 // Tabella dei comandi supportati
 static const command_entry_t commands[] = {
     {"run", cmd_run},
     {"echo", cmd_echo},
     {"ls", cmd_ls},
+    {"restart", cmd_restart},
     {NULL, NULL}  // Terminatore
 };
+
+////
+////
+////
 
 // Funzione principale per l'elaborazione dei comandi
 int process_command(char* cmd_str) {

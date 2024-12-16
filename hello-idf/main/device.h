@@ -11,8 +11,10 @@
 #include "defines.h"
 
 void restart_device(void) {
-    ESP_LOGI(TAG, "restart requested");
+    ESP_LOGI(TAG, "Restarting device...");
     
+    vTaskDelay(pdMS_TO_TICKS(1000));
+
     // Esegue il riavvio del dispositivo
     esp_restart();
 }
