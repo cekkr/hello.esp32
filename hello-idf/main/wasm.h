@@ -101,7 +101,7 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
 
     if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "run_wasm: m3_ParseModule\n");
     IM3Module module;
-    result = m3_ParseModule (env, &module, wasm, fsize, runtime);
+    result = m3_ParseModule (env, &module, wasm, fsize, NULL); // NULL should runtime... maybe
     if (result) FATAL(env, "m3_ParseModule: %s", result);  
 
     module->name = "env";  
