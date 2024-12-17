@@ -106,7 +106,7 @@ static int cmd_run(int argc, char** argv) {
             ret = xTaskCreatePinnedToCore(
                 wasm_task,
                 "wasm_executor",
-                WASM_STACK_SIZE,     // Aumentato a 8KB
+                WASM_STACK_SIZE * 2,     // Aumentato a 8KB
                 NULL,
                 priority,              // Priorità media
                 &task_handle,           // Non ci serve l'handle
@@ -117,7 +117,7 @@ static int cmd_run(int argc, char** argv) {
             ret = xTaskCreate(
                 wasm_task,
                 "wasm_executor",
-                WASM_STACK_SIZE,
+                WASM_STACK_SIZE * 2,
                 params,
                 priority,
                 &task_handle

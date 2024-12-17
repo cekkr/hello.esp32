@@ -1,10 +1,14 @@
 #pragma once
 
 #define SERIAL_TASK_ADV 1
-#define WASM_TASK_ADV 0
-
 #define WASM_TASK_CORE 0
+
+// WASM 3
+#define WASM_TASK_ADV 0
 #define SERIAL_TASK_CORE 0
+
+#define WASM_STACK_SIZE (32*1024)  // Esempio di dimensione stack
+#define WASM_TASK_PRIORITY 5
 
 ////////////////////////////////////////////////////////////////////////
 #define ENABLE_WATCHDOG 1
