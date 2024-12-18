@@ -196,10 +196,10 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _s
     if (runtime_null || mem_null) {
         ESP_LOGW("WASM3", "wasm_esp_printf blocked: runtime=%p, _sp=%p, mem=%p", runtime, _sp, _mem);
         LOG_FLUSH;
-        return ERROR_MSG_NULLS;
+        //return ERROR_MSG_NULLS;
     }
 
-    uint64_t* stack = _sp;
+    uint64_t* stack = m3ApiOffsetToPtr(&_sp);
     _sp++;
 
     char formatted_output[512];  // Increased buffer for safety
