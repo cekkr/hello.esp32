@@ -172,11 +172,14 @@ m3ApiRawFunction(wasm_esp_printf__2) {
 ///
 
 const bool HELLOESP_DEBUG_WASM_NATIVE_PRINTF = false;
+static const char* ERROR_MSG_NULLS = "wasm_esp_printf: runtime or _mem is null";
+static const char* ERROR_MSG_FAILED = "wasm_esp_printf: failed";
+
 M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, void* _mem) {
     if (!runtime || !_mem) {
         ESP_LOGW("WASM3", "wasm_esp_printf blocked: runtime=%p, _sp=%p, mem=%p", runtime, _sp, _mem);
         LOG_FLUSH;
-        return "wasm_esp_printf: runtime or _mem is null";
+        return ERROR_MSG_NULLS;
     }    
 
     uint64_t* stack = (uint64_t*)_sp++;
@@ -186,13 +189,13 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _s
     const char* format = m3ApiOffsetToPtr(stack[0]);
     if (!format) {
         ESP_LOGE("WASM3", "Invalid format string pointer");
-        return "wasm_esp_printf: format missing";
+        return ERROR_MSG_FAILED;
     }
 
     void* args_ptr = m3ApiOffsetToPtr(stack[1]);
     if (!args_ptr) {
         ESP_LOGE("WASM3", "Invalid format string pointer");
-        return "wasm_esp_printf: args missing";
+        return ERROR_MSG_FAILED;
     }
 
     // Array per memorizzare gli argomenti processati
@@ -213,7 +216,7 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _s
             if (*fmt_ptr != '%') {  // Ignora %%
                 if (arg_count >= 16) {
                     ESP_LOGE("WASM3", "Too many arguments");
-                    return "wasm_esp_printf: too many arguments";
+                    return ERROR_MSG_FAILED;
                 }
 
                 // Processa l'argomento basandosi sul tipo
@@ -231,7 +234,7 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _s
                         args[arg_count].s = m3ApiOffsetToPtr(stack_ptr);
                         if (!args[arg_count].s) {
                             ESP_LOGE("WASM3", "Invalid string pointer");
-                            return "wasm_esp_printf: inlvalid string pointer";
+                            return ERROR_MSG_FAILED;
                         }
                         break;
                     }
@@ -263,7 +266,7 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _s
         ESP_LOGI("WASM3", "%s", formatted_output);
     } else {
         ESP_LOGE("WASM3", "Formatting error");
-        return "wasm_esp_printf: formatting error";
+        return ERROR_MSG_FAILED;
     }
 
     return NULL;
