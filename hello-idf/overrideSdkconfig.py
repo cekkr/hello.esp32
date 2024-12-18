@@ -94,6 +94,12 @@ def modify_sdkconfig(sdkconfig_path):
         "CONFIG_ESP_SYSTEM_PANIC_STACK_SIZE":"65536"
     '''
 
+    # Override
+    security_configs = {
+        "CONFIG_ESP_SYSTEM_MEMPROT_FEATURE":"n",
+        "CONFIG_ESP_SYSTEM_MEMPROT_FEATURE_LOCK":"n"
+    }
+
     # Leggi il file esistente
     try:
         with open(sdkconfig_path, 'r') as f:
