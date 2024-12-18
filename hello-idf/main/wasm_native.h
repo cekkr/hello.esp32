@@ -199,7 +199,9 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _s
         return ERROR_MSG_NULLS;
     }
 
-    uint64_t* stack = (uint64_t*)m3ApiOffsetToPtr(_sp++);
+    uint64_t* stack = _sp;
+    _sp++;
+
     char formatted_output[512];  // Increased buffer for safety
     
     // Recupera e valida il puntatore al formato
