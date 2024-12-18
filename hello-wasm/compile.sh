@@ -6,14 +6,16 @@ asc samples/fibonacci.ts -o output/fibonacci.wasm --optimize
 # xxd -i output/fibonacci.wasm > output/fibonacci_wasm.h # to convert to c array
 
 #clang --target=wasm32 -nostdlib -Wl,--no-entry -Wl,--export-all -o output/fibonacciPrint.wasm samples/fibonacciPrint.c
+
+#-s TOTAL_MEMORY=65536 -s TOTAL_STACK=16384
 emcc samples/fibonacciPrint.c -o output/fibonacciPrint.wasm \
     -s WASM=1 \
     -s STANDALONE_WASM=0 \
     -s IMPORTED_MEMORY=1 \
-    -s INITIAL_MEMORY=65536 \
-    -s STACK_SIZE=4096 \
+    -s TOTAL_MEMORY=65536 \
+    -s STACK_SIZE=16384 \
     -s ALLOW_MEMORY_GROWTH=1 \
-    -s EXPORTED_FUNCTIONS='["_start", "_print_fibonacci", "_fib"]' \
+    -s EXPORTED_FUNCTIONS='["_start"]' \
     -O3 \
     --no-entry 
 

@@ -67,8 +67,9 @@ bool prepare_wasm_execution(const uint8_t* wasm_data, size_t size) {
     return true;
 }
 
-static const bool HELLOESP_DEBUG_run_wasm = true;
-static const bool HELLOESP_RUN_WASM_WDT = true && ENABLE_WATCHDOG;
+const bool HELLOESP_DEBUG_run_wasm = true;
+const bool HELLOESP_RUN_WASM_WDT = true && ENABLE_WATCHDOG;
+const bool HELLOESP_WASM_RUNTIME_AT_PARSE = true;
 static void run_wasm(uint8_t* wasm, uint32_t fsize)
 {
     //disable_watchdog();
@@ -101,7 +102,7 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
 
     if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "run_wasm: m3_ParseModule\n");
     IM3Module module;
-    result = m3_ParseModule (env, &module, wasm, fsize, NULL); // NULL should runtime... maybe
+    result = m3_ParseModule (env, &module, wasm, fsize, HELLOESP_WASM_RUNTIME_AT_PARSE ? runtime : NULL); // NULL should runtime... maybe
     if (result) FATAL(env, "m3_ParseModule: %s", result);  
 
     module->name = "env";  
@@ -118,7 +119,7 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
     if (result) FATAL(env, "m3_LoadModule: %s", result);
 
     if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "run_wasm: m3_LinkEspWASI_Hello\n");
-    result = m3_LinkEspWASI_Hello (runtime->modules);
+    result = m3_LinkEspWASI_Hello (module); // runtime->modules
     if (result) FATAL(env, "m3_LinkEspWASI: %s", result);
 
     // Linking native functions

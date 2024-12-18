@@ -5,7 +5,6 @@
 #include "../bindings/bindings.c"
 
 // Funzione che calcola l'n-esimo numero di Fibonacci
-EMSCRIPTEN_KEEPALIVE
 uint32_t fib(uint32_t n) {
     // Versione semplificata senza debug interno
     if (n <= 1) {
@@ -24,7 +23,6 @@ uint32_t fib(uint32_t n) {
 }
 
 // Funzione principale che stampa la serie con debug minimo
-EMSCRIPTEN_KEEPALIVE
 void print_fibonacci(uint32_t n) {
     const char* fmt1 = "Fibonacci series up to %d:\n";
     const char* fmt2 = "F(%d) = %d\n";
@@ -45,7 +43,6 @@ void print_fibonacci(uint32_t n) {
 }
 
 // Punto di ingresso
-EMSCRIPTEN_KEEPALIVE
 void start() {
     print_fibonacci(10);
     //return 0;
