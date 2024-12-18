@@ -172,17 +172,34 @@ m3ApiRawFunction(wasm_esp_printf__2) {
 ///
 
 const bool HELLOESP_DEBUG_WASM_NATIVE_PRINTF = false;
-static const char* ERROR_MSG_NULLS = "wasm_esp_printf: runtime or _mem is null";
-static const char* ERROR_MSG_FAILED = "wasm_esp_printf: failed";
+const char* ERROR_MSG_NULLS = "wasm_esp_printf: runtime or _mem is null";
+const char* ERROR_MSG_FAILED = "wasm_esp_printf: failed";
 
+const bool HELLOESP_DEBUG_wasm_esp_printf = false;
 M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, void* _mem) {
-    if (!runtime || !_mem) {
+    if(HELLOESP_DEBUG_wasm_esp_printf){
+        ESP_LOGI("WASM3", "Entering wasm_esp_printf with params:");
+        ESP_LOGI("WASM3", "  runtime: %p", runtime);
+        ESP_LOGI("WASM3", "  ctx: %p", ctx);
+        ESP_LOGI("WASM3", "  _sp: %p", _sp);
+        ESP_LOGI("WASM3", "  _mem: %p", _mem);
+    }
+
+    bool runtime_null = (runtime == NULL);
+    bool mem_null = (_mem == NULL);
+    
+    if(HELLOESP_DEBUG_wasm_esp_printf){
+        ESP_LOGI("WASM3", "runtime_null: %d", runtime_null);
+        ESP_LOGI("WASM3", "mem_null: %d", mem_null);
+    }
+
+    if (runtime_null || mem_null) {
         ESP_LOGW("WASM3", "wasm_esp_printf blocked: runtime=%p, _sp=%p, mem=%p", runtime, _sp, _mem);
         LOG_FLUSH;
         return ERROR_MSG_NULLS;
-    }    
+    }
 
-    uint64_t* stack = (uint64_t*)_sp++;
+    uint64_t* stack = (uint64_t*)m3ApiOffsetToPtr(_sp++);
     char formatted_output[512];  // Increased buffer for safety
     
     // Recupera e valida il puntatore al formato
