@@ -173,10 +173,10 @@ m3ApiRawFunction(wasm_esp_printf__2) {
 
 const bool HELLOESP_DEBUG_WASM_NATIVE_PRINTF = false;
 M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, void* _mem) {
-    if (!runtime || !_sp || !_mem) {
+    if (!runtime || !_mem) {
         ESP_LOGW("WASM3", "wasm_esp_printf blocked: runtime=%p, _sp=%p, mem=%p", runtime, _sp, _mem);
         LOG_FLUSH;
-        return m3Err_malformedUtf8;
+        return "wasm_esp_printf: runtime or _mem is null";
     }    
 
     uint64_t* stack = (uint64_t*)_sp++;
@@ -186,13 +186,13 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _s
     const char* format = m3ApiOffsetToPtr(stack[0]);
     if (!format) {
         ESP_LOGE("WASM3", "Invalid format string pointer");
-        return m3Err_malformedUtf8;
+        return "wasm_esp_printf: format missing";
     }
 
     void* args_ptr = m3ApiOffsetToPtr(stack[1]);
-    if (!format) {
+    if (!args_ptr) {
         ESP_LOGE("WASM3", "Invalid format string pointer");
-        return m3Err_malformedUtf8;
+        return "wasm_esp_printf: args missing";
     }
 
     // Array per memorizzare gli argomenti processati
@@ -213,7 +213,7 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _s
             if (*fmt_ptr != '%') {  // Ignora %%
                 if (arg_count >= 16) {
                     ESP_LOGE("WASM3", "Too many arguments");
-                    return m3Err_malformedUtf8;
+                    return "wasm_esp_printf: too many arguments";
                 }
 
                 // Processa l'argomento basandosi sul tipo
@@ -231,7 +231,7 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _s
                         args[arg_count].s = m3ApiOffsetToPtr(stack_ptr);
                         if (!args[arg_count].s) {
                             ESP_LOGE("WASM3", "Invalid string pointer");
-                            return m3Err_malformedUtf8;
+                            return "wasm_esp_printf: inlvalid string pointer";
                         }
                         break;
                     }
@@ -263,10 +263,10 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _s
         ESP_LOGI("WASM3", "%s", formatted_output);
     } else {
         ESP_LOGE("WASM3", "Formatting error");
-        return m3Err_malformedUtf8;
+        return "wasm_esp_printf: formatting error";
     }
 
-    return m3Err_none;
+    return NULL;
 }
 
 // Definizione della lookup table entry
