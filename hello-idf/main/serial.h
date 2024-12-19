@@ -840,7 +840,7 @@ void serial_handler_task(void *pvParameters) {
         else if(strcmp(cmd_type, CMD_SILENCE_ON) == 0){
             begin_exclusive_serial();
         }
-        else if(strcmp(cmd_type, CMD_SILENCE_ON) == 0){
+        else if(strcmp(cmd_type, CMD_SILENCE_OFF) == 0){
             end_exclusive_serial();
         }
         else {
