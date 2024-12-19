@@ -90,7 +90,7 @@ void taskStatusMonitor(void *pvParameters) {
         }
         
         // Aspetta 10 secondi prima del prossimo controllo
-        vTaskDelay(pdMS_TO_TICKS(10000));
+        vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
 
