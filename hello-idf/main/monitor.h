@@ -18,11 +18,14 @@
 ////////////////////////////////////////////////////////////////
 
 // Codici per formattare l'output
-#define MONITOR_START "!!TASKMONITOR!!\033[34m[TASK MONITOR]\033[0m "  // Blu
+/*#define MONITOR_START "!!TASKMONITOR!!\033[34m[TASK MONITOR]\033[0m "  // Blu
 #define MONITOR_SEPARATOR "\033[36m"                    // Ciano
 #define MONITOR_WARNING "\033[33m"                      // Giallo
 #define MONITOR_CRITICAL "\033[31m"                     // Rosso
-#define MONITOR_RESET "\033[0m!!TASKMONITOREND!!"                         // Reset colore
+#define MONITOR_RESET "\033[0m!!TASKMONITOREND!!\n"                         // Reset colore*/
+
+#define MONITOR_START "!!TASKMONITOR!!"
+#define MONITOR_END "!!TASKMONITOREND!!\n" 
 
 // Funzione proxy per i log del monitor
 void monitor_printf(const char* format, ...) {
@@ -36,7 +39,7 @@ void monitor_printf(const char* format, ...) {
     vprintf(format, args);
     va_end(args);
     
-    printf(MONITOR_RESET);
+    printf(MONITOR_END);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -48,9 +51,11 @@ void taskStatusMonitor(void *pvParameters) {
     uint32_t ulTotalRunTime;
     
     while(1) {
+        monitor_printf("!!clear!!");
+
         // Ottiene il numero di task nel sistema
         uxArraySize = uxTaskGetNumberOfTasks();
-        ESP_LOGI(TAG, "Numero di task attive: %d", uxArraySize);
+        monitor_printf("Numero di task attive: %d", uxArraySize);
         
         // Alloca memoria per l'array di status
         pxTaskStatusArray = pvPortMalloc(uxArraySize * sizeof(TaskStatus_t));
@@ -62,11 +67,13 @@ void taskStatusMonitor(void *pvParameters) {
                                              &ulTotalRunTime);
             
             // Stampa informazioni per ogni task
-            monitor_printf("\n=== Status Task del Sistema ===\n");
+            monitor_printf("");
+            monitor_printf("=== Status Task del Sistema ===");
+            monitor_printf("");
             for(int i = 0; i < uxArraySize; i++) {
-                monitor_printf("\nTask: %s\n", pxTaskStatusArray[i].pcTaskName);
-                monitor_printf("- Priorità: %d\n", pxTaskStatusArray[i].uxCurrentPriority);
-                monitor_printf("- Stack High Water Mark: %d bytes\n", 
+                monitor_printf("\nTask: %s", pxTaskStatusArray[i].pcTaskName);
+                monitor_printf("- Priorità: %d", pxTaskStatusArray[i].uxCurrentPriority);
+                monitor_printf("- Stack High Water Mark: %d bytes", 
                        pxTaskStatusArray[i].usStackHighWaterMark * sizeof(StackType_t));
                 
                 // Converti lo stato numerico in stringa
@@ -79,9 +86,9 @@ void taskStatusMonitor(void *pvParameters) {
                     case eDeleted: taskState = "Eliminata"; break;
                     default: taskState = "Sconosciuto"; break;
                 }
-                monitor_printf("- Stato: %s\n", taskState);
+                monitor_printf("- Stato: %s", taskState);
             }
-            monitor_printf("===========================\n");
+            monitor_printf("===========================");
             
             // Libera la memoria
             vPortFree(pxTaskStatusArray);
