@@ -172,6 +172,8 @@ static int cmd_run(int argc, char** argv) {
 
 // Handler per il comando "echo"
 static int cmd_echo(int argc, char** argv) {
+    end_exclusive_serial();
+
     for (int i = 0; i < argc; i++) {
         ESP_LOGI(TAG, "%s ", argv[i]);
     }

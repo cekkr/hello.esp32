@@ -75,13 +75,17 @@ void serial_write_auto(const char* data) {
 }
 
 void begin_exclusive_serial() {
-    exclusive_serial_mode = true;
-    esp_log_level_set("*", ESP_LOG_NONE);
+    if(!exclusive_serial_mode){
+        exclusive_serial_mode = true;
+        esp_log_level_set("*", ESP_LOG_NONE);
+    }
 }
 
 void end_exclusive_serial() {
-    exclusive_serial_mode = false;
-    esp_log_level_set("*", ESP_LOG_INFO);
+    if(exclusive_serial_mode){
+        exclusive_serial_mode = false;
+        esp_log_level_set("*", ESP_LOG_DEBUG);
+    }
 }
 
 ///
