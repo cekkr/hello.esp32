@@ -831,6 +831,7 @@ void serial_handler_task(void *pvParameters) {
         }
         else if(strcmp(cmd_type, CMD_CMD) == 0){
             send_response(STATUS_OK, "Running command");
+            end_exclusive_serial();
             process_command(params->cmdline);
 
             free(params->cmdline);
