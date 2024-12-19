@@ -195,6 +195,11 @@ static int cmd_core_dump(int argc, char** argv){
     return 0;
 }
 
+static int cmd_meminfo(int argc, char** argv){
+    device_info();    
+    return 0;
+}
+
 // Tabella dei comandi supportati
 static const command_entry_t commands[] = {
     {"run", cmd_run},
@@ -202,6 +207,7 @@ static const command_entry_t commands[] = {
     {"ls", cmd_ls},
     {"restart", cmd_restart},
     {"core_dump", cmd_core_dump},
+    {"meminfo", cmd_meminfo},
     {NULL, NULL}  // Terminatore
 };
 
