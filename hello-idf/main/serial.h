@@ -65,17 +65,13 @@ typedef struct {
 ///
 
 void serial_write(const char* data, size_t len){
-    if (!exclusive_serial_mode) {
-        uart_write_bytes(UART_NUM_0, data, len);
-        uart_wait_tx_done(UART_NUM_0, portMAX_DELAY);
-    }
+    uart_write_bytes(UART_NUM_0, data, len);
+    uart_wait_tx_done(UART_NUM_0, portMAX_DELAY);
 }
 
 void serial_write_auto(const char* data) {
-    if (!exclusive_serial_mode) {
-        uart_write_bytes(UART_NUM_0, data, strlen(data));
-        uart_wait_tx_done(UART_NUM_0, portMAX_DELAY);
-    }
+    uart_write_bytes(UART_NUM_0, data, strlen(data));
+    uart_wait_tx_done(UART_NUM_0, portMAX_DELAY);    
 }
 
 void begin_exclusive_serial() {
