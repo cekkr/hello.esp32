@@ -26,6 +26,13 @@
         "m3_core.h": "c",
         "m3_code.h": "c",
         "m3_pointers.h": "c",
-        "m3_exception.h": "c"
+        "m3_exception.h": "c",
+        "__bit_reference": "cpp",
+        "__node_handle": "cpp",
+        "limits": "cpp",
+        "locale": "cpp",
+        "optional": "cpp",
+        "ratio": "cpp",
+        "tuple": "cpp"
     }
 }
