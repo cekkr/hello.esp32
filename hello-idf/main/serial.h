@@ -16,6 +16,7 @@
 #include "defines.h"
 #include "device.h"
 #include "sdcard.h"
+#include "monitor.h"
 
 // Definizioni
 #define BUF_SIZE 1024
@@ -32,6 +33,8 @@
 #define CMD_CHUNK "$$$CHUNK$$$"
 #define CMD_CMD "$$$CMD$$$"
 #define CMD_RESET "$$$RESET$$$"
+#define CMD_SILENCE_ON "$$$SILENCE_ON$$$"
+#define CMD_SILENCE_OFF "$$$SILENCE_OFF$$$"
 
 // Codici di risposta
 typedef enum {
@@ -354,6 +357,12 @@ static command_status_t parse_command(const char* command, char* cmd_type, comma
     } 
     else if(strncmp(command, CMD_RESET, strlen(CMD_RESET)) == 0) {
         strcpy(cmd_type, CMD_RESET);
+    }
+    else if(strncmp(command, CMD_SILENCE_OFF, strlen(CMD_SILENCE_OFF)) == 0) {
+        strcpy(cmd_type, CMD_SILENCE_OFF);
+    }
+     else if(strncmp(command, CMD_SILENCE_ON, strlen(CMD_SILENCE_ON)) == 0) {
+        strcpy(cmd_type, CMD_SILENCE_ON);
     }
 
     // ... altri comandi ...
@@ -831,6 +840,12 @@ void serial_handler_task(void *pvParameters) {
         }
         else if(strcmp(cmd_type, CMD_RESET) == 0){
             restart_device();
+        }
+        else if(strcmp(cmd_type, CMD_SILENCE_ON) == 0){
+            begin_exclusive_serial();
+        }
+        else if(strcmp(cmd_type, CMD_SILENCE_ON) == 0){
+            end_exclusive_serial();
         }
         else {
             sprintf(text, "Unknown command: %s", cmd_type);                
