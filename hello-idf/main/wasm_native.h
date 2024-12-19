@@ -199,13 +199,14 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _s
         //return ERROR_MSG_NULLS;
     }
 
-    uint64_t* stack = m3ApiOffsetToPtr(&_sp);
+    uint64_t* stack = m3ApiOffsetToPtr(_sp);
     _sp++;
 
     char formatted_output[512];  // Increased buffer for safety
     
     // Recupera e valida il puntatore al formato
     const char* format = m3ApiOffsetToPtr(stack[0]);
+    ESP_LOGE("WASM3", "wasm_esp_printf: format(%p): %s", format, format);
     if (!format) {
         ESP_LOGE("WASM3", "Invalid format string pointer");
         return ERROR_MSG_FAILED;
