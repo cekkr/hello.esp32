@@ -16,7 +16,8 @@ idf_component_register(
         mbedtls
         driver     
         wasm3  
-        espcoredump        
+        espcoredump    
+        spi_flash    
 )
 
 target_compile_options(${COMPONENT_LIB} PRIVATE -Wno-format -Wno-error=maybe-uninitialized)

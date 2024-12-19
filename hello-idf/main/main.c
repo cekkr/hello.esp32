@@ -153,12 +153,6 @@ void init_spi(){
     esp_err_t ret = spi_bus_initialize(SPI2_HOST, &bus_config, SPI_DMA_DISABLED);
 }
 
-void device_info(){
-    uint32_t flash_size;
-    esp_flash_get_size(NULL, &flash_size);
-    ESP_LOGI(TAG, "Flash size: %d bytes\n", flash_size);
-}
-
 static const int UART_BUFFER_SIZE = 1024;  // Cambiato da bool a int
 
 void init_uart() {

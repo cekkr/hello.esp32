@@ -8,6 +8,13 @@
 #include "soc/timer_group_reg.h"
 #include "soc/rtc_cntl_reg.h"
 
+#include <stdio.h>
+
+#include "esp_log.h"
+#include "esp_chip_info.h"
+#include "esp_flash_spi_init.h"
+//#include "esp_spi_flash.h"
+
 #include "defines.h"
 
 void restart_device(void) {
@@ -100,5 +107,84 @@ void handle_watchdog() {
     reset_wdt();
 }
 #endif
+
+///
+/// Infos
+///
+
+// Informazioni sulla CPU e sul chip
+void print_chip_info(void) {
+    esp_chip_info_t chip_info;
+    esp_chip_info(&chip_info);
+    
+    ESP_LOGI(TAG, "Chip Info:");
+    ESP_LOGI(TAG, "- Model: %s", CONFIG_IDF_TARGET);
+    ESP_LOGI(TAG, "- Cores: %d", chip_info.cores);
+    ESP_LOGI(TAG, "- Feature: %s%s%s%s%s",
+        (chip_info.features & CHIP_FEATURE_WIFI_BGN) ? "WiFi " : "",
+        (chip_info.features & CHIP_FEATURE_BT) ? "BT " : "",
+        (chip_info.features & CHIP_FEATURE_BLE) ? "BLE " : "",
+        (chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "Flash " : "",
+        (chip_info.features & CHIP_FEATURE_EMB_PSRAM) ? "PSRAM " : "");
+    ESP_LOGI(TAG, "- Revision number: %d", chip_info.revision);
+}
+
+// Informazioni sulla memoria Flash
+void print_flash_info(void) {
+    uint32_t flash_size;
+    esp_flash_get_size(NULL, &flash_size);
+    
+    ESP_LOGI(TAG, "Flash Memory:");
+    ESP_LOGI(TAG, "- Size: %lu MB", flash_size / (1024 * 1024));
+    //ESP_LOGI(TAG, "- Speed: %u MHz", ESP_FLASH_SPEED / 1000000); // don't know where to include it
+    /*ESP_LOGI(TAG, "- Mode: %s", 
+        (ESP_FLASH_MODE == 0) ? "QIO" :
+        (ESP_FLASH_MODE == 1) ? "QOUT" :
+        (ESP_FLASH_MODE == 2) ? "DIO" :
+        (ESP_FLASH_MODE == 3) ? "DOUT" : "Unknown");*/
+}
+
+// Informazioni sulla memoria RAM
+void print_ram_info(void) {
+    ESP_LOGI(TAG, "RAM Info:");
+    ESP_LOGI(TAG, "- Total heap size: %lu bytes", esp_get_free_heap_size());
+    ESP_LOGI(TAG, "- Minimum free heap size: %lu bytes", esp_get_minimum_free_heap_size());
+    
+    multi_heap_info_t info;
+    heap_caps_get_info(&info, MALLOC_CAP_INTERNAL);
+    ESP_LOGI(TAG, "Internal RAM:");
+    ESP_LOGI(TAG, "- Total free bytes: %lu", info.total_free_bytes);
+    ESP_LOGI(TAG, "- Total allocated bytes: %lu", info.total_allocated_bytes);
+    ESP_LOGI(TAG, "- Largest free block: %lu", info.largest_free_block);
+}
+
+// Informazioni sulla PSRAM (se disponibile)
+void print_psram_info(void) {
+    ESP_LOGI(TAG, "PSRAM Info:");
+    if (esp_psram_is_initialized()) {
+        size_t psram_size = esp_psram_get_size();
+        size_t free_psram = heap_caps_get_free_size(MALLOC_CAP_SPIRAM);
+        
+        ESP_LOGI(TAG, "- PSRAM initialized");
+        ESP_LOGI(TAG, "- Total size: %lu MB", psram_size / (1024 * 1024));
+        ESP_LOGI(TAG, "- Free size: %lu bytes", free_psram);
+        ESP_LOGI(TAG, "- Used size: %lu bytes", psram_size - free_psram);
+    } else {
+        ESP_LOGI(TAG, "- PSRAM not initialized or not available");
+    }
+}
+
+// Funzione principale che raccoglie tutte le informazioni
+void device_info(void) {
+    ESP_LOGI(TAG, "\n=== ESP32 Device Information ===\n");
+    print_chip_info();
+    ESP_LOGI(TAG, "");
+    print_flash_info();
+    ESP_LOGI(TAG, "");
+    print_ram_info();
+    ESP_LOGI(TAG, "");
+    print_psram_info();
+    ESP_LOGI(TAG, "\n==============================\n");
+}
 
 #endif  // HELLOESP_DEVICE_H
