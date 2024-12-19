@@ -93,52 +93,77 @@ static int cmd_run(int argc, char** argv) {
     if (result == ESP_OK) {
         // Crea i parametri per la task
         wasm_task_params_t* params = malloc(sizeof(wasm_task_params_t));
+        if (params == NULL) {
+            ESP_LOGE(TAG, "Errore nell'allocazione dei parametri della task WASM");
+            return ESP_ERR_NO_MEM;
+        }
+        
         params->wasm_data = data;
         params->wasm_size = size;
         
         // Crea la task
         TaskHandle_t task_handle;
         BaseType_t ret;
+        const UBaseType_t priority = 5 | portPRIVILEGE_BIT;
+        char* error_msg = NULL;
 
-        UBaseType_t priority = 5 | portPRIVILEGE_BIT;
-
-        if(WASM_TASK_ADV){
+        if (WASM_TASK_ADV) {
             ret = xTaskCreatePinnedToCore(
                 wasm_task,
                 "wasm_executor",
-                WASM_STACK_SIZE * 2,     // Aumentato a 8KB
+                WASM_STACK_SIZE,     // Stack 8KB
                 NULL,
-                priority,              // Priorità media
-                &task_handle,           // Non ci serve l'handle
-                WASM_TASK_CORE               // Core 1
+                priority,
+                &task_handle,
+                WASM_TASK_CORE
             );
-        } 
-        else {
+            error_msg = "task pinnata al core";
+        } else {
             ret = xTaskCreate(
                 wasm_task,
                 "wasm_executor",
-                WASM_STACK_SIZE * 2,
+                WASM_STACK_SIZE,
                 params,
                 priority,
                 &task_handle
-            );    
+            );
+            error_msg = "task standard";
         }
         
         if (ret != pdPASS) {
-            ESP_LOGE(TAG, "Failed to create WASM task");
+            const char* err_reason;
+            switch (ret) {
+                case errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY:
+                    err_reason = "memoria insufficiente";
+                    break;
+                case errQUEUE_BLOCKED:
+                    err_reason = "coda bloccata";
+                    break;
+                case errQUEUE_YIELD:
+                    err_reason = "yield richiesto";
+                    break;
+                default:
+                    err_reason = "errore sconosciuto";
+            }
+            
+            ESP_LOGE(TAG, "Creazione %s fallita: %s (codice: %d)", 
+                    error_msg, err_reason, ret);
+            
+            // Pulizia memoria
             free(params->wasm_data);
             free(params);
-            free(params);
-
-            return -1;
+            return ESP_ERR_NO_MEM;
         }
-        else {
-            //esp_task_wdt_delete(task_handle);
-        }
+        
+        ESP_LOGI(TAG, "Task WASM creata con successo (handle: %p)", 
+                (void*)task_handle);
+        return ESP_OK;
+    
     } else {
-        ESP_LOGE(TAG, "Errore nella lettura del file: %d\n", result);
-        return -1;
-    }    
+        ESP_LOGE(TAG, "Errore nella lettura del file WASM: %s (codice: %d)", 
+                esp_err_to_name(result), result);
+        return result;
+    }   
 
     return 0;  // Comando eseguito con successo
 }
