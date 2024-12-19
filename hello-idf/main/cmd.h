@@ -91,7 +91,7 @@ static int cmd_run(int argc, char** argv) {
     free(fullpath);
 
     if (result == ESP_OK) {
-        int minStackSize = 1024; // was WASM_STACK_SIZE
+        int minStackSize = 8*1024; // was WASM_STACK_SIZE
 
         // Crea i parametri per la task
         wasm_task_params_t* params = malloc(sizeof(wasm_task_params_t));
@@ -114,7 +114,7 @@ static int cmd_run(int argc, char** argv) {
                 wasm_task,
                 "wasm_executor",
                 minStackSize,     // Stack 8KB
-                NULL,
+                params,
                 priority,
                 &task_handle,
                 WASM_TASK_CORE
