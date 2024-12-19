@@ -51,6 +51,11 @@ void taskStatusMonitor(void *pvParameters) {
     uint32_t ulTotalRunTime;
     
     while(1) {
+        if(exclusive_serial_mode){
+            vTaskDelay(pdMS_TO_TICKS(1000));
+            continue;
+        }
+
         monitor_printf("!!clear!!");
 
         // Ottiene il numero di task nel sistema
