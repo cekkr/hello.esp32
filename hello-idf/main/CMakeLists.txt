@@ -18,6 +18,7 @@ idf_component_register(
         wasm3  
         espcoredump    
         spi_flash    
+        esp_psram
 )
 
 target_compile_options(${COMPONENT_LIB} PRIVATE -Wno-format -Wno-error=maybe-uninitialized)

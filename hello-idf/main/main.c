@@ -189,6 +189,10 @@ void enable_log_debug(){
     esp_log_level_set("*", ESP_LOG_DEBUG);
 }
 
+////
+////
+////
+
 void app_main(void) {       
     handle_watchdog();
     //WATCHDOG_ADD
@@ -198,13 +202,8 @@ void app_main(void) {
     init_error_handling();
     //init_custom_logging(); // this crash everything
     enable_log_debug();
-
-    //heap_caps_malloc_extmem_enable(20); // no PSRAM available, ergo useless
-
-    if(false){
-        //ESP_ERROR_CHECK(heap_trace_init_standalone(heap_trace_records, HEAP_TRACE_ALL));
-        //ESP_ERROR_CHECK(heap_trace_start(HEAP_TRACE_LEAKS));
-    }        
+    
+    //heap_caps_malloc_extmem_enable(20); // no PSRAM available, ergo useless       
 
     ESP_LOGI(TAG, "\nStarting SD card test...\n");
     init_sd_card(); 

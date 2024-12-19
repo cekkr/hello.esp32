@@ -33,6 +33,7 @@
         "locale": "cpp",
         "optional": "cpp",
         "ratio": "cpp",
-        "tuple": "cpp"
+        "tuple": "cpp",
+        "esp_exception.h": "c"
     }
 }

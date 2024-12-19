@@ -91,6 +91,8 @@ static int cmd_run(int argc, char** argv) {
     free(fullpath);
 
     if (result == ESP_OK) {
+        int minStackSize = 1024; // was WASM_STACK_SIZE
+
         // Crea i parametri per la task
         wasm_task_params_t* params = malloc(sizeof(wasm_task_params_t));
         if (params == NULL) {
@@ -111,7 +113,7 @@ static int cmd_run(int argc, char** argv) {
             ret = xTaskCreatePinnedToCore(
                 wasm_task,
                 "wasm_executor",
-                WASM_STACK_SIZE,     // Stack 8KB
+                minStackSize,     // Stack 8KB
                 NULL,
                 priority,
                 &task_handle,
@@ -122,7 +124,7 @@ static int cmd_run(int argc, char** argv) {
             ret = xTaskCreate(
                 wasm_task,
                 "wasm_executor",
-                WASM_STACK_SIZE,
+                minStackSize,
                 params,
                 priority,
                 &task_handle
