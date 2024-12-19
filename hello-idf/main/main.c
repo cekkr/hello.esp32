@@ -29,6 +29,7 @@ static const char *TAG = "HELLOESP";
 #include "io.h"
 #include "esp_exception.h"
 #include "device.h"
+#include "monitor.h"
 
 // CMDs
 #include "cmd.h"
@@ -202,7 +203,7 @@ void app_main(void) {
     init_error_handling();
     //init_custom_logging(); // this crash everything
     enable_log_debug();
-    
+
     //heap_caps_malloc_extmem_enable(20); // no PSRAM available, ergo useless       
 
     ESP_LOGI(TAG, "\nStarting SD card test...\n");
@@ -210,6 +211,9 @@ void app_main(void) {
 
     // Inizializzazione della seriale
     init_uart();
+
+    // Start tasks monitor
+    init_tasksMonitor();
 
 	// Avvia il thread di gestione seriale
     ESP_LOGI(TAG, "\nStarting serial handler...\n");

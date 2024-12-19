@@ -58,14 +58,36 @@ typedef struct {
 } command_params_t;
 
 ///
-///
+/// Serial control
 ///
 
-int serial_write(char *buffer, size_t size){
-    int res = uart_write_bytes(UART_NUM_0, buffer, size);
-    uart_wait_tx_done(UART_NUM_0, portMAX_DELAY);
-    return res;
+void serial_write(const char* data, size_t len){
+    if (!exclusive_serial_mode) {
+        uart_write_bytes(UART_NUM_0, data, len);
+        uart_wait_tx_done(UART_NUM_0, portMAX_DELAY);
+    }
 }
+
+void serial_write_auto(const char* data) {
+    if (!exclusive_serial_mode) {
+        uart_write_bytes(UART_NUM_0, data, strlen(data));
+        uart_wait_tx_done(UART_NUM_0, portMAX_DELAY);
+    }
+}
+
+void begin_exclusive_serial() {
+    exclusive_serial_mode = true;
+    esp_log_level_set("*", ESP_LOG_NONE);
+}
+
+void end_exclusive_serial() {
+    exclusive_serial_mode = false;
+    esp_log_level_set("*", ESP_LOG_INFO);
+}
+
+///
+///
+///
 
 char serial_read_char(){
     char c = '\0';
@@ -666,6 +688,8 @@ void serial_handler_task(void *pvParameters) {
                 continue;
             }
 
+            begin_exclusive_serial();
+
             size_t bytes_sent = 0;
             while (bytes_sent < file_stat.st_size) {
                 size_t to_read = MIN(CHUNK_SIZE, file_stat.st_size - bytes_sent);
@@ -697,6 +721,8 @@ void serial_handler_task(void *pvParameters) {
 
                 bytes_sent += read;
             }
+
+            end_exclusive_serial();
 
             free(chunk);
             fclose(f);
