@@ -543,6 +543,8 @@ void serial_handler_task(void *pvParameters) {
                 continue;
             }
 
+            begin_exclusive_serial();
+
             ESP_LOGI(TAG, "Calculating MD5\n");
             size_t total_received = 0;
             uint8_t chunk_buffer[1024];
@@ -607,7 +609,7 @@ void serial_handler_task(void *pvParameters) {
                     fclose(file);
                     unlink(params->filename);
                     send_response(STATUS_ERROR, "Chunk hash mismatch");
-                    chunkHashFailed = true;
+                    chunkHashFailed = true;                    
                     break;
                 }
 
@@ -615,10 +617,11 @@ void serial_handler_task(void *pvParameters) {
                 mbedtls_md5_update(&md5_ctx, chunk_buffer, total_read);
                 fwrite(chunk_buffer, sizeof(chunk_buffer[0]), total_received, file);                
 
-                send_response(STATUS_OK, "Chunk received");
+                send_response(STATUS_OK, "Chunk received");                
             }
 
             if(chunkHashFailed){
+                end_exclusive_serial();
                 continue;
             }
 
@@ -640,10 +643,12 @@ void serial_handler_task(void *pvParameters) {
                 } else {
                     send_response(STATUS_OK, "File written successfully");
                 }
+                end_exclusive_serial();
             }
             else {
                 fclose(file);
                 send_response(STATUS_OK, "File written successfully");
+                end_exclusive_serial();
             }
 
         }
