@@ -743,6 +743,8 @@ void serial_handler_task(void *pvParameters) {
             send_response(STATUS_OK, "File sent successfully");
         }
         else if (strcmp(cmd_type, CMD_LIST_FILES) == 0) {
+            start_exclusive_serial();
+
             // Analyze the mounting point
             struct stat st;
             if (stat(SD_MOUNT_POINT, &st) != 0) {
@@ -799,6 +801,7 @@ void serial_handler_task(void *pvParameters) {
             }
 
             send_response(STATUS_OK, file_list);
+            end_exclusive_serial();
         }
         else if (strcmp(cmd_type, CMD_DELETE_FILE) == 0) {
             /*if (!params->filename) { // always true
@@ -837,8 +840,8 @@ void serial_handler_task(void *pvParameters) {
         else if(strcmp(cmd_type, CMD_CMD) == 0){
             send_response(STATUS_OK, "Running command");
             end_exclusive_serial();
+            
             process_command(params->cmdline);
-
             free(params->cmdline);
         }
         else if(strcmp(cmd_type, CMD_CHUNK) == 0){
