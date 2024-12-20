@@ -49,6 +49,8 @@ void monitor_enable(){
 void monitor_printf(const char* format, ...) {
     if(exclusive_serial_mode || disable_monitor) return;
 
+    uart_wait_tx_done(UART_NUM_0, portMAX_DELAY);
+
     printf(MONITOR_START);
     // example printf(MONITOR_START MONITOR_WARNING);
     
@@ -58,6 +60,8 @@ void monitor_printf(const char* format, ...) {
     va_end(args);
     
     printf(MONITOR_END);
+
+    uart_wait_tx_done(UART_NUM_0, portMAX_DELAY);
 }
 
 ////////////////////////////////////////////////////////////////
