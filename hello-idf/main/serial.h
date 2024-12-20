@@ -77,6 +77,8 @@ void serial_write_auto(const char* data) {
     uart_wait_tx_done(UART_NUM_0, portMAX_DELAY);    
 }
 
+////////////////////////////////////////////////////////////////
+
 void begin_exclusive_serial() {
     if(!exclusive_serial_mode){
         exclusive_serial_mode = true;
@@ -87,7 +89,7 @@ void begin_exclusive_serial() {
 void end_exclusive_serial() {
     if(exclusive_serial_mode){
         exclusive_serial_mode = false;
-        esp_log_level_set("*", ESP_LOG_DEBUG);
+        enable_log_debug();
     }
 }
 
@@ -499,6 +501,7 @@ void serial_handler_task(void *pvParameters) {
             command_status_t parse_status = parse_command(command, cmd_type, params);            
         }*/
 
+       end_exclusive_serial();
        command_status_t parse_status = wait_for_command(cmd_type, params);
 
        if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "Working on cmd_type: %s\n", cmd_type);
@@ -546,7 +549,7 @@ void serial_handler_task(void *pvParameters) {
                 continue;
             }
 
-            begin_exclusive_serial();
+            monitor_disable();
 
             ESP_LOGI(TAG, "Calculating MD5\n");
             size_t total_received = 0;
@@ -623,8 +626,7 @@ void serial_handler_task(void *pvParameters) {
                 send_response(STATUS_OK, "Chunk received");                
             }
 
-            if(chunkHashFailed){
-                end_exclusive_serial();
+            if(chunkHashFailed){                
                 continue;
             }
 
@@ -646,12 +648,10 @@ void serial_handler_task(void *pvParameters) {
                 } else {
                     send_response(STATUS_OK, "File written successfully");
                 }
-                end_exclusive_serial();
             }
             else {
                 fclose(file);
                 send_response(STATUS_OK, "File written successfully");
-                end_exclusive_serial();
             }
 
         }
@@ -705,7 +705,7 @@ void serial_handler_task(void *pvParameters) {
                 continue;
             }
 
-            begin_exclusive_serial();
+            monitor_disable();
 
             size_t bytes_sent = 0;
             while (bytes_sent < file_stat.st_size) {
@@ -746,7 +746,7 @@ void serial_handler_task(void *pvParameters) {
             send_response(STATUS_OK, "File sent successfully");
         }
         else if (strcmp(cmd_type, CMD_LIST_FILES) == 0) {
-            begin_exclusive_serial();
+            monitor_disable();
 
             // Analyze the mounting point
             struct stat st;
@@ -842,10 +842,12 @@ void serial_handler_task(void *pvParameters) {
         }
         else if(strcmp(cmd_type, CMD_CMD) == 0){
             send_response(STATUS_OK, "Running command");
-            end_exclusive_serial();
+            monitor_disable();
 
             process_command(params->cmdline);
             free(params->cmdline);
+
+            monitor_enable();
         }
         else if(strcmp(cmd_type, CMD_CHUNK) == 0){
             send_response(STATUS_ERROR, "Chunk out of context");

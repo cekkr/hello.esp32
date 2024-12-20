@@ -27,9 +27,27 @@
 #define MONITOR_START "!!TASKMONITOR!!"
 #define MONITOR_END "!!TASKMONITOREND!!\n" 
 
+////////////////////////////////////////////////////////////////
+
+void enable_log_debug(){
+    esp_log_level_set("*", ESP_LOG_DEBUG);
+}
+
+void monitor_disable(){
+    disable_monitor = true;
+    enable_log_debug();
+}
+
+void monitor_enable(){
+    disable_monitor = true;
+    enable_log_debug();
+}
+
+////////////////////////////////////////////////////////////////
+
 // Funzione proxy per i log del monitor
 void monitor_printf(const char* format, ...) {
-    if(exclusive_serial_mode) return;
+    if(exclusive_serial_mode || disable_monitor) return;
 
     printf(MONITOR_START);
     // example printf(MONITOR_START MONITOR_WARNING);
@@ -51,7 +69,7 @@ void taskStatusMonitor(void *pvParameters) {
     uint32_t ulTotalRunTime;
     
     while(1) {
-        if(exclusive_serial_mode){
+        if(exclusive_serial_mode || disable_monitor){
             vTaskDelay(pdMS_TO_TICKS(1000));
             continue;
         }

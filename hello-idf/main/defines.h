@@ -32,3 +32,4 @@
 ///
 
 static bool exclusive_serial_mode = false;
+static bool disable_monitor = false;
