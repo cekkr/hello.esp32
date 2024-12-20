@@ -36,6 +36,9 @@
 #define CMD_SILENCE_ON "$$$SILENCE_ON$$$"
 #define CMD_SILENCE_OFF "$$$SILENCE_OFF$$$"
 
+// Debug
+#define HELLO_DEBUG_CMD false
+
 // Codici di risposta
 typedef enum {
     STATUS_OK = 0,
@@ -287,7 +290,7 @@ command_status_t wait_content(char* content, command_params_t* params) {
 // Funzione per il parsing dei comandi
 static command_status_t parse_command(const char* command, char* cmd_type, command_params_t* params) {    
 
-    ESP_LOGI(TAG, "Parsing command: %s\n", command);
+    if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "Parsing command: %s\n", command);
 
     //ESP_LOGI(TAG, "PING strncmp: %s = %d\n", command, strncmp(command, CMD_PING, strlen(CMD_PING)));
 
@@ -400,21 +403,21 @@ command_status_t wait_for_command(char* cmd_type, command_params_t* params) {
         
         if (incipit < 3 && length > 3){
             command_buffer[length] = '\0';
-            ESP_LOGI(TAG, "wait_for_command: reset (%s) (length: %d) (incipit: %d)\n", command_buffer, length, incipit);
+            if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "wait_for_command: reset (%s) (length: %d) (incipit: %d)\n", command_buffer, length, incipit);
             incipit = 0;
             length = 0;
             continue;
         }
 
         if (c == EOF) {
-            ESP_LOGI(TAG, "wait_for_command: EOF\n");
+            if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "wait_for_command: EOF\n");
             command_buffer[length] = '\0';
             return STATUS_ERROR_TIMEOUT;
         }
         
         if (c == '\n') {            
             command_buffer[length] = '\0';
-            ESP_LOGI(TAG, "wait_for_command: end (%d) '%s'\n", sizeof(command_buffer), command_buffer);
+            if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "wait_for_command: end (%d) '%s'\n", sizeof(command_buffer), command_buffer);
             break;
         }
         
@@ -498,7 +501,7 @@ void serial_handler_task(void *pvParameters) {
 
        command_status_t parse_status = wait_for_command(cmd_type, params);
 
-       ESP_LOGI(TAG, "Working on cmd_type: %s\n", cmd_type);
+       if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "Working on cmd_type: %s\n", cmd_type);
 
        if (parse_status != STATUS_OK) {
             sprintf(text, "Invalid command parameters: %s", cmd_type);             
@@ -743,7 +746,7 @@ void serial_handler_task(void *pvParameters) {
             send_response(STATUS_OK, "File sent successfully");
         }
         else if (strcmp(cmd_type, CMD_LIST_FILES) == 0) {
-            start_exclusive_serial();
+            begin_exclusive_serial();
 
             // Analyze the mounting point
             struct stat st;
@@ -840,7 +843,7 @@ void serial_handler_task(void *pvParameters) {
         else if(strcmp(cmd_type, CMD_CMD) == 0){
             send_response(STATUS_OK, "Running command");
             end_exclusive_serial();
-            
+
             process_command(params->cmdline);
             free(params->cmdline);
         }
