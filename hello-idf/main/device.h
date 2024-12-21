@@ -160,6 +160,7 @@ void print_ram_info(void) {
 
 // Informazioni sulla PSRAM (se disponibile)
 void print_psram_info(void) {
+    #if ENABLE_SPIRAM
     ESP_LOGI(TAG, "PSRAM Info:");
     if (esp_psram_is_initialized()) {
         size_t psram_size = esp_psram_get_size();
@@ -172,6 +173,7 @@ void print_psram_info(void) {
     } else {
         ESP_LOGI(TAG, "- PSRAM not initialized or not available");
     }
+    #endif
 }
 
 // Funzione principale che raccoglie tutte le informazioni
