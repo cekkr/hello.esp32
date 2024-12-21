@@ -220,7 +220,7 @@ void app_main(void) {
     init_spi(); 
 
     ESP_LOGI(TAG, "Init TFT\n");
-    //init_tft();      
+    init_tft();      
 
     while(1){        
         //WATCHDOG_RESET
