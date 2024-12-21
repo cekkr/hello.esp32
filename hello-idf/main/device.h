@@ -152,7 +152,7 @@ void print_executable_memory_info(void) {
     ESP_LOGI(TAG, "\nDetailed heap info:");
     heap_caps_print_heap_info(MALLOC_CAP_EXEC);
 
-    ESP_LOG(TAG, "\nExecutable Memory Ranges:");
+    ESP_LOGI(TAG, "\nExecutable Memory Ranges:");
     print_executable_memory_ranges();
 }
 
