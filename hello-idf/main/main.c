@@ -209,7 +209,9 @@ void app_main(void) {
     init_uart();
 
     // Start tasks monitor
+    #if ENABLE_MONITOR
     init_tasksMonitor();
+    #endif
 
 	// Avvia il thread di gestione seriale
     ESP_LOGI(TAG, "\nStarting serial handler...\n");

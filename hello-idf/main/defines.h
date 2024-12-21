@@ -29,6 +29,8 @@
 
 #define ENABLE_SPIRAM 0
 
+#define ENABLE_MONITOR 0
+
 ///
 /// Global vars
 ///
