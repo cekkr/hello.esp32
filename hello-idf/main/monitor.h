@@ -30,7 +30,8 @@
 ////////////////////////////////////////////////////////////////
 
 void enable_log_debug(){
-    esp_log_level_set("*", ESP_LOG_DEBUG);
+    //esp_log_level_set("*", ESP_LOG_DEBUG); 
+    esp_log_level_set("*", ESP_LOG_VERBOSE);
 }
 
 void monitor_disable(){
