@@ -12,7 +12,7 @@
 #define WASM_TASK_PRIORITY 5
 
 ////////////////////////////////////////////////////////////////////////
-#define ENABLE_WATCHDOG 1
+#define ENABLE_WATCHDOG 0
 
 #if ENABLE_WATCHDOG
 #define WATCHDOG_RESET  esp_task_wdt_reset();
