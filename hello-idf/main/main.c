@@ -217,10 +217,10 @@ void app_main(void) {
     ESP_LOGI(TAG, "\nStarting serial handler...\n");
     start_serial_handler();
 
-    //init_spi(); 
+    init_spi(); 
 
     ESP_LOGI(TAG, "Init TFT\n");
-    init_tft();      
+    //init_tft();      
 
     while(1){        
         //WATCHDOG_RESET
