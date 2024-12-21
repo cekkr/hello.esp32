@@ -31,7 +31,7 @@
 #define ENABLE_MONITOR 0
 
 //#define SERIAL_BAUD 115200
-#define SERIAL_BAUD 921600
+#define SERIAL_BAUD 230400
 
 ///
 /// Global vars

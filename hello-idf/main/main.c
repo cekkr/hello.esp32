@@ -190,7 +190,11 @@ void init_uart() {
 ////
 ////
 
-void app_main(void) {       
+void app_main(void) {     
+    // Inizializzazione della seriale
+    init_uart();
+
+    // Init watchdog
     handle_watchdog();
     //WATCHDOG_ADD
 
@@ -204,9 +208,6 @@ void app_main(void) {
 
     ESP_LOGI(TAG, "\nStarting SD card test...\n");
     init_sd_card(); 
-
-    // Inizializzazione della seriale
-    init_uart();
 
     // Start tasks monitor
     #if ENABLE_MONITOR
