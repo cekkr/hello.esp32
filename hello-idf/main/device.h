@@ -13,6 +13,7 @@
 #include "esp_log.h"
 #include "esp_chip_info.h"
 #include "esp_flash_spi_init.h"
+#include "esp_heap_caps.h"
 //#include "esp_spi_flash.h"
 
 #include "defines.h"
@@ -112,6 +113,53 @@ void handle_watchdog() {
 /// Infos
 ///
 
+void print_executable_memory_ranges() {
+    ESP_LOGI(TAG, "Executable memory dump (includes addresses):");
+    heap_caps_dump(MALLOC_CAP_EXEC);
+}
+
+// Ottiene la dimensione totale della memoria eseguibile
+size_t get_total_executable_size(void) {
+    multi_heap_info_t info;
+    heap_caps_get_info(&info, MALLOC_CAP_EXEC);
+    return info.total_allocated_bytes + info.total_free_bytes;
+}
+
+// Ottiene lo spazio libero nella memoria eseguibile
+size_t get_free_executable_size(void) {
+    return heap_caps_get_free_size(MALLOC_CAP_EXEC);
+}
+
+// Ottiene la dimensione del blocco libero più grande
+size_t get_largest_free_executable_block(void) {
+    return heap_caps_get_largest_free_block(MALLOC_CAP_EXEC);
+}
+
+// Ottiene il minimo spazio libero registrato (watermark)
+size_t get_min_free_executable_size(void) {
+    return heap_caps_get_minimum_free_size(MALLOC_CAP_EXEC);
+}
+
+// Stampa tutte le informazioni sulla memoria eseguibile
+void print_executable_memory_info(void) {
+    ESP_LOGI(TAG, "Executable Memory Information:");
+    ESP_LOGI(TAG, "Total size: %d bytes", get_total_executable_size());
+    ESP_LOGI(TAG, "Free size: %d bytes", get_free_executable_size());
+    ESP_LOGI(TAG, "Largest free block: %d bytes", get_largest_free_executable_block());
+    ESP_LOGI(TAG, "Minimum free size ever: %d bytes", get_min_free_executable_size());
+    
+    // Stampa informazioni dettagliate usando l'API integrata
+    ESP_LOGI(TAG, "\nDetailed heap info:");
+    heap_caps_print_heap_info(MALLOC_CAP_EXEC);
+
+    ESP_LOG(TAG, "\nExecutable Memory Ranges:");
+    print_executable_memory_ranges();
+}
+
+///
+///
+///
+
 // Informazioni sulla CPU e sul chip
 void print_chip_info(void) {
     esp_chip_info_t chip_info;
@@ -186,6 +234,8 @@ void device_info(void) {
     print_ram_info();
     ESP_LOGI(TAG, "");
     print_psram_info();
+    ESP_LOGI(TAG, "");
+    print_executable_memory_info();
     ESP_LOGI(TAG, "\n==============================\n");
 }
 

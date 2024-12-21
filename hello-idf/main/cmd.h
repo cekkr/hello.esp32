@@ -202,6 +202,8 @@ static int cmd_devinfo(int argc, char** argv){
     return 0;
 }
 
+static int cmd_help(int argc, char **argv);
+
 // Tabella dei comandi supportati
 static const command_entry_t commands[] = {
     {"run", cmd_run},
@@ -210,8 +212,22 @@ static const command_entry_t commands[] = {
     {"restart", cmd_restart},
     {"core_dump", cmd_core_dump},
     {"devinfo", cmd_devinfo},
+    {"help", cmd_help},
     {NULL, NULL}  // Terminatore
 };
+
+static int cmd_help(int argc, char **argv) {
+    ESP_LOGI(TAG, "Comandi disponibili:");
+    
+    // Itera attraverso l'array dei comandi fino al terminatore
+    const command_entry_t *cmd = &commands[0];
+    while (cmd->command != NULL) {
+        ESP_LOGI(TAG, "  - %s", cmd->command);
+        cmd++;
+    }
+    
+    return 0;
+}
 
 ////
 ////
