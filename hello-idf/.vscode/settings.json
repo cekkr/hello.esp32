@@ -10,7 +10,7 @@
     "idf.openOcdConfigs": [
         "board/esp32-wrover-kit-3.3v.cfg"
     ],
-    "idf.port": "/dev/tty.usbserial-1140",
+    "idf.port": "/dev/tty.usbserial-120",
     "idf.pythonBinPath": "/Users/riccardo/.espressif/python_env/idf5.3_py3.9_env/bin/python",
     "idf.toolsPath": "/Users/riccardo/.espressif",
     "files.associations": {
@@ -19,5 +19,6 @@
         "spi_common.h": "c",
         "sdmmc_types.h": "c",
         "stat.h": "c"
-    }
+    },
+    "idf.flashType": "UART"
 }
