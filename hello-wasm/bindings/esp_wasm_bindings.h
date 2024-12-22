@@ -7,6 +7,7 @@
 
 // Auto-generated ESP32 WASM bindings
 
+/*
 // Controls an LED connected to a GPIO pin
 void esp_led_write(int32_t pin, int32_t level);
 
@@ -18,8 +19,9 @@ float esp_get_temperature();
 
 // Performs a WiFi scan and returns number of networks found
 int32_t esp_wifi_scan();
+*/
 
 // Printf-like function for ESP32
-void esp_printf(const char* format, ...);
+extern void esp_printf(const char* format, ...);
 
 #endif // ESP32_WASM_BINDINGS_H
