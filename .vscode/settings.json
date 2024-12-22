@@ -35,5 +35,6 @@
         "ratio": "cpp",
         "tuple": "cpp",
         "esp_exception.h": "c"
-    }
+    },
+    "cmake.sourceDirectory": "/Users/riccardo/Sources/GitHub/hello.esp32/hello-idf"
 }
