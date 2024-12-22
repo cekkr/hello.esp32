@@ -3,7 +3,6 @@
 
 #include "../bindings/bindings.c"
 
-EMSCRIPTEN_KEEPALIVE
 void print_num(int i){
     esp_printf("Num: %d\n", i);
 }

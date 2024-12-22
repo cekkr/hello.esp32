@@ -8,36 +8,58 @@ asc samples/fibonacci.ts -o output/fibonacci.wasm --optimize
 #clang --target=wasm32 -nostdlib -Wl,--no-entry -Wl,--export-all -o output/fibonacciPrint.wasm samples/fibonacciPrint.c
 
 #-s TOTAL_MEMORY=65536 -s TOTAL_STACK=16384
-emcc samples/fibonacciPrint.c -o output/fibonacciPrint.wasm \
-    -s WASM=1 \
-    -s STANDALONE_WASM=0 \
-    -s IMPORTED_MEMORY=1 \
-    -s TOTAL_MEMORY=65536 \
-    -s STACK_SIZE=16384 \
-    -s ALLOW_MEMORY_GROWTH=1 \
-    -s EXPORTED_FUNCTIONS='["_start"]' \
-    -O3 \
-    --no-entry 
 
-emcc samples/justLoop.c -o output/justLoop.wasm \
-    -s WASM=1 \
-    -s STANDALONE_WASM=0 \
-    -s IMPORTED_MEMORY=1 \
-    -s INITIAL_MEMORY=65536 \
-    -s STACK_SIZE=4096 \
-    -s ALLOW_MEMORY_GROWTH=1 \
-    -s EXPORTED_FUNCTIONS='["_start"]' \
-    -O3 \
-    --no-entry 
+compile_wasm() {
+    local script_name=$1
+    
+    # Verifica se il nome dello script è stato fornito
+    if [ -z "$script_name" ]; then
+        echo "Errore: Fornire il nome dello script da compilare"
+        echo "Uso: compile_wasm nome_script"
+        return 1
+    fi
+    
+    # Verifica se il file sorgente esiste
+    if [ ! -f "samples/${script_name}.c" ]; then
+        echo "Errore: Il file samples/${script_name}.c non esiste"
+        return 1
+    fi
+    
+    # Crea la directory output se non esiste
+    mkdir -p output
+    
+    # Imposta la memoria in base al nome dello script
+    local memory_size="65536"
+    local stack_size="16384"
+    
+    # Configura parametri specifici per script diversi
+    case $script_name in
+        "justLoop")
+            stack_size="4096"
+            ;;
+    esac
+    
+    echo "Compilazione di ${script_name}..."
+    
+    emcc "samples/${script_name}.c" -o "output/${script_name}.wasm" \
+        -s WASM=1 \
+        -s STANDALONE_WASM=0 \
+        -s IMPORTED_MEMORY=1 \
+        -s INITIAL_MEMORY=${memory_size} \
+        -s STACK_SIZE=${stack_size} \
+        -s ALLOW_MEMORY_GROWTH=1 \
+        -s EXPORTED_FUNCTIONS='["_start"]' \
+        -O3 \
+        --no-entry
+        
+    if [ $? -eq 0 ]; then
+        echo "Compilazione completata con successo"
+    else
+        echo "Errore durante la compilazione"
+    fi
+}
 
-    #todo: study ALLOW_MEMORY_GROWTH
-    #-s STANDALONE_WASM=1 \
-    #-s EXPORTED_FUNCTIONS='["_main", "_print_fibonacci"]' \
-    #-s ERROR_ON_UNDEFINED_SYMBOLS=1 \
-    #-s TOTAL_MEMORY=65536 \
-    #-s TOTAL_STACK=2048 \
-    #-s ALLOW_MEMORY_GROWTH=0 \
-    #-s EXPORTED_RUNTIME_METHODS=[] \
-    #-s DECLARE_ASM_MODULE_EXPORTS=0 \
-    #--no-entry
-    ##-s IMPORTED_FUNCTIONS='["_esp_printf"]' \ # it doesn't even exist as argument
+# Esempio di utilizzo:
+compile_wasm fibonacciPrint
+compile_wasm fibonacciPrint_keepAlive
+compile_wasm justLoop
