@@ -67,9 +67,9 @@ bool prepare_wasm_execution(const uint8_t* wasm_data, size_t size) {
     return true;
 }
 
-const bool HELLOESP_DEBUG_run_wasm = true;
 const bool HELLOESP_RUN_WASM_WDT = ENABLE_WATCHDOG_WASM3 && ENABLE_WATCHDOG;
 const bool HELLOESP_WASM_RUNTIME_AT_PARSE = true;
+const bool HELLOESP_DEBUG_run_wasm = false;
 static void run_wasm(uint8_t* wasm, uint32_t fsize)
 {
     //disable_watchdog();
