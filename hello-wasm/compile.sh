@@ -45,14 +45,14 @@ compile_wasm() {
         -s WASM=1 \
         -s STANDALONE_WASM=0 \
         -s IMPORTED_MEMORY=1 \
-        -s INITIAL_MEMORY=${memory_size} \
         -s STACK_SIZE=${stack_size} \
         -s ALLOW_MEMORY_GROWTH=1 \
         -s EXPORTED_FUNCTIONS='["_start"]' \
         --no-entry \
         -O1 \
-        -fno-inline \
-        -g
+        -fno-inline 
+        #-s INITIAL_MEMORY=${memory_size} \
+        #-g 
         
     if [ $? -eq 0 ]; then
         echo "Compilazione completata con successo"
