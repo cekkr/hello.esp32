@@ -49,8 +49,10 @@ compile_wasm() {
         -s STACK_SIZE=${stack_size} \
         -s ALLOW_MEMORY_GROWTH=1 \
         -s EXPORTED_FUNCTIONS='["_start"]' \
-        -O3 \
-        --no-entry
+        --no-entry \
+        -O1 \
+        -fno-inline \
+        -g
         
     if [ $? -eq 0 ]; then
         echo "Compilazione completata con successo"
