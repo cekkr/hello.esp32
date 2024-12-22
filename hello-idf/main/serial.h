@@ -566,6 +566,7 @@ void serial_handler_task(void *pvParameters) {
             send_response(STATUS_OK, text);                  
 
             bool chunkHashFailed = false;
+            int invalidChunkCmds = 0;
             while (total_received < params->filesize) {
                 // Attendi comando chunk
 
@@ -577,6 +578,12 @@ void serial_handler_task(void *pvParameters) {
 
                     sprintf(text, "Invalid chunk command: %s", cmd_type_chunk);             
                     send_response(STATUS_ERROR, text);
+
+                    if(invalidChunkCmds++ > 3){
+                        send_response(STATUS_ERROR, "Too many invalid chunk commands");
+                        break;
+                    }
+
                     continue;
                 }    
                 else {
