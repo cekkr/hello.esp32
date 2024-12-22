@@ -205,16 +205,17 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _s
     char formatted_output[512];  // Increased buffer for safety
     
     // Recupera e valida il puntatore al formato
-    const char* format = m3ApiOffsetToPtr(stack[0]);
-    ESP_LOGE("WASM3", "wasm_esp_printf: format(%p): %s", format, format);
+    const char* format = m3ApiOffsetToPtr(stack[0]);    
     if (!format) {
-        ESP_LOGE("WASM3", "Invalid format string pointer");
+        ESP_LOGE("WASM3", "esp_printf: Invalid format string pointer");
         return ERROR_MSG_FAILED;
     }
 
+    if(HELLOESP_DEBUG_wasm_esp_printf) ESP_LOGE("WASM3", "wasm_esp_printf: format(%p): %s", format, format);
+
     void* args_ptr = m3ApiOffsetToPtr(stack[1]);
     if (!args_ptr) {
-        ESP_LOGE("WASM3", "Invalid format string pointer");
+        ESP_LOGE("WASM3", "esp_printf: Invalid format string pointer");
         return ERROR_MSG_FAILED;
     }
 
@@ -235,7 +236,7 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _s
             fmt_ptr++;
             if (*fmt_ptr != '%') {  // Ignora %%
                 if (arg_count >= 16) {
-                    ESP_LOGE("WASM3", "Too many arguments");
+                    ESP_LOGE("WASM3", "esp_printf: Too many arguments");
                     return ERROR_MSG_FAILED;
                 }
 
@@ -253,7 +254,7 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _s
                         // Gestione stringhe con validazione del puntatore
                         args[arg_count].s = m3ApiOffsetToPtr(stack_ptr);
                         if (!args[arg_count].s) {
-                            ESP_LOGE("WASM3", "Invalid string pointer");
+                            ESP_LOGE("WASM3", "esp_printf: Invalid string pointer");
                             return ERROR_MSG_FAILED;
                         }
                         break;
@@ -272,7 +273,7 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _s
     }
 
     // Debug logging
-    if(HELLOESP_DEBUG_WASM_NATIVE_PRINTF) ESP_LOGD("WASM3", "Format: %s, ArgCount: %d", format, arg_count);
+    if(HELLOESP_DEBUG_WASM_NATIVE_PRINTF) ESP_LOGD("WASM3", "esp_printf: Format: %s, ArgCount: %d", format, arg_count);
 
     // Formatta l'output usando vsnprintf
     int result = snprintf(formatted_output, sizeof(formatted_output),
@@ -285,7 +286,7 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _s
     if (result >= 0 && result < sizeof(formatted_output)) {
         ESP_LOGI("WASM3", "%s", formatted_output);
     } else {
-        ESP_LOGE("WASM3", "Formatting error");
+        ESP_LOGE("WASM3", "esp_printf: Formatting error");
         return ERROR_MSG_FAILED;
     }
 
