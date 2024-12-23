@@ -3,6 +3,7 @@
 // General functions
 #include "io.h"
 #include "esp_exception.h"
+#include "task_broker.h"
 #include "device.h"
 #include "monitor.h"
 
@@ -92,6 +93,13 @@ void app_main(void) {
     enable_log_debug();
 
     //heap_caps_malloc_extmem_enable(20); // no PSRAM available, ergo useless       
+
+    ////////////////////////////////////////////////////////////////////////
+
+    // Init task broker
+    broker_init();
+
+    ////////////////////////////////////////////////////////////////////////
 
     ESP_LOGI(TAG, "\nStarting SD card test...\n");
     init_sd_card(); 
