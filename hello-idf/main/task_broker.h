@@ -34,3 +34,48 @@ bool broker_receive_message(const char* task_name, broker_message_t* message,
 void broker_deinit(void);
 
 #endif // TASK_BROKER_H
+
+/* Example usage:
+
+// main.c
+#include "task_broker.h"
+
+// Task di esempio che invia messaggi
+void sender_task(void *pvParameters) {
+    // Registra il task
+    broker_register_task("sender");
+    
+    uint8_t counter = 0;
+    while(1) {
+        // Invia un messaggio al receiver
+        broker_send_message("sender", "receiver", &counter, sizeof(counter), 1);
+        counter++;
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+}
+
+// Task di esempio che riceve messaggi
+void receiver_task(void *pvParameters) {
+    // Registra il task
+    broker_register_task("receiver");
+    
+    broker_message_t message;
+    while(1) {
+        // Ricevi messaggi
+        if (broker_receive_message("receiver", &message, portMAX_DELAY)) {
+            printf("Ricevuto messaggio da %s: %d\n", 
+                   message.source, message.data[0]);
+        }
+    }
+}
+
+void app_main(void) {
+    // Inizializza il broker
+    broker_init();
+    
+    // Crea i task
+    xTaskCreate(sender_task, "sender_task", 2048, NULL, 5, NULL);
+    xTaskCreate(receiver_task, "receiver_task", 2048, NULL, 5, NULL);
+}
+
+*/
