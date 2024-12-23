@@ -2,19 +2,8 @@
 
 #[link(wasm_import_module = "env")]
 extern "C" {
-    // Controls an LED connected to a GPIO pin
-    pub fn esp_led_write(pin: i32, level: i32) -> ();
-
-    // Reads an ADC channel
-    pub fn esp_adc_read(channel: i32) -> i32;
-
-    // Reads the internal temperature sensor
-    pub fn esp_get_temperature() -> f32;
-
-    // Performs a WiFi scan and returns number of networks found
-    pub fn esp_wifi_scan() -> i32;
-
-    // Printf-like function for ESP32
+    // Auto-generated ESP32 WASM bindings
+Printf-like function for ESP32
     pub fn esp_printf(format: &str, args: *const i32, vararg_count: i32) -> ();
 
 }

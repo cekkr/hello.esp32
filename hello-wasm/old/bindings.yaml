@@ -1,0 +1,35 @@
+functions:
+  - name: esp_led_write
+    description: "Controls an LED connected to a GPIO pin"
+    parameters:
+      - name: pin
+        type: i32
+      - name: level
+        type: i32
+    return_type: void
+
+  - name: esp_adc_read
+    description: "Reads an ADC channel"
+    parameters:
+      - name: channel
+        type: i32
+    return_type: i32
+
+  - name: esp_get_temperature
+    description: "Reads the internal temperature sensor"
+    parameters: []
+    return_type: f32
+
+  - name: esp_wifi_scan
+    description: "Performs a WiFi scan and returns number of networks found"
+    parameters: []
+    return_type: i32
+
+  - name: esp_printf
+    description: "Printf-like function for ESP32"
+    parameters:
+      - name: format
+        type: string
+      - name: args
+        type: varargs
+    return_type: void
