@@ -10,7 +10,7 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 ##
 
 #idf_build_set_property(LINK_OPTIONS "-Wl,--wrap=esp_panic_handler" APPEND)
-idf_build_set_property(COMPILE_DEFINITIONS "-DCONFIG_WASM3_DEBUG_MACROS=1" APPEND)
+#idf_build_set_property(COMPILE_DEFINITIONS "-DCONFIG_WASM3_DEBUG_MACROS=1" APPEND)
 
 ###
 ###

@@ -37,5 +37,17 @@
         "esp_exception.h": "c",
         "defines.h": "c"
     },
-    "cmake.sourceDirectory": "/Users/riccardo/Sources/GitHub/hello.esp32/hello-idf"
+    "cmake.sourceDirectory": "${workspaceFolder}/hello-idf",
+    "cmake.configureOnOpen": false,
+    "cmake.buildDirectory": "${workspaceFolder}/hello-idf/build",
+    "cmake.buildArgs": [
+        "-GNinja -S . -B"
+    ],
+    "cmake.configureSettings": {
+        "COMPILER": "xtensa-esp32",
+        "CMAKE_C_COMPILER_WORKS": "TRUE",
+        "VENDOR": "espressif",
+        "BOARD": "esp32_devkitc"
+    },
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
 }
