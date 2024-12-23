@@ -8,4 +8,6 @@ Printf-like function for ESP32
 
     pub fn lcd_draw_text(x: i32, y: i32, size: i32, text: &str) -> ();
 
+    pub fn esp_add(a: i32, b: i32) -> i32;
+
 }

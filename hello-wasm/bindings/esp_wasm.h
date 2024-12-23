@@ -26,4 +26,6 @@ extern void esp_printf(const char* format, ...)  __attribute__((import_module("e
 
 extern void lcd_draw_text(int x, int y, int size, const char* text)  __attribute__((import_module("env"), import_name("lcd_draw_text")));
 
+extern int esp_add(int a, int b)  __attribute__((import_module("env"), import_name("esp_add")));
+
 #endif // ESP32_WASM_BINDINGS_H

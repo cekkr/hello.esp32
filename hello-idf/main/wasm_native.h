@@ -137,9 +137,7 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _s
     return NULL;
 }
 
-///
-///
-///
+////////////////////////////////////////////////////////////////
 
 const bool HELLO_DEBUG_wasm_lcd_draw_text = false;
 M3Result wasm_lcd_draw_text(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, void* _mem){
@@ -148,7 +146,7 @@ M3Result wasm_lcd_draw_text(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t*
     int x = (int)args[0];
     int y = (int)args[1];
     int size = (int)args[2];
-    const char* text = (const char *)m3ApiOffsetToPtr(args[3]);    
+    const char* text = (const char *)m3ApiOffsetToPtr(args[3]); // is m3ApiOffsetToPtr still needed?
 
     if(HELLO_DEBUG_wasm_lcd_draw_text){
         printf("lcd_draw_text called with x:%d y:%d size:%d text: %s\n", x, y, size, text);
@@ -159,6 +157,39 @@ M3Result wasm_lcd_draw_text(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t*
     return NULL;
 }
 
+////////////////////////////////////////////////////////////////////////
+
+const bool HELLO_DEBUG_wasm_esp_add = false;
+M3Result wasm_esp_add(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, void* _mem) {
+    if (!runtime || !_mem) {
+        ESP_LOGW("WASM3", "wasm_esp_add blocked: runtime=%p, mem=%p", runtime, _mem);
+        return ERROR_MSG_NULLS;
+    }
+
+    // Ottiene il puntatore allo stack
+    uint64_t* stack = m3ApiOffsetToPtr(_sp);
+
+    // Legge i due parametri dallo stack
+    int32_t a = m3ApiReadMem32(&stack[0]);
+    int32_t b = m3ApiReadMem32(&stack[1]);
+
+    if(HELLO_DEBUG_wasm_esp_add) {
+        ESP_LOGI("WASM3", "Add function called with params: a=%d, b=%d", a, b);
+    }
+
+    // Calcola la somma
+    int32_t result = a + b;
+
+    // Scrive il risultato nello stack (per il valore di ritorno)
+    m3ApiWriteMem32(_sp, result);
+
+    if(HELLO_DEBUG_wasm_esp_add) {
+        ESP_LOGI("WASM3", "Add function result: %d", result);
+    }
+
+    return NULL;  // Ritorna NULL per indicare successo
+}
+
 ///
 ///
 ///
@@ -166,14 +197,19 @@ M3Result wasm_lcd_draw_text(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t*
 // Definizione della lookup table entry
 const WasmFunctionEntry functionTable[] = {
     { 
-        .name = (const char*)"esp_printf",           // Nome della funzione in WASM
-        .func = wasm_esp_printf,    // Puntatore alla funzione
+        .name = (const char*)"esp_printf",           // Function name in WASM
+        .func = wasm_esp_printf,    // Pointer to function
         .signature = (const char*)"v(ii)"        // Signature: void (raw_ptr, int32)
     },
     { 
-        .name = (const char*)"lcd_draw_text",           // Nome della funzione in WASM
-        .func = wasm_lcd_draw_text,    // Puntatore alla funzione
-        .signature = (const char*)"v(iiii)"        // Signature: void (raw_ptr, int32)
+        .name = (const char*)"lcd_draw_text",           // Function name in WASM
+        .func = wasm_lcd_draw_text,    // Pointer to function
+        .signature = (const char*)"v(iiii)"        // Signature
+    },
+    { 
+        .name = (const char*)"esp_add",           // Function name in WASM
+        .func = wasm_esp_add,    // Pointer to function
+        .signature = (const char*)"i(ii)"        // Signature
     },
     // Altre funzioni possono essere aggiunte qui
 };
@@ -290,6 +326,36 @@ M3Result wasm_esp_get_battery_voltage(IM3Runtime runtime, IM3ImportContext *ctx,
     m3ApiWriteMem32(stack, *((uint32_t*)&voltage));
 
     return NULL;
+}
+
+M3Result wasm_esp_add(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, void* _mem) {
+    if (!runtime || !_mem) {
+        ESP_LOGW("WASM3", "wasm_esp_add blocked: runtime=%p, mem=%p", runtime, _mem);
+        return ERROR_MSG_NULLS;
+    }
+
+    // Ottiene il puntatore allo stack
+    uint64_t* stack = m3ApiOffsetToPtr(_sp);
+
+    // Legge i due parametri dallo stack
+    int32_t a = m3ApiReadMem32(&stack[0]);
+    int32_t b = m3ApiReadMem32(&stack[1]);
+
+    if(HELLO_DEBUG) {
+        ESP_LOGI("WASM3", "Add function called with params: a=%d, b=%d", a, b);
+    }
+
+    // Calcola la somma
+    int32_t result = a + b;
+
+    // Scrive il risultato nello stack (per il valore di ritorno)
+    m3ApiWriteMem32(_sp, result);
+
+    if(HELLO_DEBUG) {
+        ESP_LOGI("WASM3", "Add function result: %d", result);
+    }
+
+    return NULL;  // Ritorna NULL per indicare successo
 }
 
 */
