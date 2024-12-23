@@ -41,6 +41,7 @@ typedef struct segment_info {
     void* data;
     size_t offset;
     bool is_paged;
+    bool has_page;
     bool is_modified;
     uint32_t access_count;
     uint64_t last_access;
@@ -65,6 +66,16 @@ typedef struct paging_stats {
 
     segment_handlers_t* handlers;
 } paging_stats_t;
+
+///
+///
+///
+
+char* create_segment_page_name(char* basePath, int segment_id){
+    char* name = malloc(sizeof(char)*MAX_FILENAME);
+    sprintf(name, "%s-%d.bin", basePath, segment_id);
+    return name;
+}
 
 ///
 ///
@@ -136,7 +147,6 @@ esp_err_t paging_init(paging_stats_t* g_stats, segment_handlers_t* handlers, siz
     strcpy(pagingPath, PAGING_PATH);
     strcat(pagingPath, "/");
     strcat(pagingPath, g_stats->name);
-    strcat(pagingPath, ".");
 
     g_stats->base_path = pagingPath;
 
@@ -154,6 +164,18 @@ esp_err_t paging_init(paging_stats_t* g_stats, segment_handlers_t* handlers, siz
     g_stats->available_memory = g_stats->total_memory;
     
     return ESP_OK;
+}
+
+esp_err_t paging_deinit(paging_init_t * g_stats){
+    if(g_stats){
+        for(uint32_t s=0; s<g_stats->num_segments; s++){
+            //todo: remove paging files
+        }
+
+        free(g_stats->segments);
+        free(g_stats->base_path);
+        free(g_stats);
+    }
 }
 
 esp_err_t paging_notify_segment_allocation(paging_stats_t* g_stats, uint32_t segment_id, size_t offset) {
@@ -240,6 +262,7 @@ esp_err_t paging_notify_segment_access(paging_stats_t* g_stats, uint32_t segment
             }
             
             segment->is_paged = true;
+            segment->has_page = true;            
             g_stats->page_writes++;
         }
         
