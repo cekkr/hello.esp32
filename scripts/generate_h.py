@@ -4,23 +4,48 @@ import sys
 import os
 
 
-def extract_function_declarations(header_content):
-    """Estrae le dichiarazioni di funzione dal file header."""
-    # Pattern per trovare le dichiarazioni di funzione
-    # Cattura: tipo di ritorno, nome funzione, parametri
-    pattern = r'^\s*([\w\*]+\s+[\w\*]+\s*\([^)]*\))\s*;'
+def extract_function_info(header_content):
+    """Estrae sia le dichiarazioni che le definizioni di funzione dal file header."""
+    # Pattern per trovare sia dichiarazioni che definizioni di funzioni
+    # Cattura: tipo di ritorno, nome funzione, parametri e eventuale corpo
+    pattern = r'^\s*([\w\*]+\s+[\w\*]+\s*\([^)]*\))\s*((?:{[^}]*})?\s*;?)'
 
     declarations = []
     implementations = []
 
-    for line in header_content.split('\n'):
+    lines = header_content.split('\n')
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        # Se troviamo una potenziale funzione
         match = re.match(pattern, line)
         if match:
-            # Ottiene la dichiarazione completa
-            declaration = match.group(1)
-            declarations.append(declaration + ';')
-            # Crea l'implementazione base
-            implementations.append(f"{declaration} {{\n    // TODO: Implementa questa funzione\n}}\n")
+            signature = match.group(1)
+            body = match.group(2)
+
+            # Se c'è un corpo funzione, potrebbe essere multi-linea
+            if body and body.startswith('{'):
+                # Raccogli tutte le linee fino alla chiusura della funzione
+                full_body = [body]
+                brace_count = body.count('{') - body.count('}')
+                i += 1
+                while brace_count > 0 and i < len(lines):
+                    full_body.append(lines[i])
+                    brace_count += lines[i].count('{') - lines[i].count('}')
+                    i += 1
+                # Unisci il corpo della funzione
+                body = '\n'.join(full_body)
+
+            # Aggiungi la dichiarazione (sempre)
+            declarations.append(f"{signature};")
+
+            # Se c'è un corpo, aggiungi l'implementazione
+            if body and '{' in body:
+                implementations.append(f"{signature} {body}")
+            else:
+                # Se non c'è corpo, crea un'implementazione vuota
+                implementations.append(f"{signature} {{\n    // TODO: Implementa questa funzione\n}}")
+        i += 1
 
     return declarations, implementations
 
@@ -53,7 +78,7 @@ def extract_typedefs_and_structs(header_content):
     return structs + typedefs
 
 
-def generate_source_file(header_path, declarations, implementations, includes):
+def generate_source_file(header_path, implementations, includes):
     """Genera il file sorgente .c corrispondente."""
     header_name = os.path.basename(header_path)
     source_content = []
@@ -105,7 +130,7 @@ def process_header_file(header_path):
             header_content = f.read()
 
         # Estrai le varie parti
-        declarations, implementations = extract_function_declarations(header_content)
+        declarations, implementations = extract_function_info(header_content)
         includes, guards = extract_includes_and_guards(header_content)
         types = extract_typedefs_and_structs(header_content)
 
@@ -116,7 +141,7 @@ def process_header_file(header_path):
 
         # Genera il contenuto del file sorgente
         source_content = generate_source_file(
-            header_path, declarations, implementations, includes
+            header_path, implementations, includes
         )
 
         # Scrivi i file
@@ -135,9 +160,8 @@ def process_header_file(header_path):
         print(f"Errore durante l'elaborazione: {str(e)}")
         sys.exit(1)
 
-
 def main():
-    header_file = '../' + 'hello-idf/main/he_mgt_string.c'
+    header_file = '../' + 'hello-idf/main/he_monitor.h'
 
     if len(sys.argv) > 1:
         header_file = sys.argv[1]
