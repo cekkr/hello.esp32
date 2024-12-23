@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <emscripten.h>
 
-#include "../bindings/bindings.c"
+#include "../bindings/esp_wasm.h"
 
 // Funzione che calcola l'n-esimo numero di Fibonacci
 uint32_t fib(uint32_t n) {

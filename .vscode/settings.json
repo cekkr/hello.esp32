@@ -35,7 +35,8 @@
         "ratio": "cpp",
         "tuple": "cpp",
         "esp_exception.h": "c",
-        "defines.h": "c"
+        "defines.h": "c",
+        "esp_wasm.h": "c"
     },
     "cmake.sourceDirectory": "${workspaceFolder}/hello-idf",
     "cmake.configureOnOpen": false,

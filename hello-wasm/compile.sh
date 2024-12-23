@@ -1,45 +1,36 @@
-#/bin/bash
-
-# npm install -g assemblyscript # install assemblyscript
-
-asc samples/fibonacci.ts -o output/fibonacci.wasm --optimize
-# xxd -i output/fibonacci.wasm > output/fibonacci_wasm.h # to convert to c array
-
-#clang --target=wasm32 -nostdlib -Wl,--no-entry -Wl,--export-all -o output/fibonacciPrint.wasm samples/fibonacciPrint.c
-
-#-s TOTAL_MEMORY=65536 -s TOTAL_STACK=16384
+#!/bin/bash
 
 compile_wasm() {
     local script_name=$1
     
-    # Verifica se il nome dello script è stato fornito
+    # Verify if script name was provided
     if [ -z "$script_name" ]; then
-        echo "Errore: Fornire il nome dello script da compilare"
-        echo "Uso: compile_wasm nome_script"
+        echo "Error: Please provide the script name to compile"
+        echo "Usage: compile_wasm script_name"
         return 1
     fi
     
-    # Verifica se il file sorgente esiste
+    # Verify if source file exists
     if [ ! -f "samples/${script_name}.c" ]; then
-        echo "Errore: Il file samples/${script_name}.c non esiste"
+        echo "Error: File samples/${script_name}.c does not exist"
         return 1
     fi
     
-    # Crea la directory output se non esiste
+    # Create output directory if it doesn't exist
     mkdir -p output
     
-    # Imposta la memoria in base al nome dello script
+    # Set default memory settings
     local memory_size="65536"
     local stack_size="16384"
     
-    # Configura parametri specifici per script diversi
+    # Configure specific parameters for different scripts
     case $script_name in
         "justLoop")
             stack_size="4096"
             ;;
     esac
     
-    echo "Compilazione di ${script_name}..."
+    echo "Compiling ${script_name}..."
     
     emcc "samples/${script_name}.c" -o "output/${script_name}.wasm" \
         -s WASM=1 \
@@ -51,17 +42,20 @@ compile_wasm() {
         --no-entry \
         -O1 \
         -fno-inline 
-        #-s INITIAL_MEMORY=${memory_size} \
-        #-g 
         
     if [ $? -eq 0 ]; then
-        echo "Compilazione completata con successo"
+        echo "Compilation completed successfully"
     else
-        echo "Errore durante la compilazione"
+        echo "Error during compilation"
     fi
 }
 
-# Esempio di utilizzo:
-compile_wasm fibonacciPrint
-compile_wasm fibonacciPrint_keepAlive
-compile_wasm justLoop
+# Find all .c files in samples directory and compile them
+for file in samples/*.c; do
+    if [ -f "$file" ]; then
+        # Extract filename without path and extension
+        filename=$(basename "$file" .c)
+        echo "Found file: $filename"
+        compile_wasm "$filename"
+    fi
+done

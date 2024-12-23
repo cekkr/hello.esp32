@@ -22,8 +22,22 @@ class WasmFunction:
 class BindingGenerator:
     TYPE_MAPPINGS = {
         'c': {
+            'int': 'int32_t',
+            'unsigned int': 'uint32_t',
+            'long': 'int64_t',
+            'unsigned long': 'uint64_t',
+            'short': 'int16_t',
+            'unsigned short': 'uint16_t',
+            'char': 'int8_t',
+            'unsigned char': 'uint8_t',
             'int32_t': 'int32_t',
+            'uint32_t': 'uint32_t',
             'int64_t': 'int64_t',
+            'uint64_t': 'uint64_t',
+            'int16_t': 'int16_t',
+            'uint16_t': 'uint16_t',
+            'int8_t': 'int8_t',
+            'uint8_t': 'uint8_t',
             'float': 'float',
             'double': 'double',
             'bool': 'bool',
@@ -32,8 +46,22 @@ class BindingGenerator:
             'varargs': '...'
         },
         'rust': {
+            'int': 'i32',
+            'unsigned int': 'u32',
+            'long': 'i64',
+            'unsigned long': 'u64',
+            'short': 'i16',
+            'unsigned short': 'u16',
+            'char': 'i8',
+            'unsigned char': 'u8',
             'int32_t': 'i32',
+            'uint32_t': 'u32',
             'int64_t': 'i64',
+            'uint64_t': 'u64',
+            'int16_t': 'i16',
+            'uint16_t': 'u16',
+            'int8_t': 'i8',
+            'uint8_t': 'u8',
             'float': 'f32',
             'double': 'f64',
             'bool': 'bool',
@@ -42,8 +70,22 @@ class BindingGenerator:
             'varargs': '*const i32'
         },
         'typescript': {
+            'int': 'number',
+            'unsigned int': 'number',
+            'long': 'number',
+            'unsigned long': 'number',
+            'short': 'number',
+            'unsigned short': 'number',
+            'char': 'number',
+            'unsigned char': 'number',
             'int32_t': 'number',
+            'uint32_t': 'number',
             'int64_t': 'number',
+            'uint64_t': 'number',
+            'int16_t': 'number',
+            'uint16_t': 'number',
+            'int8_t': 'number',
+            'uint8_t': 'number',
             'float': 'number',
             'double': 'number',
             'bool': 'boolean',
@@ -52,8 +94,22 @@ class BindingGenerator:
             'varargs': '...number[]'
         },
         'wasm3': {
+            'int': 'i',
+            'unsigned int': 'i',
+            'long': 'I',
+            'unsigned long': 'I',
+            'short': 'i',
+            'unsigned short': 'i',
+            'char': 'i',
+            'unsigned char': 'i',
             'int32_t': 'i',
+            'uint32_t': 'i',
             'int64_t': 'I',
+            'uint64_t': 'I',
+            'int16_t': 'i',
+            'uint16_t': 'i',
+            'int8_t': 'i',
+            'uint8_t': 'i',
             'float': 'f',
             'double': 'F',
             'bool': 'i',
@@ -82,8 +138,14 @@ class BindingGenerator:
         # Remove extern keyword if present
         line = line.replace('extern', '').strip()
         
+        # Basic pattern to extract the main function declaration before any attributes
+        main_pattern = r'(.*?)(?:\s+__attribute__|\s*;)'
+        main_match = re.match(main_pattern, line)
+        if main_match:
+            line = main_match.group(1).strip() + ';'
+        
         # Basic pattern for C function declaration
-        pattern = r'([\w\s*]+?)\s+(\w+)\s*\((.*?)\);'
+        pattern = r'([\w\s*]+?)\s+(\w+)\s*\((.*?)\)\s*;'
         match = re.match(pattern, line)
         
         if not match:
@@ -110,23 +172,39 @@ class BindingGenerator:
     def _parse_params(self, params_str: str) -> List[Tuple[str, str]]:
         """Parse parameter list string into list of (type, name) tuples."""
         params = []
-        for p in params_str.split(','):
-            p = p.strip()
-            if not p:
-                continue
+        
+        # Check for varargs at the end
+        has_varargs = params_str.strip().endswith('...')
+        if has_varargs:
+            # Remove ... from the end and parse the rest
+            params_str = params_str.strip()[:-3]
+            if params_str:  # If there are other parameters before ...
+                params_str = params_str.strip().rstrip(',')
+        
+        # Parse regular parameters
+        if params_str.strip():
+            for p in params_str.split(','):
+                p = p.strip()
+                if not p:
+                    continue
+                
+                # Handle pointer types
+                if '*' in p:
+                    parts = p.split('*')
+                    type_part = ('*'.join(parts[:-1]) + '*').strip()
+                    name_part = parts[-1].strip()
+                else:
+                    # Handle normal types
+                    parts = p.split()
+                    type_part = ' '.join(parts[:-1])
+                    name_part = parts[-1]
+                
+                params.append((type_part, name_part))
+        
+        # Add varargs as last parameter if present
+        if has_varargs:
+            params.append(('varargs', 'args'))
             
-            # Handle pointer types
-            if '*' in p:
-                parts = p.split('*')
-                type_part = ('*'.join(parts[:-1]) + '*').strip()
-                name_part = parts[-1].strip()
-            else:
-                # Handle normal types
-                parts = p.split()
-                type_part = ' '.join(parts[:-1])
-                name_part = parts[-1]
-            
-            params.append((type_part, name_part))
         return params
 
     def _parse_header(self) -> List[WasmFunction]:
@@ -262,7 +340,6 @@ class BindingGenerator:
             
         return '\n'.join(output)
 
-
 def main():
     import argparse
     
@@ -302,6 +379,7 @@ def main():
         
     except Exception as e:
         print(f"Error: {e}")
+        raise e
         return 1
         
     return 0

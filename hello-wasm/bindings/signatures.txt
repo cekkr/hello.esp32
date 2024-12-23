@@ -1,1 +1,2 @@
 esp_printf: v(ii)
+lcd_draw_text: v(iiii)
