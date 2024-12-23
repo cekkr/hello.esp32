@@ -1,13 +1,12 @@
+file(GLOB_RECURSE WASM_SRCS "wasm3/source/*.c")
 
 idf_component_register(
-    SRCS "main.c" "task_broker.c"
-    INCLUDE_DIRS "." "../components/XPT2046/include" "../components/LCD/include" "../components/GUI/include" 
-        #"../components/wasm3-helloesp/platforms/embedded/esp32-idf-wasi/main/wasm3"
+    SRCS "main.c" "task_broker.c" ${WASM_SRCS}
+    INCLUDE_DIRS "." "../components/XPT2046/include" "../components/LCD/include" "../components/GUI/include"  "wasm3/source"
     REQUIRES 
         esp_timer 
         esp_system 
-        esp_event
-        wasm3-helloesp
+        esp_event        
         esp_hw_support    # supporto hardware
         vfs               # per il filesystem virtuale
         fatfs            # per il filesystem FAT
@@ -15,34 +14,23 @@ idf_component_register(
         freertos        # per il supporto ai thread
         mbedtls
         driver     
-        wasm3  
+        #wasm3 #wasm3-helloesp
         espcoredump    
         spi_flash    
         esp_psram
+        esp_mm
         LCD
 )
 
-target_compile_options(${COMPONENT_LIB} PRIVATE -Wno-format -Wno-error=maybe-uninitialized)
 
-###
-###
+target_compile_options(${COMPONENT_LIB} PRIVATE -Wno-error -O3 -DESP32 -Dd_m3MaxFunctionStackHeight=256)
+target_compile_options(${COMPONENT_LIB} PRIVATE -Wno-unused-function -Wno-unused-variable -Wno-unused-parameter -Wno-missing-field-initializers)
 
-set(SDKCONFIG_DEFAULTS
-    ${CMAKE_CURRENT_LIST_DIR}/sdkconfig.defaults
-    ${CMAKE_CURRENT_LIST_DIR}/sdkconfig.custom
-)
+target_compile_options(${COMPONENT_LIB} PRIVATE -Wno-error=return-type -Wno-error=unused-but-set-parameter 
+                        -Wno-error=unused-value -Wno-error=maybe-uninitialized -Wno-error=uninitialized -Wno-error=format
+                        -Wno-error=multistatement-macros -Wno-error=implicit-int -Wno-error=implicit-function-declaration
+                        -Wno-error=implicit-function-declaration -Wno-error=implicit-function-declaration -Wno-error=format-overflow=
+                    )
 
-set(CONFIG_LOG_DEFAULT_LEVEL_DEBUG 1 CACHE STRING "Set log level to DEBUG")
-set(CONFIG_WASM3_DEBUG_MACROS 1 CACHE BOOL "Enable WASM3 debug macros")
-
-if(DEBUG_BUILD)
-    idf_build_set_property(COMPILE_OPTIONS "-DCONFIG_LOG_DEFAULT_LEVEL=4" APPEND)
-endif()
-
-# Nel CMakeLists.txt del componente
-idf_component_set_property(wasm3 COMPILE_DEFINITIONS "CONFIG_WASM3_DEBUG_MACROS=1;CONFIG_LOG_DEFAULT_LEVEL=4" APPEND)
-
-set(CONFIG_WASM3_STACK_CHECK 1 CACHE BOOL "Enable stack checking in WASM3")
-if(CONFIG_WASM3_STACK_CHECK)
-    target_compile_definitions(${COMPONENT_TARGET} PRIVATE CONFIG_WASM3_STACK_CHECK=1)
-endif()
+# Avoid IRAM
+#target_compile_options(${COMPONENT_LIB} PRIVATE -fno-jump-tables -fno-tree-switch-conversion)

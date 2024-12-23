@@ -1,3 +1,6 @@
 [submodule "hello-idf/components/wasm3-helloesp"]
 	path = hello-idf/components/wasm3-helloesp
 	url = https://github.com/cekkr/wasm3-helloesp
+[submodule "hello-idf/main/wasm3"]
+	path = hello-idf/main/wasm3
+	url = https://github.com/cekkr/wasm3-helloesp.git
