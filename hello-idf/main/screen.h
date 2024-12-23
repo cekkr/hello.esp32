@@ -28,9 +28,7 @@ static void Draw(void *pvParameters)
             ESP_LOGI(TAG,"Touch: %d, %d", TouchX, TouchY);
 
 			if(TouchY<=30 && TouchX<=30){
-                LCD_ShowString(10,80,WHITE,BLACK,10,"Reading SD",0);
-                mostra_info_sd(SD_MOUNT_POINT);
-                LCD_ShowString(10,60,WHITE,BLACK,10,"Read.",0);
+                mostra_info_sd(SD_MOUNT_POINT);       
 
 				CurrentColor = BLUE;
 			}else if(TouchY<=30 && TouchX>30 && TouchX<60){
@@ -63,7 +61,7 @@ static void Draw(void *pvParameters)
 void init_tft(void)
 {
 	esp_err_t ret;
-	ESP_LOGI(TAG, "APP Start......");
+	ESP_LOGI(TAG, "Init LCD...");
 	Init_LCD(WHITE);
 	//初始化 XPT2046
 	xpt2046_init();

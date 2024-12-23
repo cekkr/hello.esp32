@@ -207,9 +207,10 @@ void mostra_info_sd(const char* mount_point) {
 
     char text [64];
     sprintf(text, "Chunk size: %d", sector_size);
-
     ESP_LOGI(TAG, "Output string_printf: %s\n", text);
     LCD_ShowString(10,40,WHITE,BLACK,12,text,0);
+
+    // This doesn't works: LCD_ShowString(10,80,WHITE,BLACK,10,"Reading SD",0);
 }
 
 ///
