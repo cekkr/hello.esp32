@@ -54,7 +54,8 @@ typedef struct paging_stats {
     uint32_t page_faults;
     uint32_t page_writes;
     float avg_segment_lifetime;
-    uint32_t hot_segments;
+    uint32_t hot_segments;    
+    uint32_t last_segment_id;    
 
     segment_handlers_t* handlers;
 } paging_stats_t;
@@ -63,6 +64,7 @@ esp_err_t paging_init(paging_stats_t* g_stats, segment_handlers_t* handlers, siz
 esp_err_t paging_deinit(paging_stats_t * g_stats);
 esp_err_t paging_notify_segment_allocation(paging_stats_t* g_stats, uint32_t segment_id, size_t offset);
 esp_err_t paging_notify_segment_access(paging_stats_t* g_stats, uint32_t segment_id);
+esp_err_t paging_check_paging_needed(paging_stats_t* g_stats);
 esp_err_t paging_notify_segment_modification(paging_stats_t* g_stats, uint32_t segment_id);
 esp_err_t paging_notify_segment_deallocation(paging_stats_t* g_stats, uint32_t segment_id);
 esp_err_t paging_notify_segment_remove(paging_stats_t* g_stats, uint32_t segment_id);

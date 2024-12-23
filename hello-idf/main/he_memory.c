@@ -177,6 +177,8 @@ esp_err_t paging_notify_segment_access(paging_stats_t* g_stats, uint32_t segment
     if (!target) {
         return ESP_ERR_NOT_FOUND;
     }
+
+    g_stats->last_segment_id = segment_id;
     
     if (target->is_paged) {
         esp_err_t err = g_stats->handlers->request_segment_load(g_stats, segment_id);
@@ -200,16 +202,24 @@ esp_err_t paging_notify_segment_access(paging_stats_t* g_stats, uint32_t segment
     }
     
     // Verifica necessità di paging per altri segmenti
+    esp_err_t check_paging_needed = paging_check_paging_needed(g_stats);
+
+    return check_paging_needed;
+}
+
+esp_err_t paging_check_paging_needed(paging_stats_t* g_stats){
     g_stats->available_memory = g_stats->handlers->get_available_memory(g_stats);
     float total_frequency = 0.0f;
     g_stats->hot_segments = 0;
     
     for (int i = 0; i < g_stats->num_segments; i++) {
+        if(g_stats->last_segment_id == i)
+            continue;
+
         segment_info_t* segment = &g_stats->segments[i];
         total_frequency += segment->usage_frequency;
         
-        if (!segment->is_paged && segment->size > (32 * 1024) && 
-            segment->usage_frequency < g_stats->avg_segment_lifetime &&
+        if (!segment->is_paged && segment->usage_frequency < g_stats->avg_segment_lifetime &&
             g_stats->available_memory < (g_stats->total_memory / 4)) {
             
             esp_err_t err = g_stats->handlers->request_segment_paging(g_stats, segment->segment_id);
