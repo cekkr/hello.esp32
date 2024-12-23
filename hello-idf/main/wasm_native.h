@@ -141,13 +141,13 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _s
 ///
 ///
 
-const bool HELLO_DEBUG_wasm_lcd_draw_text = true;
+const bool HELLO_DEBUG_wasm_lcd_draw_text = false;
 M3Result wasm_lcd_draw_text(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, void* _mem){
     uint64_t* args = m3ApiOffsetToPtr(_sp++);
 
-    int x = *(int*)m3ApiOffsetToPtr(args[0]);
-    int y = *(int*)m3ApiOffsetToPtr(args[1]);
-    int size = *(int*)m3ApiOffsetToPtr(args[2]);
+    int x = (int)args[0];
+    int y = (int)args[1];
+    int size = (int)args[2];
     const char* text = (const char *)m3ApiOffsetToPtr(args[3]);    
 
     if(HELLO_DEBUG_wasm_lcd_draw_text){
