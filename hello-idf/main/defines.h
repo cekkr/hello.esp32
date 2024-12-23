@@ -24,6 +24,8 @@ static const char *TAG = "HELLOESP";
 #define SD_MOUNT_POINT "/sdcard"
 #define MAX_FILENAME 256
 
+#define PAGING_PATH SD_MOUNT_POINT "/pages"
+
 ////////////////////////////////////////////////////////////////
 
 #define SERIAL_TASK_ADV 1
