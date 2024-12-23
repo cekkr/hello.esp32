@@ -5,6 +5,8 @@
 #include <stdarg.h>
 #include "esp_log.h"
 
+#include "defines.h"
+
 #include "m3_env.h"
 #include "m3_segmented_memory.h"
 
@@ -153,3 +155,108 @@ M3Result registerNativeWASMFunctions(IM3Module module){
 }
 
 #endif 
+
+/*
+Example returns:
+
+// 1. Esempio di funzione che ritorna un intero
+M3Result wasm_esp_get_temperature(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, void* _mem) {
+    if (!runtime || !_mem) {
+        ESP_LOGW("WASM3", "wasm_esp_get_temperature blocked: runtime=%p, mem=%p", runtime, _mem);
+        return ERROR_MSG_NULLS;
+    }
+
+    // Simula lettura temperatura
+    int32_t temperature = 25;  // Esempio valore
+
+    // In WASM3, i valori di ritorno vengono pushati sullo stack
+    uint64_t* stack = m3ApiOffsetToPtr(_sp);
+    m3ApiWriteMem32(stack, temperature);
+    
+    return NULL;  // NULL indica successo in WASM3
+}
+
+// 2. Esempio di funzione che ritorna una stringa
+M3Result wasm_esp_get_version(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, void* _mem) {
+    if (!runtime || !_mem) {
+        ESP_LOGW("WASM3", "wasm_esp_get_version blocked: runtime=%p, mem=%p", runtime, _mem);
+        return ERROR_MSG_NULLS;
+    }
+
+    // Ottieni il puntatore allo stack
+    uint64_t* stack = m3ApiOffsetToPtr(_sp);
+    
+    // Il primo parametro è il puntatore al buffer di destinazione
+    char* dest_buffer = m3ApiOffsetToPtr(stack[0]);
+    // Il secondo parametro è la dimensione del buffer
+    uint32_t buffer_size = m3ApiReadMem32(&stack[1]);
+
+    if (!dest_buffer) {
+        ESP_LOGE("WASM3", "Invalid destination buffer");
+        return ERROR_MSG_FAILED;
+    }
+
+    // Stringa da ritornare
+    const char* version = "v1.0.0";
+    
+    // Copia sicura nel buffer
+    strncpy(dest_buffer, version, buffer_size - 1);
+    dest_buffer[buffer_size - 1] = '\0';  // Assicura terminazione
+
+    return NULL;
+}
+
+// 3. Esempio di funzione che ritorna una struttura
+M3Result wasm_esp_get_system_status(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, void* _mem) {
+    if (!runtime || !_mem) {
+        ESP_LOGW("WASM3", "wasm_esp_get_system_status blocked: runtime=%p, mem=%p", runtime, _mem);
+        return ERROR_MSG_NULLS;
+    }
+
+    uint64_t* stack = m3ApiOffsetToPtr(_sp);
+    
+    // Struttura di esempio per lo stato del sistema
+    struct SystemStatus {
+        uint32_t heap_free;
+        uint32_t temperature;
+        uint32_t uptime;
+    } status = {
+        .heap_free = esp_get_free_heap_size(),
+        .temperature = 25,
+        .uptime = esp_timer_get_time() / 1000000ULL
+    };
+
+    // Il primo parametro è il puntatore alla struttura di destinazione
+    void* dest = m3ApiOffsetToPtr(stack[0]);
+    if (!dest) {
+        ESP_LOGE("WASM3", "Invalid destination pointer");
+        return ERROR_MSG_FAILED;
+    }
+
+    // Copia la struttura nella memoria WASM
+    memcpy(dest, &status, sizeof(struct SystemStatus));
+
+    return NULL;
+}
+
+// 4. Esempio di funzione che ritorna un float
+M3Result wasm_esp_get_battery_voltage(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, void* _mem) {
+    if (!runtime || !_mem) {
+        ESP_LOGW("WASM3", "wasm_esp_get_battery_voltage blocked: runtime=%p, mem=%p", runtime, _mem);
+        return ERROR_MSG_NULLS;
+    }
+
+    // Simula lettura voltaggio
+    float voltage = 3.7f;  // Esempio valore
+
+    // Ottieni il puntatore allo stack
+    uint64_t* stack = m3ApiOffsetToPtr(_sp);
+    
+    // Scrivi il float sullo stack
+    // Nota: potrebbe essere necessario gestire l'allineamento
+    m3ApiWriteMem32(stack, *((uint32_t*)&voltage));
+
+    return NULL;
+}
+
+*/
