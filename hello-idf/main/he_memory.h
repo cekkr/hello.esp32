@@ -11,52 +11,8 @@
 #include "he_defines.h"
 #include "he_sdcard.h"
 
-void init_paging_point(){
-    create_dir_if_not_exist(PAGING_PATH);
-}
+#include "he_io.h"
 
-///
-/// Data chunk
-///
-
-// Scrive un chunk di dati in un file
-esp_err_t write_data_chunk(const char* filename, const uint8_t* data, size_t chunk_size, size_t offset) {
-   FILE* f = fopen(filename, "r+");
-   if (f == NULL) {
-       f = fopen(filename, "w");
-   }
-   if (f == NULL) {
-       return ESP_FAIL;
-   }
-
-   fseek(f, offset, SEEK_SET);
-   size_t written = fwrite(data, 1, chunk_size, f);
-   fclose(f);
-
-   return (written == chunk_size) ? ESP_OK : ESP_FAIL;
-}
-
-// Legge un chunk di dati da un file 
-esp_err_t read_data_chunk(const char* filename, uint8_t* buffer, size_t chunk_size, size_t offset) {
-   FILE* f = fopen(filename, "r");
-   if (f == NULL) {
-       return ESP_FAIL;
-   }
-
-   fseek(f, offset, SEEK_SET);
-   size_t read = fread(buffer, 1, chunk_size, f);
-   fclose(f);
-
-   return (read == chunk_size) ? ESP_OK : ESP_FAIL;
-}
-
-///
-///
-///
-
-size_t default_get_available_memory(){
-    return heap_caps_get_free_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
-}
 
 ///
 ///
@@ -64,24 +20,25 @@ size_t default_get_available_memory(){
 
 #define ALLOC_SEGMENTS_INFO_BY 8
 
+typedef struct paging_stats paging_stats_t;
+
 // Integration points per il sistema di memoria segmentata
-typedef struct {
+typedef struct segment_handlers {
     // Funzione per notificare il sistema quando un segmento dev'essere paginato
-    esp_err_t (*request_segment_paging)(uint32_t segment_id, size_t size);
+    esp_err_t (*request_segment_paging)(paging_stats_t* p_stats, uint32_t segment_id);
     
     // Funzione per notificare quando un segmento deve essere ricaricato in memoria
-    esp_err_t (*request_segment_load)(uint32_t segment_id);
+    esp_err_t (*request_segment_load)(paging_stats_t* p_stats, uint32_t segment_id);
     
     // Funzione per ottenere lo stato attuale della memoria
-    size_t (*get_available_memory)(void);
+    size_t (*get_available_memory)(paging_stats_t* p_stats);
     
-    // Funzione per convertire segment_id e offset in puntatore
-    void* (*get_segment_pointer)(uint32_t segment_id, size_t offset);
 } segment_handlers_t;
 
-typedef struct {
+typedef struct segment_info {
     uint32_t segment_id;
     size_t size;
+    void* data;
     size_t offset;
     bool is_paged;
     bool is_modified;
@@ -90,12 +47,16 @@ typedef struct {
     float usage_frequency;
 } segment_info_t;
 
-typedef struct {
+typedef struct paging_stats {
+    char* name;
+    char* base_path;
+
     segment_info_t* segments;
     uint32_t num_segments;
+    size_t segment_size;
     size_t total_memory;
     size_t available_memory;
-    
+
     // Statistiche
     uint32_t page_faults;
     uint32_t page_writes;
@@ -105,10 +66,42 @@ typedef struct {
     segment_handlers_t* handlers;
 } paging_stats_t;
 
+///
+///
+///
+
+size_t default_get_available_memory(paging_stats_t* p_stats){
+    return heap_caps_get_free_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
+}
+
+esp_err_t default_request_segment_paging(paging_stats_t* p_stats, uint32_t segment_id){
+    segment_info_t* segment = &p_stats->segments[segment_id];
+}
+
+esp_err_t default_request_segment_load(paging_stats_t* p_stats, uint32_t segment_id){
+
+}
+
+///
+///
+///
+
+#include "esp_random.h"
+char* generate_random_session_number() {
+    static char str[5];
+    uint32_t num = esp_random() % 10000;
+    sprintf(str, "%04d", num);
+    return str;
+}
+
+///
+///
+///
+
 //static paging_stats_t g_stats = {0};
 //static segment_handlers_t g_stats->handlers = {0};
 
-esp_err_t paging_init(paging_stats_t* g_stats, segment_handlers_t* handlers, uint32_t max_segments) {    
+esp_err_t paging_init(paging_stats_t* g_stats, segment_handlers_t* handlers, size_t segment_size) {    
 
     if(!handlers) {
         return ESP_ERR_INVALID_ARG;
@@ -118,14 +111,38 @@ esp_err_t paging_init(paging_stats_t* g_stats, segment_handlers_t* handlers, uin
         handlers->get_available_memory = &default_get_available_memory;
     }
 
-    if (!handlers->request_segment_paging || 
-        !handlers->request_segment_load || !handlers->get_segment_pointer) {
-        return ESP_ERR_INVALID_ARG;
+    if(handlers->request_segment_paging == NULL){
+        handlers->request_segment_paging = &default_request_segment_paging;
+    }
+
+    if(handlers->request_segment_load == NULL){
+        handlers->request_segment_load = &default_request_segment_load;
     }
 
     g_stats = malloc(sizeof(paging_stats_t));
     
-    g_stats->segments = calloc(max_segments, sizeof(segment_info_t));
+    if(!g_stats) {
+        return ESP_ERR_NO_MEM;
+    }
+
+    // Create paging path
+    g_stats->name = generate_random_session_number();
+    create_dir_if_not_exist(PAGING_PATH);
+
+    char* pagingPath = malloc(sizeof(char)*MAX_FILENAME);
+    if (!pagingPath) {
+        return ESP_ERR_NO_MEM;
+    }
+    strcpy(pagingPath, PAGING_PATH);
+    strcat(pagingPath, "/");
+    strcat(pagingPath, g_stats->name);
+    strcat(pagingPath, ".");
+
+    g_stats->base_path = pagingPath;
+
+    // Manage segments
+    g_stats->segment_size = segment_size;
+    g_stats->segments = calloc(ALLOC_SEGMENTS_INFO_BY, sizeof(segment_info_t));
     if (!g_stats->segments) {
         return ESP_ERR_NO_MEM;
     }
@@ -133,13 +150,13 @@ esp_err_t paging_init(paging_stats_t* g_stats, segment_handlers_t* handlers, uin
     //memcpy(&g_stats->handlers, handlers, sizeof(segment_handlers_t));
     g_stats->handlers = handlers;
 
-    g_stats->total_memory = g_stats->handlers->get_available_memory();
+    g_stats->total_memory = g_stats->handlers->get_available_memory(g_stats);
     g_stats->available_memory = g_stats->total_memory;
     
     return ESP_OK;
 }
 
-esp_err_t paging_notify_segment_allocation(paging_stats_t* g_stats, uint32_t segment_id, size_t size, size_t offset) {
+esp_err_t paging_notify_segment_allocation(paging_stats_t* g_stats, uint32_t segment_id, size_t offset) {
     // Verifica se il segmento esiste già
     for (int i = 0; i < g_stats->num_segments; i++) {
         if (g_stats->segments[i].segment_id == segment_id) {
@@ -159,7 +176,7 @@ esp_err_t paging_notify_segment_allocation(paging_stats_t* g_stats, uint32_t seg
     
     segment_info_t* segment = &g_stats->segments[g_stats->num_segments++];
     segment->segment_id = segment_id;
-    segment->size = size;
+    segment->size = g_stats->segment_size;
     segment->offset = offset;
     segment->is_paged = false;
     segment->is_modified = false;
@@ -168,7 +185,7 @@ esp_err_t paging_notify_segment_allocation(paging_stats_t* g_stats, uint32_t seg
     segment->usage_frequency = 0.0f;
     
     // Aggiorna memoria disponibile
-    g_stats->available_memory = g_stats->handlers->get_available_memory();
+    g_stats->available_memory = g_stats->handlers->get_available_memory(g_stats);
     
     return ESP_OK;
 }
@@ -188,7 +205,7 @@ esp_err_t paging_notify_segment_access(paging_stats_t* g_stats, uint32_t segment
     }
     
     if (target->is_paged) {
-        esp_err_t err = g_stats->handlers->request_segment_load(segment_id);
+        esp_err_t err = g_stats->handlers->request_segment_load(g_stats, segment_id);
         if (err != ESP_OK) {
             return err;
         }
@@ -205,7 +222,7 @@ esp_err_t paging_notify_segment_access(paging_stats_t* g_stats, uint32_t segment
     target->last_access = current_time;
     
     // Verifica necessità di paging per altri segmenti
-    g_stats->available_memory = g_stats->handlers.get_available_memory();
+    g_stats->available_memory = g_stats->handlers->get_available_memory(g_stats);
     float total_frequency = 0.0f;
     g_stats->hot_segments = 0;
     
@@ -217,8 +234,7 @@ esp_err_t paging_notify_segment_access(paging_stats_t* g_stats, uint32_t segment
             segment->usage_frequency < g_stats->avg_segment_lifetime &&
             g_stats->available_memory < (g_stats->total_memory / 4)) {
             
-            esp_err_t err = g_stats->handlers->request_segment_paging(segment->segment_id, 
-                                                            segment->size);
+            esp_err_t err = g_stats->handlers->request_segment_paging(g_stats, segment->segment_id);
             if (err != ESP_OK) {
                 return err;
             }
@@ -254,7 +270,7 @@ esp_err_t paging_notify_segment_deallocation(paging_stats_t* g_stats, uint32_t s
                    &g_stats->segments[i + 1],
                    (g_stats->num_segments - i - 1) * sizeof(segment_info_t));
             g_stats->num_segments--;
-            g_stats->available_memory = g_stats->handlers->get_available_memory();
+            g_stats->available_memory = g_stats->handlers->get_available_memory(g_stats);
             return ESP_OK;
         }
     }

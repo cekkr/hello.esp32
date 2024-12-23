@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include "esp_log.h"
 #include "esp_err.h"
 #include "esp_rom_sys.h"
@@ -123,6 +124,88 @@ void free_executable_memory(uint8_t* buffer) {
     if (buffer) {
         heap_caps_free(buffer);
     }
+}
+
+
+///
+///
+///
+
+esp_err_t prepend_mount_point(const char* filename, char* full_path) {
+    if (filename == NULL || full_path == NULL) {
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    if (strlen(SD_MOUNT_POINT) + strlen(filename) + 1 > MAX_FILENAME) {
+        return ESP_ERR_INVALID_SIZE;
+    }
+
+    strcpy(full_path, SD_MOUNT_POINT);
+    strcat(full_path, "/");
+    strcat(full_path, filename);
+
+    return ESP_OK;
+}
+
+///
+///
+///
+
+// Funzione per creare una directory se non esiste
+esp_err_t create_dir_if_not_exist(const char* path) {
+    struct stat st;
+    esp_err_t ret = ESP_OK;
+
+    // Verifica se la directory esiste
+    if (stat(path, &st) != 0) {
+        // La directory non esiste, proviamo a crearla
+        if (mkdir(path, 0755) != 0) {
+            ESP_LOGE(TAG, "Failed to create directory: %s", path);
+            ret = ESP_FAIL;
+        } else {
+            ESP_LOGI(TAG, "Directory created: %s", path);
+        }
+    } else {
+        // La directory esiste già
+        ESP_LOGI(TAG, "Directory already exists: %s", path);
+    }
+
+    return ret;
+}
+
+///
+/// Data chunk
+///
+
+// Scrive un chunk di dati in un file
+esp_err_t write_data_chunk(const char* filename, const uint8_t* data, size_t chunk_size, size_t offset) {
+   FILE* f = fopen(filename, "r+");
+   if (f == NULL) {
+       f = fopen(filename, "w");
+   }
+   if (f == NULL) {
+       return ESP_FAIL;
+   }
+
+   fseek(f, offset, SEEK_SET);
+   size_t written = fwrite(data, 1, chunk_size, f);
+   fclose(f);
+
+   return (written == chunk_size) ? ESP_OK : ESP_FAIL;
+}
+
+// Legge un chunk di dati da un file 
+esp_err_t read_data_chunk(const char* filename, uint8_t* buffer, size_t chunk_size, size_t offset) {
+   FILE* f = fopen(filename, "r");
+   if (f == NULL) {
+       return ESP_FAIL;
+   }
+
+   fseek(f, offset, SEEK_SET);
+   size_t read = fread(buffer, 1, chunk_size, f);
+   fclose(f);
+
+   return (read == chunk_size) ? ESP_OK : ESP_FAIL;
 }
 
 #endif  // HELLOESP_IO
