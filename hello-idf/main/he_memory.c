@@ -123,10 +123,25 @@ esp_err_t paging_init(paging_stats_t* g_stats, segment_handlers_t* handlers, siz
     return ESP_OK;
 }
 
+esp_err_t paging_delete_segment_page(paging_stats_t * g_stats, segment_info_t * segment){
+    char* pageName = create_segment_page_name(g_stats->base_path, segment->segment_id);
+    esp_err_t res = unlink(pageName);
+
+    if(res == ESP_OK){
+        segment->has_page = false;
+        segment->is_paged = false;
+    }
+
+    free(pageName);
+    return res;
+}
+
 esp_err_t paging_deinit(paging_stats_t * g_stats){
     if(g_stats){
         for(uint32_t s=0; s<g_stats->num_segments; s++){
-            //todo: something
+            if(g_stats->segments[s].has_page){
+                paging_delete_segment_page(g_stats, &g_stats->segments[s]);
+            }
         }
 
         free(g_stats->segments);
@@ -260,6 +275,9 @@ esp_err_t paging_notify_segment_deallocation(paging_stats_t* g_stats, uint32_t s
         uint32_t i = segment_id;
         if (g_stats->segments[i].segment_id == segment_id) {
             segment_info_t* seg = &g_stats->segments[i];
+
+            esp_err_t res = paging_delete_segment_page(g_stats, seg);
+
             seg->has_page = false;
             seg->data = NULL;
             seg->is_modified = false;
@@ -268,12 +286,13 @@ esp_err_t paging_notify_segment_deallocation(paging_stats_t* g_stats, uint32_t s
             seg->usage_frequency = 0.0f;
 
             g_stats->available_memory = g_stats->handlers->get_available_memory(g_stats);
-            return ESP_OK;
+            return res;
         }
     }
     return ESP_ERR_NOT_FOUND;
 }
 
+// DON'T use it in M3Memory
 esp_err_t paging_notify_segment_remove(paging_stats_t* g_stats, uint32_t segment_id) {
     if (g_stats->num_segments < segment_id && g_stats->segments[segment_id].segment_id == segment_id) {
         uint32_t i = segment_id;
