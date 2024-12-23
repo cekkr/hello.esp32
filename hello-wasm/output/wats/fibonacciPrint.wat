@@ -1,13 +1,13 @@
-(module $fibonacciPrint.wasm
+(module
   (type (;0;) (func))
   (type (;1;) (func (param i32)))
   (type (;2;) (func (param i32 i32)))
   (type (;3;) (func (param i32) (result i32)))
   (type (;4;) (func (result i32)))
-  (import "env" "esp_printf" (func $esp_printf (type 2)))
-  (import "env" "memory" (memory (;0;) 1 32768))
-  (func $__wasm_call_ctors (type 0))
-  (func $fib (type 3) (param i32) (result i32)
+  (import "env" "esp_printf" (func (;0;) (type 2)))
+  (import "env" "memory" (memory (;0;) 256 32768))
+  (func (;1;) (type 0))
+  (func (;2;) (type 3) (param i32) (result i32)
     (local i32 i32 i32 i32 i32 i32)
     block  ;; label = @1
       local.get 0
@@ -55,13 +55,13 @@
       br_if 0 (;@1;)
     end
     local.get 5)
-  (func $print_fibonacci (type 1) (param i32)
+  (func (;3;) (type 1) (param i32)
     (local i32 i32 i32)
-    global.get $__stack_pointer
+    global.get 0
     i32.const 64
     i32.sub
     local.tee 1
-    global.set $__stack_pointer
+    global.set 0
     local.get 1
     local.get 0
     i32.store offset=48
@@ -69,7 +69,7 @@
     local.get 1
     i32.const 48
     i32.add
-    call $esp_printf
+    call 0
     i32.const 0
     local.set 2
     loop  ;; label = @1
@@ -81,17 +81,17 @@
       local.get 1
       i32.const 32
       i32.add
-      call $esp_printf
+      call 0
       local.get 1
       local.get 2
-      call $fib
+      call 2
       local.tee 3
       i32.store offset=16
       i32.const 1024
       local.get 1
       i32.const 16
       i32.add
-      call $esp_printf
+      call 0
       local.get 1
       local.get 3
       i32.store offset=4
@@ -100,7 +100,7 @@
       i32.store
       i32.const 1062
       local.get 1
-      call $esp_printf
+      call 0
       local.get 2
       i32.const 1
       i32.add
@@ -114,28 +114,28 @@
     local.get 1
     i32.const 64
     i32.add
-    global.set $__stack_pointer)
-  (func $start (type 0)
+    global.set 0)
+  (func (;4;) (type 0)
     i32.const 10
-    call $print_fibonacci)
-  (func $_initialize (type 0)
+    call 3)
+  (func (;5;) (type 0)
     block  ;; label = @1
       i32.const 1
       i32.eqz
       br_if 0 (;@1;)
-      call $__wasm_call_ctors
+      call 1
     end)
-  (func $_emscripten_stack_restore (type 1) (param i32)
+  (func (;6;) (type 1) (param i32)
     local.get 0
-    global.set $__stack_pointer)
-  (func $emscripten_stack_get_current (type 4) (result i32)
-    global.get $__stack_pointer)
+    global.set 0)
+  (func (;7;) (type 4) (result i32)
+    global.get 0)
   (table (;0;) 2 2 funcref)
-  (global $__stack_pointer (mut i32) (i32.const 17488))
-  (export "start" (func $start))
-  (export "_initialize" (func $_initialize))
+  (global (;0;) (mut i32) (i32.const 17488))
+  (export "start" (func 4))
+  (export "_initialize" (func 5))
   (export "__indirect_function_table" (table 0))
-  (export "_emscripten_stack_restore" (func $_emscripten_stack_restore))
-  (export "emscripten_stack_get_current" (func $emscripten_stack_get_current))
-  (elem (;0;) (i32.const 1) func $__wasm_call_ctors)
-  (data $.rodata (i32.const 1024) "Got result=%d\0a\00Calling fib with n=%d\0a\00F(%d) = %d\0a\00Fibonacci series up to %d:\0a\00"))
+  (export "_emscripten_stack_restore" (func 6))
+  (export "emscripten_stack_get_current" (func 7))
+  (elem (;0;) (i32.const 1) func 1)
+  (data (;0;) (i32.const 1024) "Got result=%d\0a\00Calling fib with n=%d\0a\00F(%d) = %d\0a\00Fibonacci series up to %d:\0a\00"))

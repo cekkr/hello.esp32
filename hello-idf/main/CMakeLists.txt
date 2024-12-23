@@ -19,6 +19,7 @@ idf_component_register(
         espcoredump    
         spi_flash    
         esp_psram
+        LCD
 )
 
 target_compile_options(${COMPONENT_LIB} PRIVATE -Wno-format -Wno-error=maybe-uninitialized)

@@ -1,14 +1,40 @@
 #pragma once
 
+#include <stdio.h>
+#include <string.h>
+#include <sys/unistd.h>
+#include "driver/gpio.h"
+#include "driver/spi_common.h"
+#include "driver/uart_vfs.h"
+#include "hal/uart_ll.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "esp_heap_trace.h"
+
+// Watchdog
+#include "esp_task_wdt.h"
+#include "rtc_wdt.h"
+
+#include <stdbool.h>
+
+////////////////////////////////////////////////////////////////
+
+// Essential constants
+static const char *TAG = "HELLOESP";
+#define SD_MOUNT_POINT "/sdcard"
+#define MAX_FILENAME 256
+
+////////////////////////////////////////////////////////////////
+
 #define SERIAL_TASK_ADV 1
-#define WASM_TASK_CORE 0
+#define SERIAL_TASK_CORE 0
 
 // WASM 3
 #define WASM_TASK_ADV 1
-#define SERIAL_TASK_CORE 0
+#define WASM_TASK_CORE 1
 
-#define WASM_TASK_SIZE (32 * 1024) // ??
-#define WASM_STACK_SIZE (64*1024)  // Esempio di dimensione stack
+#define WASM_TASK_SIZE (64*1024)
+#define WASM_STACK_SIZE (64*1024)  
 #define WASM_TASK_PRIORITY 5
 
 ////////////////////////////////////////////////////////////////////////
@@ -35,6 +61,18 @@
 
 //#define SERIAL_BAUD 115200
 #define SERIAL_BAUD 230400
+
+///
+/// SD and touch
+///
+#define SD_SCK  18
+#define SD_MISO 19
+#define SD_MOSI 23
+#define SD_CS   5
+
+#define SPI_DMA_CHAN    1
+
+#define CONFIG_XPT2046_ENABLE_DIFF_BUS 1
 
 ///
 /// Global vars
