@@ -163,14 +163,10 @@ static void run_wasm(uint8_t* wasm, uint32_t fsize)
 
     freeEnv:  
     ESP_LOGI(TAG, "Freeing WASM3 context\n");  
+        
+    if(runtime) m3_FreeRuntime(runtime);           
+    if(env) m3_FreeEnvironment(env);
     
-    if(false){
-        if(env) m3_FreeEnvironment(env);
-        if(runtime) m3_FreeRuntime(runtime);         
-    }    
-
-    //todo: free wasm memory
-
     if(HELLOESP_RUN_WASM_WDT){ 
         WATCHDOG_END
     }   
