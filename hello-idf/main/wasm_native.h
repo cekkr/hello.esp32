@@ -159,19 +159,24 @@ M3Result wasm_lcd_draw_text(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t*
 
 ////////////////////////////////////////////////////////////////////////
 
-const bool HELLO_DEBUG_wasm_esp_add = false;
+const bool HELLO_DEBUG_wasm_esp_add = true;
 M3Result wasm_esp_add(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, void* _mem) {
     if (!runtime || !_mem) {
         ESP_LOGW("WASM3", "wasm_esp_add blocked: runtime=%p, mem=%p", runtime, _mem);
         return ERROR_MSG_NULLS;
     }
 
+    m3ApiReturnType  (int32_t)
+
     // Ottiene il puntatore allo stack
-    uint64_t* stack = m3ApiOffsetToPtr(_sp);
+    //uint64_t* stack = m3ApiOffsetToPtr(_sp++);
 
     // Legge i due parametri dallo stack
-    int32_t a = m3ApiReadMem32(&stack[0]);
-    int32_t b = m3ApiReadMem32(&stack[1]);
+    //int32_t a = (int32_t)stack[0];
+    //int32_t b = (int32_t)stack[1];
+
+    m3ApiGetArgMem (int32_t, a);
+    m3ApiGetArgMem (int32_t, b);
 
     if(HELLO_DEBUG_wasm_esp_add) {
         ESP_LOGI("WASM3", "Add function called with params: a=%d, b=%d", a, b);
@@ -181,7 +186,8 @@ M3Result wasm_esp_add(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, 
     int32_t result = a + b;
 
     // Scrive il risultato nello stack (per il valore di ritorno)
-    m3ApiWriteMem32(_sp, result);
+    //m3ApiWriteMem32(raw_return, result);
+    *raw_return = result;
 
     if(HELLO_DEBUG_wasm_esp_add) {
         ESP_LOGI("WASM3", "Add function result: %d", result);
