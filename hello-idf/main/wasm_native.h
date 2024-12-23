@@ -7,6 +7,8 @@
 
 #include "defines.h"
 
+#include "screen.h"
+
 #include "m3_env.h"
 #include "m3_segmented_memory.h"
 
@@ -135,12 +137,38 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _s
     return NULL;
 }
 
+///
+///
+///
+
+M3Result wasm_lcd_draw_text(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, void* _mem){
+    uint64_t* args = m3ApiOffsetToPtr(_sp++);
+
+    int x = *(int*)m3ApiOffsetToPtr(args[0]);
+    int y = *(int*)m3ApiOffsetToPtr(args[1]);
+    int size = *(int*)m3ApiOffsetToPtr(args[2]);
+    const char* text = (const char *)m3ApiOffsetToPtr(args[3]);    
+
+    LCD_ShowString(x, y, WHITE, BLACK, size, text, 0);
+
+    return NULL;
+}
+
+///
+///
+///
+
 // Definizione della lookup table entry
 const WasmFunctionEntry functionTable[] = {
     { 
         .name = (const char*)"esp_printf",           // Nome della funzione in WASM
         .func = wasm_esp_printf,    // Puntatore alla funzione
         .signature = (const char*)"v(ii)"        // Signature: void (raw_ptr, int32)
+    },
+    { 
+        .name = (const char*)"lcd_draw_text",           // Nome della funzione in WASM
+        .func = wasm_lcd_draw_text,    // Puntatore alla funzione
+        .signature = (const char*)"v(iiii)"        // Signature: void (raw_ptr, int32)
     },
     // Altre funzioni possono essere aggiunte qui
 };
