@@ -42,7 +42,11 @@
         "unistd.h": "c",
         "he_defines.h": "c",
         "esp_heap_trace.h": "c",
-        "he_wasm_native.h": "c"
+        "he_wasm_native.h": "c",
+        "he_memory.h": "c",
+        "compare": "c",
+        "cstdint": "c",
+        "format": "c"
     },
     "cmake.sourceDirectory": "${workspaceFolder}/hello-idf",
     "cmake.configureOnOpen": false,
