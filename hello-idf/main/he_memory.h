@@ -48,6 +48,8 @@ typedef struct paging_stats {
     size_t total_memory;
     size_t available_memory;
 
+    bool set_access_as_modified;
+
     // Statistiche
     uint32_t page_faults;
     uint32_t page_writes;
@@ -63,5 +65,6 @@ esp_err_t paging_notify_segment_allocation(paging_stats_t* g_stats, uint32_t seg
 esp_err_t paging_notify_segment_access(paging_stats_t* g_stats, uint32_t segment_id);
 esp_err_t paging_notify_segment_modification(paging_stats_t* g_stats, uint32_t segment_id);
 esp_err_t paging_notify_segment_deallocation(paging_stats_t* g_stats, uint32_t segment_id);
+esp_err_t paging_notify_segment_remove(paging_stats_t* g_stats, uint32_t segment_id);
 
 #endif
