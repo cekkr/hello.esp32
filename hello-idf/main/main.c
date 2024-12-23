@@ -1,18 +1,18 @@
 #include "defines.h"
 
 // General functions
-#include "io.h"
-#include "esp_exception.h"
-#include "task_broker.h"
-#include "device.h"
-#include "monitor.h"
+#include "he_io.h"
+#include "he_esp_exception.h"
+#include "he_task_broker.h"
+#include "he_device.h"
+#include "he_monitor.h"
 
 // CMDs
-#include "cmd.h"
+#include "he_cmd.h"
 
-#include "screen.h"
-#include "sdcard.h"
-#include "serial.h"
+#include "he_screen.h"
+#include "he_sdcard.h"
+#include "he_serial.h"
 
 
 ///

@@ -5,9 +5,9 @@
 #include <stdarg.h>
 #include "esp_log.h"
 
-#include "defines.h"
+#include "he_defines.h"
 
-#include "screen.h"
+#include "he_screen.h"
 
 #include "m3_env.h"
 #include "m3_segmented_memory.h"

@@ -13,10 +13,10 @@
 #include <dirent.h>
 #include "mbedtls/md5.h"
 
-#include "defines.h"
-#include "device.h"
-#include "sdcard.h"
-#include "monitor.h"
+#include "he_defines.h"
+#include "he_device.h"
+#include "he_sdcard.h"
+#include "he_monitor.h"
 
 // Definizioni
 #define BUF_SIZE 1024

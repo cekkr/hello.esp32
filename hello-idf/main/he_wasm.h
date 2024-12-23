@@ -6,8 +6,8 @@
 #include <unistd.h>
 #include "esp_log.h"
 
-#include "defines.h"
-#include "device.h"
+#include "he_defines.h"
+#include "he_device.h"
 
 #include "wasm3.h"
 #include "m3_env.h"

@@ -13,7 +13,7 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "defines.h"
+#include "he_defines.h"
 
 ////////////////////////////////////////////////////////////////
 

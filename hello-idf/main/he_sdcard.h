@@ -19,8 +19,8 @@
 #include "freertos/task.h"
 #include "mgt_string.h"
 
-#include "defines.h"
-#include "screen.h"
+#include "he_defines.h"
+#include "he_screen.h"
 
 void init_sd_pins() {
     ESP_LOGI(TAG, "Initializing SD pins with pull-ups...\n");

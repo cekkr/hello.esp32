@@ -6,7 +6,7 @@
 #include "pic.h"
 #include "xpt2046.h"
 
-#include "defines.h"
+#include "he_defines.h"
 
 ///
 /// Touch Screen

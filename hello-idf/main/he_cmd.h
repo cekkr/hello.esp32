@@ -8,11 +8,11 @@
 
 #include "esp_log.h"
 
-#include "device.h"
-#include "defines.h"
+#include "he_device.h"
+#include "he_defines.h"
 
 // WASM
-#include "wasm.h"
+#include "he_wasm.h"
 
 #define MAX_ARGS 32
 #define MAX_COMMAND_LENGTH 256

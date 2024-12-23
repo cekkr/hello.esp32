@@ -16,7 +16,7 @@
 #include "esp_heap_caps.h"
 //#include "esp_spi_flash.h"
 
-#include "defines.h"
+#include "he_defines.h"
 
 void restart_device(void) {
     ESP_LOGI(TAG, "Restarting device...");

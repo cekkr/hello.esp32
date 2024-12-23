@@ -9,6 +9,8 @@
 #include "esp_rom_sys.h"
 //#include "soc/soc.h"
 
+#include "he_defines.h"
+
 /**
  * @brief Legge un file e lo carica in memoria
  * @param file_path Path del file da leggere

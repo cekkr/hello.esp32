@@ -8,8 +8,8 @@
 #include <stdio.h>
 #include "esp_timer.h"
 
-#include "defines.h"
-#include "sdcard.h"
+#include "he_defines.h"
+#include "he_sdcard.h"
 
 void init_paging_point(){
     create_dir_if_not_exist(PAGING_PATH);
