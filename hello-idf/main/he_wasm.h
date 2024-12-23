@@ -13,7 +13,7 @@
 #include "m3_env.h"
 #include "m3_api_esp_wasi.h"
 
-#include "wasm_native.h"
+#include "he_wasm_native.h"
 
 
 

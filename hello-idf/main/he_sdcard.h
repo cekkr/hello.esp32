@@ -17,9 +17,9 @@
 #include "driver/spi_common.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "mgt_string.h"
 
 #include "he_defines.h"
+#include "he_mgt_string.h"
 #include "he_screen.h"
 
 void init_sd_pins() {
