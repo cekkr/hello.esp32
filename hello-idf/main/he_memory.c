@@ -218,19 +218,23 @@ esp_err_t paging_check_paging_needed(paging_stats_t* g_stats){
 
         segment_info_t* segment = &g_stats->segments[i];
         total_frequency += segment->usage_frequency;
+
+        if(g_stats->available_memory > (g_stats->total_memory / 3)){
+            break;
+        }
         
-        if (!segment->is_paged && segment->usage_frequency < g_stats->avg_segment_lifetime &&
-            g_stats->available_memory < (g_stats->total_memory / 4)) {
+        if (!segment->is_paged && segment->usage_frequency < g_stats->avg_segment_lifetime) {
             
             esp_err_t err = g_stats->handlers->request_segment_paging(g_stats, segment->segment_id);
-            if (err != ESP_OK) {
-                return err;
-            }
-            
-            segment->is_paged = true;
-            segment->has_page = true;   
+            if (err == ESP_OK) {
+                segment->is_paged = true;
+                segment->has_page = true;   
 
-            g_stats->page_writes++;
+                g_stats->page_writes++;
+            }
+            else {
+                //todo: LOGW
+            }
         }
         
         if (segment->usage_frequency > g_stats->avg_segment_lifetime) {
