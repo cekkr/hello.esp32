@@ -13,6 +13,7 @@
 #include "he_screen.h"
 #include "he_sdcard.h"
 #include "he_serial.h"
+#include "he_device.h"
 
 
 ///

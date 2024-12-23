@@ -10,6 +10,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_heap_trace.h"
+#include "esp_log.h"
 
 // Watchdog
 #include "esp_task_wdt.h"
@@ -75,6 +76,12 @@ static const char *TAG = "HELLOESP";
 #define SPI_DMA_CHAN    1
 
 #define CONFIG_XPT2046_ENABLE_DIFF_BUS 1
+
+///
+/// Serial and commands
+///
+
+#define MAX_COMMAND_LENGTH 256
 
 ///
 /// Global vars

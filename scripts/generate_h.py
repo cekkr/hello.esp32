@@ -5,47 +5,63 @@ import os
 
 
 def extract_function_info(header_content):
-    """Estrae sia le dichiarazioni che le definizioni di funzione dal file header."""
-    # Pattern per trovare sia dichiarazioni che definizioni di funzioni
-    # Cattura: tipo di ritorno, nome funzione, parametri e eventuale corpo
-    pattern = r'^\s*([\w\*]+\s+[\w\*]+\s*\([^)]*\))\s*((?:{[^}]*})?\s*;?)'
-
-    declarations = []
-    implementations = []
+    """Estrae sia le dichiarazioni che le definizioni complete di funzione dal file header."""
+    functions = []
+    current_function = []
+    in_function = False
+    brace_count = 0
 
     lines = header_content.split('\n')
     i = 0
     while i < len(lines):
         line = lines[i]
-        # Se troviamo una potenziale funzione
-        match = re.match(pattern, line)
-        if match:
-            signature = match.group(1)
-            body = match.group(2)
 
-            # Se c'è un corpo funzione, potrebbe essere multi-linea
-            if body and body.startswith('{'):
-                # Raccogli tutte le linee fino alla chiusura della funzione
-                full_body = [body]
-                brace_count = body.count('{') - body.count('}')
-                i += 1
-                while brace_count > 0 and i < len(lines):
-                    full_body.append(lines[i])
-                    brace_count += lines[i].count('{') - lines[i].count('}')
-                    i += 1
-                # Unisci il corpo della funzione
-                body = '\n'.join(full_body)
+        # Se non siamo in una funzione, cerca una nuova dichiarazione/definizione
+        if not in_function:
+            # Pattern per l'inizio di una funzione (tipo ritorno, nome, parametri)
+            match = re.match(r'^(\s*)([\w\*]+\s+[\w\*]+\s*\([^)]*\))\s*({)?', line)
+            if match:
+                indentation = match.group(1)  # Preserva l'indentazione originale
+                signature = match.group(2)
+                has_body = match.group(3) is not None
 
-            # Aggiungi la dichiarazione (sempre)
-            declarations.append(f"{signature};")
+                if has_body:
+                    # Inizia una nuova funzione con implementazione
+                    in_function = True
+                    brace_count = 1
+                    current_function = [line]  # Mantiene la riga originale completa
+                else:
+                    # È solo una dichiarazione
+                    if line.strip().endswith(';'):
+                        functions.append((signature, None))
+                    else:
+                        # La funzione inizia nella prossima riga
+                        current_function = [line]
+                        in_function = True
+        else:
+            # Siamo dentro una funzione, raccogli il corpo mantenendo l'indentazione
+            current_function.append(line)
 
-            # Se c'è un corpo, aggiungi l'implementazione
-            if body and '{' in body:
-                implementations.append(f"{signature} {body}")
-            else:
-                # Se non c'è corpo, crea un'implementazione vuota
-                implementations.append(f"{signature} {{\n    // TODO: Implementa questa funzione\n}}")
+            # Conta le parentesi graffe
+            brace_count += line.count('{') - line.count('}')
+
+            # Se abbiamo chiuso tutte le parentesi graffe, la funzione è completa
+            if brace_count == 0:
+                in_function = False
+                full_implementation = '\n'.join(current_function)
+                # Estrai la signature dalla prima riga
+                match = re.match(r'\s*([\w\*]+\s+[\w\*]+\s*\([^)]*\))', current_function[0])
+                if match:
+                    signature = match.group(1)
+                    functions.append((signature, full_implementation))
+                current_function = []
+
         i += 1
+
+    # Separa dichiarazioni e implementazioni
+    declarations = [f"{signature};" for signature, _ in functions]
+    implementations = [impl if impl else f"{signature} {{\n    // TODO: Implementa questa funzione\n}}"
+                       for signature, impl in functions]
 
     return declarations, implementations
 
@@ -90,7 +106,15 @@ def generate_source_file(header_path, implementations, includes):
     source_content.append('')  # Linea vuota per separazione
 
     # Aggiungi le implementazioni delle funzioni
-    source_content.extend(implementations)
+    for impl in implementations:
+        if impl:
+            # Rimuovi l'eventuale ripetizione dell'header della funzione se presente
+            impl_lines = impl.split('\n')
+            if len(impl_lines) > 1 and re.match(r'\s*[\w\*]+\s+[\w\*]+\s*\([^)]*\)\s*{', impl_lines[1]):
+                source_content.append('\n'.join(impl_lines[1:]))
+            else:
+                source_content.append(impl)
+            source_content.append('')  # Linea vuota tra le funzioni
 
     return '\n'.join(source_content)
 
@@ -161,7 +185,7 @@ def process_header_file(header_path):
         sys.exit(1)
 
 def main():
-    header_file = '../' + 'hello-idf/main/he_monitor.h'
+    header_file = '../' + 'hello-idf/main/he_io.h'
 
     if len(sys.argv) > 1:
         header_file = sys.argv[1]

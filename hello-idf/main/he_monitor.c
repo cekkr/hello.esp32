@@ -126,18 +126,6 @@ void init_tasksMonitor(void) {
 ////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////
 
-typedef enum {
-    STACK_USAGE_NORMAL = 0,
-    STACK_USAGE_WARNING,
-    STACK_USAGE_CRITICAL
-} stack_usage_level_t;
-
-typedef struct {
-    TaskHandle_t task;
-    size_t warning_threshold;   // es: 75% dello stack usato
-    size_t critical_threshold;  // es: 90% dello stack usato
-} stack_monitor_config_t;
-
 void advancedStackMonitor(void *pvParameters) {
     stack_monitor_config_t *config = (stack_monitor_config_t *)pvParameters;
     UBaseType_t stackHighWaterMark;

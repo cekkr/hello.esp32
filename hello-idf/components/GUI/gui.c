@@ -8,7 +8,7 @@
 #include "font.h"
 #include "math.h"  
 #include "string.h"
-//#include "pic.h"
+#include "pic.h"
 
 //π值定义
 #define	app_pi	3.1415926535897932384626433832795 
