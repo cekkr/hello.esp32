@@ -54,6 +54,16 @@ esp_err_t read_data_chunk(const char* filename, uint8_t* buffer, size_t chunk_si
 ///
 ///
 
+size_t default_get_available_memory(){
+    return heap_caps_get_free_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
+}
+
+///
+///
+///
+
+#define ALLOC_SEGMENTS_INFO_BY 8
+
 // Integration points per il sistema di memoria segmentata
 typedef struct {
     // Funzione per notificare il sistema quando un segmento dev'essere paginato
@@ -99,9 +109,17 @@ typedef struct {
 //static segment_handlers_t g_stats->handlers = {0};
 
 esp_err_t paging_init(paging_stats_t* g_stats, segment_handlers_t* handlers, uint32_t max_segments) {    
-    if (!handlers || !handlers->request_segment_paging || 
-        !handlers->request_segment_load || !handlers->get_available_memory ||
-        !handlers->get_segment_pointer) {
+
+    if(!handlers) {
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    if(handlers->get_available_memory == NULL){
+        handlers->get_available_memory = &default_get_available_memory;
+    }
+
+    if (!handlers->request_segment_paging || 
+        !handlers->request_segment_load || !handlers->get_segment_pointer) {
         return ESP_ERR_INVALID_ARG;
     }
 
@@ -130,8 +148,8 @@ esp_err_t paging_notify_segment_allocation(paging_stats_t* g_stats, uint32_t seg
     }
     
     // Se abbiamo raggiunto il limite, riallochiamo con 8 segmenti in più
-    if (g_stats->num_segments % 8 == 0) {
-        size_t new_size = (g_stats->num_segments + 8) * sizeof(segment_info_t);
+    if (g_stats->num_segments % ALLOC_SEGMENTS_INFO_BY == 0) {
+        size_t new_size = (g_stats->num_segments + ALLOC_SEGMENTS_INFO_BY) * sizeof(segment_info_t);
         segment_info_t* new_segments = realloc(g_stats->segments, new_size);
         if (!new_segments) {
             return ESP_ERR_NO_MEM;
