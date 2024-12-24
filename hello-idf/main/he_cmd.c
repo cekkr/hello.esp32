@@ -2,6 +2,7 @@
 
 // WASM
 #include "he_wasm.h"
+#include "he_io.h"
 
 // Funzione di utilità per rimuovere gli spazi iniziali e finali
 static char* trim(char* str) {
@@ -162,9 +163,15 @@ static int cmd_echo(shell_t* shell, int argc, char** argv) {
 
 // Handler per il comando "ls"
 static int cmd_ls(shell_t* shell, int argc, char** argv) {
-    const char* path = argc > 0 ? argv[0] : ".";
-    ESP_LOGI(TAG, "Listing directory: %s\n", path);
-    // Implementare la logica per listare i file
+    if(argc > 0){
+        //const char* path = argc > 0 ? argv[0] : ".";    
+        //ESP_LOGI(TAG, "Listing directory: %s\n", path);
+
+        ESP_LOGI(TAG, "ls: currently unmanaged arguments");
+    }
+    
+    list_files(shell->cwd);
+
     return 0;
 }
 

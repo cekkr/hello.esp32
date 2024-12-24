@@ -21,6 +21,7 @@ idf_component_register(
         esp_psram
         esp_mm
         LCD
+        json
 )
 
 
@@ -37,4 +38,4 @@ target_compile_options(${COMPONENT_LIB} PRIVATE -Wno-error=return-type -Wno-erro
 #target_compile_options(${COMPONENT_LIB} PRIVATE -fno-jump-tables -fno-tree-switch-conversion)
 
 # Disable macro expansion notes during compilation
-target_compile_options(${COMPONENT_LIB} PRIVATE -ftrack-macro-expansion=0)
+#target_compile_options(${COMPONENT_LIB} PRIVATE -ftrack-macro-expansion=0)

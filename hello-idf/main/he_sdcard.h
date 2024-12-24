@@ -22,5 +22,4 @@
 void init_sd_pins();
 void init_sd_card();
 void mostra_info_sd(const char* mount_point);
-void list_files(const char* dirname);
 #endif

@@ -214,27 +214,4 @@ void mostra_info_sd(const char* mount_point) {
     // This doesn't works: LCD_ShowString(10,80,WHITE,BLACK,10,"Reading SD",0);
 }
 
-void list_files(const char* dirname) {
-    DIR *dir = opendir(dirname);
-    if (dir == NULL) {
-        ESP_LOGE(TAG, "Failed to open directory: %s", dirname);
-        return;
-    }
 
-    struct dirent *entry;
-    while ((entry = readdir(dir)) != NULL) {
-        ESP_LOGI(TAG, "Found file: %s", entry->d_name);
-        
-        // Per file che non sono directory
-        if (entry->d_type != DT_DIR) {
-            char fullpath[300];
-            snprintf(fullpath, sizeof(fullpath), "%s/%s", dirname, entry->d_name);
-            
-            struct stat st;
-            if (stat(fullpath, &st) == 0) {
-                ESP_LOGI(TAG, "  Size: %ld bytes", st.st_size);
-            }
-        }
-    }
-    closedir(dir);
-}

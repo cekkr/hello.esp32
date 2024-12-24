@@ -9,6 +9,7 @@
 #include "he_defines.h"
 
 #include "he_io.h"
+#include <sys/dirent.h>
 
 esp_err_t read_file_to_memory(const char* file_path, uint8_t** out_data, size_t* out_size) {
     FILE* file = NULL;
@@ -201,4 +202,33 @@ esp_err_t read_data_chunk(const char* filename, uint8_t* buffer, size_t chunk_si
    fclose(f);
 
    return (read == chunk_size) ? ESP_OK : ESP_FAIL;
+}
+
+///
+///
+///
+
+void list_files(const char* dirname) {
+    DIR *dir = opendir(dirname);
+    if (dir == NULL) {
+        ESP_LOGE(TAG, "Failed to open directory: %s", dirname);
+        return;
+    }
+
+    struct dirent *entry;
+    while ((entry = readdir(dir)) != NULL) {
+        ESP_LOGI(TAG, "Found file: %s", entry->d_name);
+        
+        // Per file che non sono directory
+        if (entry->d_type != DT_DIR) {
+            char fullpath[300];
+            snprintf(fullpath, sizeof(fullpath), "%s/%s", dirname, entry->d_name);
+            
+            struct stat st;
+            if (stat(fullpath, &st) == 0) {
+                ESP_LOGI(TAG, "  Size: %ld bytes", st.st_size);
+            }
+        }
+    }
+    closedir(dir);
 }

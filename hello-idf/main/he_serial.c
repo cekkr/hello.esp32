@@ -678,16 +678,16 @@ void serial_handler_task(void *pvParameters) {
             monitor_disable();
 
             // Analyze the mounting point
-            struct stat st;
-            if (stat(SD_MOUNT_POINT, &st) != 0) {
-                sprintf(text, "Mount point error: %s", strerror(errno));            
-                send_response(STATUS_ERROR, text);
-                continue;
-            }
-   
-            ESP_LOGI(TAG, "Directory permissions: %lo\n", st.st_mode & 0777);
-
-            list_files(SD_MOUNT_POINT);
+            if(false){
+                struct stat st;
+                if (stat(SD_MOUNT_POINT, &st) != 0) {
+                    sprintf(text, "Mount point error: %s", strerror(errno));            
+                    send_response(STATUS_ERROR, text);
+                    continue;
+                }
+    
+                ESP_LOGI(TAG, "Directory permissions: %lo\n", st.st_mode & 0777);   
+            }         
 
             ////////////////////////////////
             DIR *dir;

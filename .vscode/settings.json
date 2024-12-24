@@ -46,7 +46,9 @@
         "he_memory.h": "c",
         "compare": "c",
         "cstdint": "c",
-        "format": "c"
+        "format": "c",
+        "he_settings.h": "c",
+        "complex": "c"
     },
     "cmake.sourceDirectory": "${workspaceFolder}/hello-idf",
     "cmake.configureOnOpen": false,

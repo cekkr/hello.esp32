@@ -18,4 +18,7 @@ esp_err_t prepend_cwd(const char* cwd, char* full_path);
 esp_err_t create_dir_if_not_exist(const char* path);
 esp_err_t write_data_chunk(const char* filename, const uint8_t* data, size_t chunk_size, size_t offset);
 esp_err_t read_data_chunk(const char* filename, uint8_t* buffer, size_t chunk_size, size_t offset);
+
+void list_files(const char* dirname);
+
 #endif  // HELLOESP_IO
