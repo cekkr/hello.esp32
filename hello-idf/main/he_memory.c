@@ -119,8 +119,8 @@ esp_err_t paging_init(paging_stats_t** _g_stats, segment_handlers_t* handlers, s
 
     // Manage segments
     g_stats->segment_size = segment_size;
-    g_stats->num_segments = ALLOC_SEGMENTS_INFO_BY;
-    g_stats->segments = calloc(g_stats->num_segments, sizeof(segment_info_t*));
+    g_stats->num_segments = 0;
+    g_stats->segments = calloc(ALLOC_SEGMENTS_INFO_BY, sizeof(segment_info_t*));
     if (!g_stats->segments) {
         return ESP_ERR_NO_MEM;
     }
