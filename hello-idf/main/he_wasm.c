@@ -12,6 +12,8 @@
 
 #define FATAL(env, msg, ...) { ESP_LOGI(TAG, "ERROR: Fatal: " msg "\n", ##__VA_ARGS__); goto freeEnv; }
 
+#define HE_WASM_PREALLOCATE false
+
 bool prepare_wasm_execution(const uint8_t* wasm_data, size_t size) {
     // Stima della memoria necessaria (questo valore andrà calibrato)
     size_t estimated_memory = size * 3;  // esempio: 3x il size del modulo
@@ -21,11 +23,13 @@ bool prepare_wasm_execution(const uint8_t* wasm_data, size_t size) {
         return false;
     }
     
+    #if HE_WASM_PREALLOCATE
     // Pre-alloca memoria se necessario
     void* pre_allocated = preallocate_wasm_memory(estimated_memory);
     if (!pre_allocated) {
         return false;
     }
+    #endif
     
     // Continua con l'esecuzione...
     return true;

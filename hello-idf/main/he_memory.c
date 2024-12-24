@@ -11,8 +11,8 @@
 
 #include "he_defines.h"
 #include "he_sdcard.h"
-
 #include "he_io.h"
+#include "he_device.h"
 
 ///
 ///
@@ -35,7 +35,7 @@ size_t default_get_available_memory(paging_stats_t* g_stats){
 esp_err_t default_request_segment_paging(paging_stats_t* g_stats, uint32_t segment_id){
     segment_info_t* segment = &g_stats->segments[segment_id];
     char* pageName = create_segment_page_name(g_stats->base_path, segment_id);
-    esp_err_t res = write_data_chunk(pageName, segment->data, g_stats->segment_size, 0);
+    esp_err_t res = write_data_chunk(pageName, *segment->data, g_stats->segment_size, 0);
     free(pageName);
     return res;
 }
@@ -43,7 +43,7 @@ esp_err_t default_request_segment_paging(paging_stats_t* g_stats, uint32_t segme
 esp_err_t default_request_segment_load(paging_stats_t* g_stats, uint32_t segment_id){
     segment_info_t* segment = &g_stats->segments[segment_id];
     char* pageName = create_segment_page_name(g_stats->base_path, segment_id);
-    esp_err_t res = read_data_chunk(pageName, segment->data, g_stats->segment_size, 0);
+    esp_err_t res = read_data_chunk(pageName, *segment->data, g_stats->segment_size, 0);
     free(pageName);
     return res;
 }
@@ -119,7 +119,7 @@ esp_err_t paging_init(paging_stats_t** _g_stats, segment_handlers_t* handlers, s
 
     // Manage segments
     g_stats->segment_size = segment_size;
-    g_stats->segments = calloc(ALLOC_SEGMENTS_INFO_BY, sizeof(segment_info_t));
+    g_stats->segments = calloc(ALLOC_SEGMENTS_INFO_BY, sizeof(segment_info_t*));
     if (!g_stats->segments) {
         return ESP_ERR_NO_MEM;
     }
@@ -155,7 +155,7 @@ esp_err_t paging_delete_segment_page(paging_stats_t * g_stats, segment_info_t * 
 esp_err_t paging_deinit(paging_stats_t * g_stats){
     if(g_stats){
         for(uint32_t s=0; s<g_stats->num_segments; s++){
-            if(g_stats->segments[s].has_page){
+            if(g_stats->segments[s]->has_page){
                 paging_delete_segment_page(g_stats, &g_stats->segments[s]);
             }
         }
@@ -166,26 +166,43 @@ esp_err_t paging_deinit(paging_stats_t * g_stats){
     }
 }
 
+const bool HE_DEBUG_paging_notify_segment_creation = false;
 esp_err_t paging_notify_segment_creation(paging_stats_t* g_stats, segment_info_t** segment) {
     size_t offset = 0; // default value
     uint32_t segment_id = g_stats->num_segments++;
 
     // For the moment, this check is always true
-    if (false && g_stats->num_segments < segment_id && g_stats->segments[segment_id].segment_id == segment_id) {
+    if (false && g_stats->num_segments < segment_id && g_stats->segments[segment_id]->segment_id == segment_id) {
         return ESP_ERR_INVALID_STATE;
     }
     
     // Se abbiamo raggiunto il limite, riallochiamo con 8 segmenti in più
     if (g_stats->num_segments % ALLOC_SEGMENTS_INFO_BY == 0) {
-        size_t new_size = (g_stats->num_segments + ALLOC_SEGMENTS_INFO_BY) * sizeof(segment_info_t);
-        segment_info_t* new_segments = realloc(g_stats->segments, new_size);
-        if (!new_segments) {
+        size_t new_size = (g_stats->num_segments + ALLOC_SEGMENTS_INFO_BY) * sizeof(segment_info_t*);
+        segment_info_t** new_segments = realloc(g_stats->segments, new_size);
+        if (new_segments == NULL) {
             return ESP_ERR_NO_MEM;
         }
         g_stats->segments = new_segments;
     }        
 
-    *segment = &g_stats->segments[g_stats->num_segments++];
+    segment_info_t* seg = malloc(sizeof(segment_info_t));    
+
+    if(HE_DEBUG_paging_notify_segment_creation){
+        ESP_LOGI(TAG, "paging_notify_segment_creation: segment_id: %u, offset: %zu", segment_id, offset);
+        ESP_LOGI(TAG, "paging_notify_segment_creation: g_stats->num_segments: %u", g_stats->num_segments);
+        ESP_LOGI(TAG, "paging_notify_segment_creation: seg: %p", seg);
+        ESP_LOGI(TAG, "paging_notify_segment_creation: g_stats->segments[segment_id]: %p", g_stats->segments[segment_id]);
+    }
+
+    if(seg == NULL){        
+        ESP_LOGE(TAG, "paging_notify_segment_creation: segment malloc failed");
+        print_ram_info();
+        return ESP_ERR_NO_MEM;
+    }
+
+    g_stats->segments[segment_id] = seg;
+    *segment = seg;
 
     (*segment)->segment_id = segment_id;
     (*segment)->data = NULL;
@@ -203,7 +220,12 @@ esp_err_t paging_notify_segment_creation(paging_stats_t* g_stats, segment_info_t
     return ESP_OK;
 }
 
-esp_err_t paging_notify_segment_allocation(paging_stats_t* g_stats, segment_info_t* segment, void* data) {
+esp_err_t paging_notify_segment_allocation(paging_stats_t* g_stats, segment_info_t* segment, void** data) {
+    if(data == NULL){
+        ESP_LOGE(TAG, "paging_notify_segment_allocation: data is NULL");
+        return ESP_ERR_INVALID_ARG;
+    }
+
     segment->data = data;
     //todo: ...
     return ESP_OK;
@@ -213,7 +235,7 @@ const bool HE_DEBUG_paging_notify_segment_access = false;
 esp_err_t paging_notify_segment_access(paging_stats_t* g_stats, uint32_t segment_id) {
     segment_info_t* target = NULL;
     
-    if (g_stats->num_segments >= segment_id && g_stats->segments[segment_id].segment_id == segment_id) {
+    if (g_stats->num_segments >= segment_id && g_stats->segments[segment_id]->segment_id == segment_id) {
         target = &g_stats->segments[segment_id];
     }
     
@@ -258,12 +280,11 @@ esp_err_t paging_notify_segment_access(paging_stats_t* g_stats, uint32_t segment
     return check_paging_needed;
 }
 
-const bool HE_DEBUG_paging_check_paging_needed = true;
+const bool HE_DEBUG_paging_check_paging_needed = false;
 esp_err_t paging_check_paging_needed(paging_stats_t* g_stats){
     if(HE_DEBUG_paging_check_paging_needed){
         ESP_LOGI(TAG, "paging_check_paging_needed: g_stats: %p", g_stats); 
         ESP_LOGI(TAG, "paging_check_paging_needed: g_stats->handlers->get_available_memory: %p", g_stats->handlers->get_available_memory); 
-        ESP_LOGI(TAG, "flush");
     }
 
     g_stats->available_memory = g_stats->handlers->get_available_memory(g_stats);
@@ -286,7 +307,7 @@ esp_err_t paging_check_paging_needed(paging_stats_t* g_stats){
             break;
         }
         
-        if (segment->data != NULL && !segment->is_paged && segment->usage_frequency < g_stats->avg_segment_lifetime) {
+        if (*segment->data != NULL && !segment->is_paged && segment->usage_frequency < g_stats->avg_segment_lifetime) {
             
             if(HE_DEBUG_paging_check_paging_needed){
                 ESP_LOGI(TAG, "paging_check_paging_needed: calling g_stats->handlers->request_segment_paging (%p)", g_stats->handlers->request_segment_paging);
@@ -315,17 +336,17 @@ esp_err_t paging_check_paging_needed(paging_stats_t* g_stats){
 }
 
 esp_err_t paging_notify_segment_modification(paging_stats_t* g_stats, uint32_t segment_id) {
-    if (g_stats->num_segments >= segment_id && g_stats->segments[segment_id].segment_id == segment_id) {
-        g_stats->segments[segment_id].is_modified = true;
+    if (g_stats->num_segments >= segment_id && g_stats->segments[segment_id]->segment_id == segment_id) {
+        g_stats->segments[segment_id]->is_modified = true;
         return ESP_OK;
     }
     return ESP_ERR_NOT_FOUND;
 }
 
 esp_err_t paging_notify_segment_deallocation(paging_stats_t* g_stats, uint32_t segment_id) {
-    if (g_stats->num_segments < segment_id && g_stats->segments[segment_id].segment_id == segment_id) {
+    if (g_stats->num_segments < segment_id && g_stats->segments[segment_id]->segment_id == segment_id) {
         uint32_t i = segment_id;
-        if (g_stats->segments[i].segment_id == segment_id) {
+        if (g_stats->segments[i]->segment_id == segment_id) {
             segment_info_t* seg = &g_stats->segments[i];
 
             esp_err_t res = ESP_OK;
@@ -334,7 +355,7 @@ esp_err_t paging_notify_segment_deallocation(paging_stats_t* g_stats, uint32_t s
             }
 
             seg->has_page = false;
-            seg->data = NULL;
+            //seg->data = NULL;
             seg->is_modified = false;
             seg->is_paged = false;
             seg->access_count = 0;
@@ -349,9 +370,9 @@ esp_err_t paging_notify_segment_deallocation(paging_stats_t* g_stats, uint32_t s
 
 // DON'T use it in M3Memory
 esp_err_t paging_notify_segment_remove(paging_stats_t* g_stats, uint32_t segment_id) {
-    if (g_stats->num_segments < segment_id && g_stats->segments[segment_id].segment_id == segment_id) {
+    if (g_stats->num_segments < segment_id && g_stats->segments[segment_id]->segment_id == segment_id) {
         uint32_t i = segment_id;
-        if (g_stats->segments[i].segment_id == segment_id) {
+        if (g_stats->segments[i]->segment_id == segment_id) {
             memmove(&g_stats->segments[i], 
                    &g_stats->segments[i + 1],
                    (g_stats->num_segments - i - 1) * sizeof(segment_info_t));

@@ -19,6 +19,7 @@ void disable_wdt_reg();
 void reset_wdt();
 void watchdog_task_register();
 void handle_watchdog();
+void print_ram_info(void);
 void device_info(void);
 
 #endif  // HELLOESP_DEVICE_H
