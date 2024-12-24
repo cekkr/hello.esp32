@@ -150,7 +150,7 @@ esp_err_t paging_deinit(paging_stats_t * g_stats){
     }
 }
 
-esp_err_t paging_notify_segment_creation(paging_stats_t* g_stats, segment_info_t* segment) {
+esp_err_t paging_notify_segment_creation(paging_stats_t* g_stats, segment_info_t** segment) {
     size_t offset = 0; // default value
     uint32_t segment_id = g_stats->num_segments++;
 
@@ -169,16 +169,17 @@ esp_err_t paging_notify_segment_creation(paging_stats_t* g_stats, segment_info_t
         g_stats->segments = new_segments;
     }        
 
-    segment = &g_stats->segments[g_stats->num_segments++];
-    segment->segment_id = segment_id;
-    segment->data = NULL;
-    segment->size = g_stats->segment_size;
-    segment->offset = offset;
-    segment->is_paged = false;
-    segment->is_modified = false;
-    segment->access_count = 0;
-    segment->last_access = esp_timer_get_time();
-    segment->usage_frequency = 0.0f;
+    *segment = &g_stats->segments[g_stats->num_segments++];
+
+    (*segment)->segment_id = segment_id;
+    (*segment)->data = NULL;
+    (*segment)->size = g_stats->segment_size;
+    (*segment)->offset = offset;
+    (*segment)->is_paged = false;
+    (*segment)->is_modified = false;
+    (*segment)->access_count = 0;
+    (*segment)->last_access = esp_timer_get_time();
+    (*segment)->usage_frequency = 0.0f;
     
     // Aggiorna memoria disponibile
     g_stats->available_memory = g_stats->handlers->get_available_memory(g_stats);
