@@ -133,6 +133,13 @@ void safe_printf(const char* format, ...);
 } while(0)
 
 ///
-/// Global static vars
+/// Settings
 ///
 
+#include "he_settings.h"
+static settings_t settings;
+
+///
+/// Global static vars
+///
+//static bool sd_card_initialized = false;

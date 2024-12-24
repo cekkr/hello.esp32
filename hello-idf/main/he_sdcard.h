@@ -20,6 +20,6 @@
 #include "he_mgt_string.h"
 
 void init_sd_pins();
-void init_sd_card();
+bool init_sd_card();
 void mostra_info_sd(const char* mount_point);
 #endif

@@ -81,7 +81,9 @@ void init_uart() {
 ////
 ////
 
-void app_main(void) {     
+void app_main(void) {   
+    settings = settings_default;
+
     // Inizializzazione della seriale
     init_uart();
 
@@ -105,7 +107,13 @@ void app_main(void) {
     ////////////////////////////////////////////////////////////////////////
 
     ESP_LOGI(TAG, "\nStarting SD card test...\n");
-    init_sd_card(); 
+    if(init_sd_card()){
+        settings._sd_card_initialized = true;
+        load_global_settings();
+    }
+    else {
+        ESP_LOGE(TAG, "Failed to initialize SD card");
+    }
 
     // Start tasks monitor
     #if ENABLE_MONITOR

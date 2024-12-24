@@ -14,10 +14,12 @@
 #include "driver/spi_common.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+
 #include "he_defines.h"
 #include "he_mgt_string.h"
 #include "he_screen.h"
 #include "he_sdcard.h"
+#include "he_io.h"
 
 void init_sd_pins() {
     ESP_LOGI(TAG, "Initializing SD pins with pull-ups...\n");
@@ -82,7 +84,7 @@ void init_sd_pins() {
     vTaskDelay(pdMS_TO_TICKS(100));
 }
 
-void init_sd_card() {
+bool init_sd_card() {
     esp_err_t ret;
 
     // Inizializza i pin
@@ -111,7 +113,7 @@ void init_sd_card() {
     ret = spi_bus_initialize(SPI2_HOST, &bus_cfg, SPI_DMA_CHAN);
     if (ret != ESP_OK) {
         ESP_LOGI(TAG, "Failed to initialize bus. Error: %s\n", esp_err_to_name(ret));
-        return;
+        return false;
     }
 
     ESP_LOGI(TAG, "SPI bus initialized successfully\n");
@@ -148,7 +150,7 @@ void init_sd_card() {
         ESP_LOGI(TAG, "3. Check if card works in a computer\n");
         ESP_LOGI(TAG, "4. Verify 3.3V power supply\n");
         ESP_LOGI(TAG, "5. Add 10kΩ pull-up resistors if not present\n");
-        return;
+        return false;
     }
 
     ESP_LOGI(TAG, "\nSD card mounted successfully!\n");
@@ -156,7 +158,24 @@ void init_sd_card() {
     ESP_LOGI(TAG, "Name: %s\n", card->cid.name);
     ESP_LOGI(TAG, "Type: %s\n", (card->ocr & (1 << 30)) ? "SDHC/SDXC" : "SDSC");
     ESP_LOGI(TAG, "Speed: %s\n", (card->csd.tr_speed > 25000000) ? "High Speed" : "Default Speed");
-    ESP_LOGI(TAG, "Size: %lluMB\n", ((uint64_t)card->csd.capacity) * card->csd.sector_size / (1024 * 1024));
+    ESP_LOGI(TAG, "Size: %lluMB\n", ((uint64_t)card->csd.capacity) * card->csd.sector_size / (1024 * 1024)); 
+
+    return true;   
+}
+
+void load_global_settings(){
+    char* settings_filename = malloc(MAX_FILENAME * sizeof(char));
+    char default_settings_filename[] = "settings.json";
+    prepend_mount_point(&default_settings_filename, settings_filename);
+
+    char* json_content;
+    size_t* json_size = 0;
+    read_file_to_memory(settings_filename, &json_content, json_size);
+
+    settings_load(json_content, &settings);
+    
+    free(settings_filename);
+    free(json_content);
 }
 
 void mostra_info_sd(const char* mount_point) {    
