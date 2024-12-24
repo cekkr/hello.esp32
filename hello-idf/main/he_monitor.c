@@ -39,8 +39,6 @@ void monitor_printf(const char* format, ...) {
     if(serial_mutex && xSemaphoreTake(serial_mutex, pdMS_TO_TICKS(SERIAL_SEMAPHORE_WAIT_MS)) != pdTRUE) {
         return; // Skip printing if can't get mutex
     }
-
-    uart_wait_tx_done(UART_NUM_0, portMAX_DELAY);
     
     printf(MONITOR_START);
     va_list args;
@@ -49,8 +47,7 @@ void monitor_printf(const char* format, ...) {
     va_end(args);
     printf(MONITOR_END);
     
-    uart_wait_tx_done(UART_NUM_0, portMAX_DELAY);
-    
+    uart_wait_tx_done(UART_NUM_0, portMAX_DELAY);    
     if(serial_mutex) xSemaphoreGive(serial_mutex);
     //vTaskDelay(pdMS_TO_TICKS(10)); // 0.01s delay after printing
 }

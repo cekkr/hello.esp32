@@ -63,6 +63,7 @@ static const char *TAG = "HELLOESP";
 
 //#define SERIAL_BAUD 115200
 #define SERIAL_BAUD 230400
+#define SERIAL_SEMAPHORE_WAIT_MS 10
 
 ///
 /// SD and touch
@@ -88,7 +89,6 @@ static const char *TAG = "HELLOESP";
 
 #define ENABLE_MONITOR 1
 #define MONITOR_EVERY_SECONDS 4
-#define SERIAL_SEMAPHORE_WAIT_MS 50
 
 static SemaphoreHandle_t serial_mutex = NULL;
 static bool exclusive_serial_mode = false;

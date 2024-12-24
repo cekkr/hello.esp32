@@ -3,7 +3,7 @@
 void safe_printf(const char* format, ...) {
     if(serial_mutex){
         while(xSemaphoreTake(serial_mutex, pdMS_TO_TICKS(SERIAL_SEMAPHORE_WAIT_MS)) != pdTRUE) {
-            vTaskDelay(pdMS_TO_TICKS(10));
+            vTaskDelay(pdMS_TO_TICKS(SERIAL_SEMAPHORE_WAIT_MS));
         }
     }
     
