@@ -168,12 +168,12 @@ void load_global_settings(){
     char default_settings_filename[] = "settings.json";
     prepend_mount_point(&default_settings_filename, settings_filename);
 
-    char* json_content;
-    size_t* json_size = 0;
-    read_file_to_memory(settings_filename, &json_content, json_size);
+    uint8_t* json_content = NULL;
+    size_t json_size = 0;
+    read_file_to_memory(settings_filename, &json_content, &json_size);
 
-    settings_load(json_content, &settings);
-    
+    settings_load((const char*)json_content, &settings);
+
     free(settings_filename);
     free(json_content);
 }
