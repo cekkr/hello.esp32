@@ -62,5 +62,3 @@ typedef struct {
     size_t warning_threshold;   // es: 75% dello stack usato
     size_t critical_threshold;  // es: 90% dello stack usato
 } stack_monitor_config_t;
-
-void advancedStackMonitor(void *pvParameters);

@@ -1,7 +1,7 @@
 #include "he_defines.h"
 
 void safe_printf(const char* format, ...) {
-    if(serial_mutex != NULL){
+    if(serial_mutex){
         while(xSemaphoreTake(serial_mutex, pdMS_TO_TICKS(SERIAL_SEMAPHORE_WAIT_MS)) != pdTRUE) {
             vTaskDelay(pdMS_TO_TICKS(10));
         }
@@ -13,6 +13,6 @@ void safe_printf(const char* format, ...) {
     va_end(args);
     
     uart_wait_tx_done(UART_NUM_0, portMAX_DELAY);
-    xSemaphoreGive(serial_mutex);
+    if(serial_mutex) xSemaphoreGive(serial_mutex);
     vTaskDelay(pdMS_TO_TICKS(10));
 }
