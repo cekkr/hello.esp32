@@ -398,6 +398,8 @@ void serial_handler_task(void *pvParameters) {
     }
 
     shell_t shell = { 0 };
+    //shell_init(&shell); // useless
+
     shell.cwd = malloc(MAX_FILENAME*sizeof(char));
     if (!shell.cwd) {
         ESP_LOGE(TAG, "Failed to allocate memory for shell.cwd\n");
@@ -805,6 +807,7 @@ cleanup:
     //free(command);
     free(cmd_type);
     free(params);
+    shell_cleanup(&shell);
 
     WATCHDOG_END
 

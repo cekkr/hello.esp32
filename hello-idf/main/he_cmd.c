@@ -244,3 +244,79 @@ int process_command(shell_t* shell, char* cmd_str) {
     ESP_LOGI(TAG, "Unknown command: %s\n", argv[0]);
     return -1;
 }
+
+///
+/// Shell management
+///
+
+// Funzione per inizializzare la shell
+shell_t* shell_init(shell_t* shell) {
+    if(!shell)
+        shell = malloc(sizeof(shell_t));
+    
+    if (!shell) return NULL;
+    
+    shell->cwd = strdup("/");  // Directory iniziale
+    shell->variables = NULL;    // Lista variabili inizialmente vuota
+    return shell;
+}
+
+// Funzione per aggiungere/modificare una variabile
+int shell_set_variable(shell_t *shell, const char *name, const char *value) {
+    if (!shell || !name || !value) return -1;
+
+    // Cerca se la variabile esiste già
+    variable_t *curr = shell->variables;
+    while (curr) {
+        if (strcmp(curr->name, name) == 0) {
+            // Aggiorna il valore
+            free(curr->value);
+            curr->value = strdup(value);
+            return 0;
+        }
+        curr = curr->next;
+    }
+
+    // Crea una nuova variabile
+    variable_t *new_var = malloc(sizeof(variable_t));
+    if (!new_var) return -1;
+
+    new_var->name = strdup(name);
+    new_var->value = strdup(value);
+    new_var->next = shell->variables;
+    shell->variables = new_var;
+
+    return 0;
+}
+
+// Funzione per ottenere il valore di una variabile
+char* shell_get_variable(shell_t *shell, const char *name) {
+    if (!shell || !name) return NULL;
+
+    variable_t *curr = shell->variables;
+    while (curr) {
+        if (strcmp(curr->name, name) == 0) {
+            return curr->value;
+        }
+        curr = curr->next;
+    }
+    return NULL;
+}
+
+// Funzione per liberare la memoria
+void shell_cleanup(shell_t *shell) {
+    if (!shell) return;
+
+    // Libera la memoria delle variabili
+    variable_t *curr = shell->variables;
+    while (curr) {
+        variable_t *next = curr->next;
+        free(curr->name);
+        free(curr->value);
+        free(curr);
+        curr = next;
+    }
+
+    free((void*)shell->cwd);
+    free(shell);
+}

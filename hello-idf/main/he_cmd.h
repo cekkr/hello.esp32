@@ -13,9 +13,20 @@
 
 #define MAX_ARGS 32
 
+// Struttura per gestire una singola variabile
+typedef struct variable {
+    char *name;
+    char *value;
+    struct variable *next;  // Per implementare una lista collegata
+} variable_t;
+
+// Modificare la struttura shell per includere le variabili
 typedef struct shell {
-    const char *cwd; // Current working directory
+    const char *cwd;        // Current working directory
+    variable_t *variables;  // Puntatore alla prima variabile
 } shell_t;
+
+////////////////////////////////////////////////////////////////
 
 typedef struct {
     const char* command;
@@ -52,7 +63,13 @@ static const command_entry_t commands[] = {
     {NULL, NULL}  // Terminatore
 };
 
-// Funzione principale per l'elaborazione dei comandi
+// Process commands
 int process_command(shell_t* shell, char* cmd_str);
+
+// Shell
+shell_t* shell_init(shell_t* shell);
+int shell_set_variable(shell_t *shell, const char *name, const char *value);
+char* shell_get_variable(shell_t *shell, const char *name);
+void shell_cleanup(shell_t *shell);
 
 #endif
