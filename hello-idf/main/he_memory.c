@@ -150,9 +150,12 @@ esp_err_t paging_deinit(paging_stats_t * g_stats){
     }
 }
 
-esp_err_t paging_notify_segment_allocation(paging_stats_t* g_stats, uint32_t segment_id, size_t offset) {
-    // Verifica se il segmento esiste già
-    if (g_stats->num_segments < segment_id && g_stats->segments[segment_id].segment_id == segment_id) {
+esp_err_t paging_notify_segment_allocation(paging_stats_t* g_stats, segment_info_t* segment) {
+    size_t offset = 0; // default value
+    uint32_t segment_id = g_stats->num_segments++;
+
+    // For the moment, this check is always true
+    if (false && g_stats->num_segments < segment_id && g_stats->segments[segment_id].segment_id == segment_id) {
         return ESP_ERR_INVALID_STATE;
     }
     
@@ -164,9 +167,9 @@ esp_err_t paging_notify_segment_allocation(paging_stats_t* g_stats, uint32_t seg
             return ESP_ERR_NO_MEM;
         }
         g_stats->segments = new_segments;
-    }
-    
-    segment_info_t* segment = &g_stats->segments[g_stats->num_segments++];
+    }        
+
+    segment = &g_stats->segments[g_stats->num_segments++];
     segment->segment_id = segment_id;
     segment->size = g_stats->segment_size;
     segment->offset = offset;

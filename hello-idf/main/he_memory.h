@@ -62,7 +62,7 @@ typedef struct paging_stats {
 
 esp_err_t paging_init(paging_stats_t* g_stats, segment_handlers_t* handlers, size_t segment_size);
 esp_err_t paging_deinit(paging_stats_t * g_stats);
-esp_err_t paging_notify_segment_allocation(paging_stats_t* g_stats, uint32_t segment_id, size_t offset);
+esp_err_t paging_notify_segment_allocation(paging_stats_t* g_stats, segment_info_t* segment);
 esp_err_t paging_notify_segment_access(paging_stats_t* g_stats, uint32_t segment_id);
 esp_err_t paging_check_paging_needed(paging_stats_t* g_stats);
 esp_err_t paging_notify_segment_modification(paging_stats_t* g_stats, uint32_t segment_id);
