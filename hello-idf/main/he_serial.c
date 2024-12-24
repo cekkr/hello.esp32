@@ -771,12 +771,15 @@ void serial_handler_task(void *pvParameters) {
         }
         else if(strcmp(cmd_type, CMD_CMD) == 0){
             send_response(STATUS_OK, "Running command");
-            monitor_disable();
+
+            if(settings.disable_serial_monitor_during_run)
+                monitor_disable();
 
             process_command(&shell, params->cmdline);
             free(params->cmdline);
 
-            monitor_enable();
+            if(settings.disable_serial_monitor_during_run)
+                monitor_enable();
         }
         else if(strcmp(cmd_type, CMD_CHUNK) == 0){
             send_response(STATUS_ERROR, "Chunk out of context");
