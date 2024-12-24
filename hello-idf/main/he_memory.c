@@ -32,7 +32,12 @@ size_t default_get_available_memory(paging_stats_t* g_stats){
     return heap_caps_get_free_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
 }
 
+const bool HE_DEBUG_default_request_segment_paging = true;
 esp_err_t default_request_segment_paging(paging_stats_t* g_stats, uint32_t segment_id){
+    if(HE_DEBUG_default_request_segment_paging){
+        ESP_LOGI(TAG, "default_request_segment_paging: requested paging for segment %lu", segment_id);
+    }
+
     segment_info_t* segment = &g_stats->segments[segment_id];
     char* pageName = create_segment_page_name(g_stats->base_path, segment_id);
     esp_err_t res = write_data_chunk(pageName, *segment->data, g_stats->segment_size, 0);

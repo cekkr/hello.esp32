@@ -58,7 +58,7 @@ static const char *TAG = "HELLOESP";
 
 ////////////////////////////////////////////////////////////////////////
 // or Component config -> Driver configurations -> SPI configuration -> (x) Place SPI driver ISR function into IRAM   
-#define ENABLE_INTR_FLAG_IRAM_SPI 0 // for SPI interrupts
+#define ENABLE_INTR_FLAG_IRAM_SPI 1 // for SPI interrupts
 #define ENABLE_SPIRAM 0
 #define ENABLE_MONITOR 0
 
