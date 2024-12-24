@@ -67,7 +67,7 @@ char* generate_random_session_number() {
 //static paging_stats_t g_stats = {0};
 //static segment_handlers_t g_stats->handlers = {0};
 
-esp_err_t paging_init(paging_stats_t* g_stats, segment_handlers_t* handlers, size_t segment_size) {    
+esp_err_t paging_init(paging_stats_t** _g_stats, segment_handlers_t* handlers, size_t segment_size) {    
 
     if(!handlers) {
         return ESP_ERR_INVALID_ARG;
@@ -85,8 +85,9 @@ esp_err_t paging_init(paging_stats_t* g_stats, segment_handlers_t* handlers, siz
         handlers->request_segment_load = &default_request_segment_load;
     }
 
-    g_stats = malloc(sizeof(paging_stats_t));
+    *_g_stats = malloc(sizeof(paging_stats_t));
     
+    paging_stats_t* g_stats = *_g_stats;
     if(!g_stats) {
         return ESP_ERR_NO_MEM;
     }
