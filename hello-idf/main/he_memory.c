@@ -276,7 +276,10 @@ esp_err_t paging_notify_segment_deallocation(paging_stats_t* g_stats, uint32_t s
         if (g_stats->segments[i].segment_id == segment_id) {
             segment_info_t* seg = &g_stats->segments[i];
 
-            esp_err_t res = paging_delete_segment_page(g_stats, seg);
+            esp_err_t res = ESP_OK;
+            if(seg->has_page){
+                res = paging_delete_segment_page(g_stats, seg);
+            }
 
             seg->has_page = false;
             seg->data = NULL;
