@@ -119,7 +119,8 @@ esp_err_t paging_init(paging_stats_t** _g_stats, segment_handlers_t* handlers, s
 
     // Manage segments
     g_stats->segment_size = segment_size;
-    g_stats->segments = calloc(ALLOC_SEGMENTS_INFO_BY, sizeof(segment_info_t*));
+    g_stats->num_segments = ALLOC_SEGMENTS_INFO_BY;
+    g_stats->segments = calloc(g_stats->num_segments, sizeof(segment_info_t*));
     if (!g_stats->segments) {
         return ESP_ERR_NO_MEM;
     }
@@ -179,8 +180,14 @@ esp_err_t paging_notify_segment_creation(paging_stats_t* g_stats, segment_info_t
     // Se abbiamo raggiunto il limite, riallochiamo con 8 segmenti in più
     if (g_stats->num_segments % ALLOC_SEGMENTS_INFO_BY == 0) {
         size_t new_size = (g_stats->num_segments + ALLOC_SEGMENTS_INFO_BY) * sizeof(segment_info_t*);
+
+        if(HE_DEBUG_paging_notify_segment_creation){
+            ESP_LOGI(TAG, "paging_notify_segment_creation: reallocating g_stats->segments to %zu bytes", new_size);
+        }
+
         segment_info_t** new_segments = realloc(g_stats->segments, new_size);
         if (new_segments == NULL) {
+            ESP_LOGW(TAG, "paging_notify_segment_creation: realloc of g_stats->segments failed (%p, %p)", g_stats->segments, new_segments);
             return ESP_ERR_NO_MEM;
         }
         g_stats->segments = new_segments;
@@ -188,7 +195,7 @@ esp_err_t paging_notify_segment_creation(paging_stats_t* g_stats, segment_info_t
 
     segment_info_t* seg = malloc(sizeof(segment_info_t));    
 
-    if(HE_DEBUG_paging_notify_segment_creation){
+    if(HE_DEBUG_paging_notify_segment_creation && false){
         ESP_LOGI(TAG, "paging_notify_segment_creation: segment_id: %u, offset: %zu", segment_id, offset);
         ESP_LOGI(TAG, "paging_notify_segment_creation: g_stats->num_segments: %u", g_stats->num_segments);
         ESP_LOGI(TAG, "paging_notify_segment_creation: seg: %p", seg);
