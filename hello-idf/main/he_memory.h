@@ -30,6 +30,7 @@ typedef struct segment_info {
     size_t size;
     void** data;
     size_t offset;
+    bool is_allocated;
     bool is_paged;
     bool has_page;
     bool is_modified;
