@@ -52,7 +52,7 @@ void monitor_printf(const char* format, ...) {
     uart_wait_tx_done(UART_NUM_0, portMAX_DELAY);
     
     if(serial_mutex) xSemaphoreGive(serial_mutex);
-    vTaskDelay(pdMS_TO_TICKS(10)); // 0.01s delay after printing
+    //vTaskDelay(pdMS_TO_TICKS(10)); // 0.01s delay after printing
 }
 
 ////////////////////////////////////////////////////////////////
