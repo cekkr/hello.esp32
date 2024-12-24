@@ -47,7 +47,7 @@ static const int UART_BUFFER_SIZE = 1024;  // Cambiato da bool a int
 
 void init_uart() {
     serial_mutex = xSemaphoreCreateMutex();
-    
+
     uart_config_t uart_config = {
         .baud_rate = SERIAL_BAUD,
         .data_bits = UART_DATA_8_BITS,
@@ -116,6 +116,7 @@ void app_main(void) {
     ESP_LOGI(TAG, "\nStarting serial handler...\n");
     start_serial_handler();
 
+    ESP_LOGI(TAG, "\nInit SPI...\n");
     init_spi(); 
 
     ESP_LOGI(TAG, "Init TFT\n");

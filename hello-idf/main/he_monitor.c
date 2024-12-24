@@ -51,7 +51,7 @@ void monitor_printf(const char* format, ...) {
     
     uart_wait_tx_done(UART_NUM_0, portMAX_DELAY);
     
-    xSemaphoreGive(serial_mutex);
+    if(serial_mutex) xSemaphoreGive(serial_mutex);
     vTaskDelay(pdMS_TO_TICKS(10)); // 0.01s delay after printing
 }
 
@@ -133,7 +133,7 @@ void init_tasksMonitor(void) {
     #if configGENERATE_RUN_TIME_STATS != 1
     #error "configGENERATE_RUN_TIME_STATS must be 1 in FreeRTOSConfig.h"
     #endif
-    
+
     // Crea la task di monitoraggio con priorità più bassa
     xTaskCreate(taskStatusMonitor, "TaskMonitor", 4096, NULL, 0, NULL);
     
