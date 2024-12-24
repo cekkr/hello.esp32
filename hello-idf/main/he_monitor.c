@@ -26,7 +26,7 @@ void monitor_disable(){
 }
 
 void monitor_enable(){
-    disable_monitor = true;
+    disable_monitor = false;
     enable_log_debug();
 }
 
