@@ -67,6 +67,7 @@ char* generate_random_session_number() {
 //static paging_stats_t g_stats = {0};
 //static segment_handlers_t g_stats->handlers = {0};
 
+const bool HE_DEBUG_paging_init = false;
 esp_err_t paging_init(paging_stats_t** _g_stats, segment_handlers_t* handlers, size_t segment_size) {    
 
     if(!handlers) {
@@ -74,15 +75,25 @@ esp_err_t paging_init(paging_stats_t** _g_stats, segment_handlers_t* handlers, s
     }
 
     if(handlers->get_available_memory == NULL){
+        if(HE_DEBUG_paging_init) ESP_LOGI(TAG, "paging_init: setting default get_available_memory (%p)", default_get_available_memory);
         handlers->get_available_memory = &default_get_available_memory;
     }
 
     if(handlers->request_segment_paging == NULL){
+        if(HE_DEBUG_paging_init) ESP_LOGI(TAG, "paging_init: setting default request_segment_paging (%p)", default_request_segment_paging);
         handlers->request_segment_paging = &default_request_segment_paging;
     }
 
     if(handlers->request_segment_load == NULL){
+        if(HE_DEBUG_paging_init) ESP_LOGI(TAG, "paging_init: setting default request_segment_load (%p)", default_request_segment_load);
         handlers->request_segment_load = &default_request_segment_load;
+    }
+
+    if(HE_DEBUG_paging_init){
+        ESP_LOGI(TAG, "paging_init: handlers: %p, segment_size: %zu", handlers, segment_size);
+        ESP_LOGI(TAG, "paging_init: handlers->get_available_memory: %p", handlers->get_available_memory);
+        ESP_LOGI(TAG, "paging_init: handlers->request_segment_paging: %p", handlers->request_segment_paging);
+        ESP_LOGI(TAG, "paging_init: handlers->request_segment_load: %p", handlers->request_segment_load);
     }
 
     *_g_stats = malloc(sizeof(paging_stats_t));
@@ -113,8 +124,12 @@ esp_err_t paging_init(paging_stats_t** _g_stats, segment_handlers_t* handlers, s
         return ESP_ERR_NO_MEM;
     }
     
-    //memcpy(&g_stats->handlers, handlers, sizeof(segment_handlers_t));
-    g_stats->handlers = handlers;
+    // not working: g_stats->handlers = handlers;    
+    g_stats->handlers = malloc(sizeof(segment_handlers_t));
+    if (!g_stats->handlers) {
+        return ESP_ERR_NO_MEM;
+    }
+    memcpy(g_stats->handlers, handlers, sizeof(segment_handlers_t));
 
     g_stats->total_memory = g_stats->handlers->get_available_memory(g_stats);
     g_stats->available_memory = g_stats->total_memory;
@@ -194,6 +209,7 @@ esp_err_t paging_notify_segment_allocation(paging_stats_t* g_stats, segment_info
     return ESP_OK;
 }
 
+const bool HE_DEBUG_paging_notify_segment_access = false;
 esp_err_t paging_notify_segment_access(paging_stats_t* g_stats, uint32_t segment_id) {
     segment_info_t* target = NULL;
     
@@ -204,6 +220,9 @@ esp_err_t paging_notify_segment_access(paging_stats_t* g_stats, uint32_t segment
     if (!target) {
         return ESP_ERR_NOT_FOUND;
     }
+
+    if(HE_DEBUG_paging_notify_segment_access)
+        ESP_LOGI("WASM3", "paging_notify_segment_access: target: %p", target);
 
     g_stats->last_segment_id = segment_id;
     
@@ -229,13 +248,30 @@ esp_err_t paging_notify_segment_access(paging_stats_t* g_stats, uint32_t segment
     }
     
     // Verifica necessità di paging per altri segmenti
+    if(HE_DEBUG_paging_notify_segment_access){
+        ESP_LOGI("WASM3", "paging_notify_segment_access: g_stats: %p", g_stats); 
+        ESP_LOGI("WASM3", "Calling paging_check_paging_needed at %p", paging_check_paging_needed);
+    }
+
     esp_err_t check_paging_needed = paging_check_paging_needed(g_stats);
 
     return check_paging_needed;
 }
 
+const bool HE_DEBUG_paging_check_paging_needed = true;
 esp_err_t paging_check_paging_needed(paging_stats_t* g_stats){
+    if(HE_DEBUG_paging_check_paging_needed){
+        ESP_LOGI(TAG, "paging_check_paging_needed: g_stats: %p", g_stats); 
+        ESP_LOGI(TAG, "paging_check_paging_needed: g_stats->handlers->get_available_memory: %p", g_stats->handlers->get_available_memory); 
+        ESP_LOGI(TAG, "flush");
+    }
+
     g_stats->available_memory = g_stats->handlers->get_available_memory(g_stats);
+
+    if(HE_DEBUG_paging_check_paging_needed){
+        ESP_LOGI(TAG, "paging_check_paging_needed: g_stats->handlers->get_available_memory executed (%lu)", g_stats->available_memory);
+    }
+
     float total_frequency = 0.0f;
     g_stats->hot_segments = 0;
     
@@ -252,6 +288,10 @@ esp_err_t paging_check_paging_needed(paging_stats_t* g_stats){
         
         if (segment->data != NULL && !segment->is_paged && segment->usage_frequency < g_stats->avg_segment_lifetime) {
             
+            if(HE_DEBUG_paging_check_paging_needed){
+                ESP_LOGI(TAG, "paging_check_paging_needed: calling g_stats->handlers->request_segment_paging (%p)", g_stats->handlers->request_segment_paging);
+            }
+
             esp_err_t err = g_stats->handlers->request_segment_paging(g_stats, segment->segment_id);
             if (err == ESP_OK) {
                 segment->is_paged = true;
