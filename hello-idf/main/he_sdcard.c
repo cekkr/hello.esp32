@@ -95,7 +95,7 @@ void init_sd_card() {
         .sclk_io_num = SD_SCK,
         .quadwp_io_num = -1,
         .quadhd_io_num = -1,
-        .max_transfer_sz = 4000,
+        //.max_transfer_sz = 4096, // buffer size       
         .flags = 
             SPICOMMON_BUSFLAG_MASTER | 
             SPICOMMON_BUSFLAG_GPIO_PINS |
@@ -119,7 +119,7 @@ void init_sd_card() {
     // Configurazione host con frequenza molto bassa per il debug
     sdmmc_host_t host = SDSPI_HOST_DEFAULT();
     host.slot = SPI2_HOST;
-    host.max_freq_khz = 2000; // Ridotto a 400KHz per il debug
+    host.max_freq_khz = 40000; // Ridotto a 400KHz per il debug, max 40 mhz
 
     sdspi_device_config_t slot_config = SDSPI_DEVICE_CONFIG_DEFAULT();
     slot_config.gpio_cs   = SD_CS;
@@ -127,7 +127,7 @@ void init_sd_card() {
 
     ESP_LOGI(TAG, "\nMounting SD card...\n");
     esp_vfs_fat_sdmmc_mount_config_t mount_config = {
-        .format_if_mount_failed = true,
+        .format_if_mount_failed = false,
         .max_files = 16,
         .allocation_unit_size = 512
     };
