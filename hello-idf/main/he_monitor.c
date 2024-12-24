@@ -36,19 +36,23 @@ void monitor_enable(){
 void monitor_printf(const char* format, ...) {
     if(exclusive_serial_mode || disable_monitor) return;
 
-    uart_wait_tx_done(UART_NUM_0, portMAX_DELAY);
+    if(serial_mutex && xSemaphoreTake(serial_mutex, pdMS_TO_TICKS(SERIAL_SEMAPHORE_WAIT_MS)) != pdTRUE) {
+        return; // Skip printing if can't get mutex
+    }
 
-    printf(MONITOR_START);
-    // example printf(MONITOR_START MONITOR_WARNING);
+    uart_wait_tx_done(UART_NUM_0, portMAX_DELAY);
     
+    printf(MONITOR_START);
     va_list args;
     va_start(args, format);
     vprintf(format, args);
     va_end(args);
-    
     printf(MONITOR_END);
-
+    
     uart_wait_tx_done(UART_NUM_0, portMAX_DELAY);
+    
+    xSemaphoreGive(serial_mutex);
+    vTaskDelay(pdMS_TO_TICKS(10)); // 0.01s delay after printing
 }
 
 ////////////////////////////////////////////////////////////////
@@ -172,17 +176,12 @@ void advancedStackMonitor(void *pvParameters) {
             lastLevel = currentLevel;
         }
         
-        vTaskDelay(pdMS_TO_TICKS(1000*3));
+        vTaskDelay(pdMS_TO_TICKS(1000*MONITOR_EVERY_SECONDS));
     }
 }
 
-void void_task(){}
-
 void example_task_monitor(){
     TaskHandle_t taskToMonitor;
-    
-    // Crea la task da monitorare
-    xTaskCreate(void_task, "MyTask", 4096, NULL, 5, &taskToMonitor);
     
     // Configura il monitoraggio
     stack_monitor_config_t config = {

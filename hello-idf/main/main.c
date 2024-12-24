@@ -46,6 +46,8 @@ void init_spi(){
 static const int UART_BUFFER_SIZE = 1024;  // Cambiato da bool a int
 
 void init_uart() {
+    serial_mutex = xSemaphoreCreateMutex();
+    
     uart_config_t uart_config = {
         .baud_rate = SERIAL_BAUD,
         .data_bits = UART_DATA_8_BITS,
