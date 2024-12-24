@@ -150,7 +150,7 @@ esp_err_t paging_deinit(paging_stats_t * g_stats){
     }
 }
 
-esp_err_t paging_notify_segment_allocation(paging_stats_t* g_stats, segment_info_t* segment) {
+esp_err_t paging_notify_segment_creation(paging_stats_t* g_stats, segment_info_t* segment) {
     size_t offset = 0; // default value
     uint32_t segment_id = g_stats->num_segments++;
 
@@ -171,6 +171,7 @@ esp_err_t paging_notify_segment_allocation(paging_stats_t* g_stats, segment_info
 
     segment = &g_stats->segments[g_stats->num_segments++];
     segment->segment_id = segment_id;
+    segment->data = NULL;
     segment->size = g_stats->segment_size;
     segment->offset = offset;
     segment->is_paged = false;
@@ -182,6 +183,12 @@ esp_err_t paging_notify_segment_allocation(paging_stats_t* g_stats, segment_info
     // Aggiorna memoria disponibile
     g_stats->available_memory = g_stats->handlers->get_available_memory(g_stats);
     
+    return ESP_OK;
+}
+
+esp_err_t paging_notify_segment_allocation(paging_stats_t* g_stats, segment_info_t* segment, void* data) {
+    segment->data = data;
+    //todo: ...
     return ESP_OK;
 }
 
@@ -241,7 +248,7 @@ esp_err_t paging_check_paging_needed(paging_stats_t* g_stats){
             break;
         }
         
-        if (!segment->is_paged && segment->usage_frequency < g_stats->avg_segment_lifetime) {
+        if (segment->data != NULL && !segment->is_paged && segment->usage_frequency < g_stats->avg_segment_lifetime) {
             
             esp_err_t err = g_stats->handlers->request_segment_paging(g_stats, segment->segment_id);
             if (err == ESP_OK) {
@@ -410,7 +417,7 @@ void* allocate_memory(size_t size, uint32_t* segment_id) {
     total_allocated += size;
     
     // Notifica paging system
-    paging_notify_segment_allocation(id, size, 0);
+    paging_notify_segment_creation(id, size, 0);
     
     *segment_id = id;
     return ptr;
