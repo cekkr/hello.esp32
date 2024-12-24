@@ -119,7 +119,8 @@ void init_sd_card() {
     // Configurazione host con frequenza molto bassa per il debug
     sdmmc_host_t host = SDSPI_HOST_DEFAULT();
     host.slot = SPI2_HOST;
-    host.max_freq_khz = 40000; // Ridotto a 400KHz per il debug, max 40 mhz
+    host.max_freq_khz = 20000; // Ridotto a 200KHz (2000) per il debug, max 40 mhz
+    //todo: create max_freq_khz global define
 
     sdspi_device_config_t slot_config = SDSPI_DEVICE_CONFIG_DEFAULT();
     slot_config.gpio_cs   = SD_CS;
