@@ -42,10 +42,21 @@ esp_err_t default_request_segment_paging(paging_stats_t* g_stats, uint32_t segme
     char* pageName = create_segment_page_name(g_stats->base_path, segment_id);
     esp_err_t res = write_data_chunk(pageName, *segment->data, g_stats->segment_size, 0);
     free(pageName);
+
+    if(res == ESP_OK){
+        free(*segment->data);
+        *segment->data = NULL;
+    }
+
     return res;
 }
 
+const bool HE_DEBUG_default_request_segment_load = true;
 esp_err_t default_request_segment_load(paging_stats_t* g_stats, uint32_t segment_id){
+    if(HE_DEBUG_default_request_segment_load){
+        ESP_LOGI(TAG, "default_request_segment_load: requested page load for segment %lu", segment_id);
+    }
+
     segment_info_t* segment = &g_stats->segments[segment_id];
     char* pageName = create_segment_page_name(g_stats->base_path, segment_id);
     esp_err_t res = read_data_chunk(pageName, *segment->data, g_stats->segment_size, 0);
@@ -102,6 +113,7 @@ esp_err_t paging_init(paging_stats_t** _g_stats, segment_handlers_t* handlers, s
     }
 
     *_g_stats = malloc(sizeof(paging_stats_t));
+    memset(*_g_stats, 0, sizeof(paging_stats_t));
     
     paging_stats_t* g_stats = *_g_stats;
     if(!g_stats) {
@@ -263,10 +275,10 @@ esp_err_t paging_notify_segment_access(paging_stats_t* g_stats, uint32_t segment
     if (target->is_paged) {
         esp_err_t err = g_stats->handlers->request_segment_load(g_stats, segment_id);
         if (err != ESP_OK) {
+            g_stats->page_faults++;
             return err;
         }
-        target->is_paged = false;
-        g_stats->page_faults++;
+        target->is_paged = false;        
     }
     
     // Aggiorna statistiche
@@ -333,7 +345,8 @@ esp_err_t paging_check_paging_needed(paging_stats_t* g_stats){
                 g_stats->page_writes++;
             }
             else {
-                //todo: LOGW
+                g_stats->page_faults++;
+                ESP_LOGW(TAG, "paging_check_paging: failed segment %d paging with error: %d", segment->segment_id, err);
             }
         }
         
