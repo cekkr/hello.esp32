@@ -110,7 +110,7 @@ void run_wasm(uint8_t* wasm, uint32_t fsize)
     result = m3_FindFunction(&f, runtime, "start");
     if (result) FATAL(env, "m3_FindFunction: %s", result);
 
-    ESP_LOGI(TAG, "run_wasm: Starting call\n");
+    if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "run_wasm: Starting call\n");
 
     const char* i_argv[] = {"main.wasm", NULL}; //todo: set right wasm name(?)
 
