@@ -13,9 +13,13 @@
 
 #define MAX_ARGS 32
 
+typedef struct shell {
+    const char *cwd; // Current working directory
+} shell_t;
+
 typedef struct {
     const char* command;
-    int (*handler)(int argc, char** argv);
+    int (*handler)(shell_t* shell, int argc, char** argv);
 } command_entry_t;
 
 // Funzione di utilità per rimuovere gli spazi iniziali e finali
@@ -28,22 +32,13 @@ static int parse_arguments(char* input, char** argv);
 ////
 ////
 
-// Handler per il comando "run"
-static int cmd_run(int argc, char** argv);
-
-// Handler per il comando "echo"
-static int cmd_echo(int argc, char** argv);
-
-// Handler per il comando "ls"
-static int cmd_ls(int argc, char** argv);
-
-static int cmd_restart(int argc, char** argv);
-
-static int cmd_core_dump(int argc, char** argv);
-
-static int cmd_devinfo(int argc, char** argv);
-
-static int cmd_help(int argc, char **argv);
+static int cmd_run(shell_t* shell, int argc, char** argv);
+static int cmd_echo(shell_t* shell, int argc, char** argv);
+static int cmd_ls(shell_t* shell, int argc, char** argv);
+static int cmd_restart(shell_t* shell, int argc, char** argv);
+static int cmd_core_dump(shell_t* shell, int argc, char** argv);
+static int cmd_devinfo(shell_t* shell, int argc, char** argv);
+static int cmd_help(shell_t* shell, int argc, char **argv);
 
 // Tabella dei comandi supportati
 static const command_entry_t commands[] = {
@@ -58,6 +53,6 @@ static const command_entry_t commands[] = {
 };
 
 // Funzione principale per l'elaborazione dei comandi
-int process_command(char* cmd_str);
+int process_command(shell_t* shell, char* cmd_str);
 
 #endif

@@ -56,7 +56,7 @@ static int parse_arguments(char* input, char** argv) {
 ////
 
 // Handler per il comando "run"
-static int cmd_run(int argc, char** argv) {
+static int cmd_run(shell_t* shell, int argc, char** argv) {
     if (argc < 1) {
         ESP_LOGI(TAG, "Usage: run <filename> [args...]\n");
         return -1;
@@ -64,7 +64,7 @@ static int cmd_run(int argc, char** argv) {
     
     // Preparazione del path e lettura del file come prima
     char* fullpath = malloc(sizeof(char)*MAX_FILENAME);
-    sprintf(fullpath, "%s/%s", SD_MOUNT_POINT, argv[0]);
+    sprintf(fullpath, "%s%s", shell->cwd, argv[0]);
 
     uint8_t* data = NULL;
     size_t size = 0;
@@ -152,7 +152,7 @@ static int cmd_run(int argc, char** argv) {
 }
 
 // Handler per il comando "echo"
-static int cmd_echo(int argc, char** argv) {   
+static int cmd_echo(shell_t* shell, int argc, char** argv) {   
     for (int i = 0; i < argc; i++) {
         ESP_LOGI(TAG, "%s ", argv[i]);
     }
@@ -161,29 +161,29 @@ static int cmd_echo(int argc, char** argv) {
 }
 
 // Handler per il comando "ls"
-static int cmd_ls(int argc, char** argv) {
+static int cmd_ls(shell_t* shell, int argc, char** argv) {
     const char* path = argc > 0 ? argv[0] : ".";
     ESP_LOGI(TAG, "Listing directory: %s\n", path);
     // Implementare la logica per listare i file
     return 0;
 }
 
-static int cmd_restart(int argc, char** argv){
+static int cmd_restart(shell_t* shell, int argc, char** argv){
     restart_device();
     return 0;
 }
 
-static int cmd_core_dump(int argc, char** argv){
+static int cmd_core_dump(shell_t* shell, int argc, char** argv){
     print_core_dump_info();
     return 0;
 }
 
-static int cmd_devinfo(int argc, char** argv){
+static int cmd_devinfo(shell_t* shell, int argc, char** argv){
     device_info();    
     return 0;
 }
 
-static int cmd_help(int argc, char **argv) {
+static int cmd_help(shell_t* shell, int argc, char **argv) {
     ESP_LOGI(TAG, "Comandi disponibili:");
     
     // Itera attraverso l'array dei comandi fino al terminatore
@@ -201,7 +201,7 @@ static int cmd_help(int argc, char **argv) {
 ////
 
 // Funzione principale per l'elaborazione dei comandi
-int process_command(char* cmd_str) {
+int process_command(shell_t* shell, char* cmd_str) {
     char* argv[MAX_ARGS];
     char cmd_copy[MAX_COMMAND_LENGTH];
     
@@ -230,7 +230,7 @@ int process_command(char* cmd_str) {
     // Cerca il comando nella tabella
     for (const command_entry_t* cmd = commands; cmd->command != NULL; cmd++) {
         if (strcmp(program, cmd->command) == 0) {
-            return cmd->handler(argc, argv);
+            return cmd->handler(shell, argc, argv);
         }
     }
     

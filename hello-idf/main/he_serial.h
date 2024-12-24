@@ -52,6 +52,7 @@ typedef enum {
 
 typedef struct command_params {
     char filename[MAX_FILENAME];
+    bool has_filename;
     size_t filesize;
     char file_hash[33];
     size_t chunk_size;

@@ -14,7 +14,6 @@
 #include "he_monitor.h"
 
 #include "he_serial.h"
-
 #include "he_cmd.h"
 
 void serial_write(const char* data, size_t len){
@@ -227,9 +226,9 @@ static command_status_t parse_command(const char* command, char* cmd_type, comma
                 params->file_hash) != 3) {
             return STATUS_ERROR_PARAMS;
         }
-        prepend_mount_point(filename, params->filename);
+        params->has_filename = true;
 
-        ESP_LOGI(TAG, "Writing path: %s\n", params->filename);
+        if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "Writing path: %s\n", params->filename);
     }
     else if (strncmp(command, CMD_CHUNK, strlen(CMD_CHUNK)) == 0) {
         strcpy(cmd_type, CMD_CHUNK);
@@ -244,7 +243,7 @@ static command_status_t parse_command(const char* command, char* cmd_type, comma
         if (sscanf(command + strlen(CMD_READ_FILE), "%s", filename) != 1) {
             return STATUS_ERROR_PARAMS;
         }
-        prepend_mount_point(filename, params->filename);
+        params->has_filename = true;
     }
     else if (strncmp(command, CMD_LIST_FILES, strlen(CMD_LIST_FILES)) == 0) {
         strcpy(cmd_type, CMD_LIST_FILES);
@@ -256,7 +255,7 @@ static command_status_t parse_command(const char* command, char* cmd_type, comma
         if (sscanf(command + strlen(CMD_DELETE_FILE), "%s", filename) != 1) {            
             return STATUS_ERROR_PARAMS;
         }
-        prepend_mount_point(filename, params->filename);
+        params->has_filename = true;
     }
     else if(strncmp(command, CMD_CHECK_FILE, strlen(CMD_CHECK_FILE)) == 0) {
         strcpy(cmd_type, CMD_CHECK_FILE);
@@ -265,7 +264,7 @@ static command_status_t parse_command(const char* command, char* cmd_type, comma
         if (sscanf(command + strlen(CMD_CHECK_FILE), "%s", filename) != 1) {            
             return STATUS_ERROR_PARAMS;
         }
-        prepend_mount_point(filename, params->filename);
+        params->has_filename = true;
     }
     else if(strncmp(command, CMD_CMD, strlen(CMD_CMD)) == 0) {
         strcpy(cmd_type, CMD_CMD);
@@ -398,6 +397,16 @@ void serial_handler_task(void *pvParameters) {
         goto cleanup;
     }
 
+    shell_t shell = { 0 };
+    shell.cwd = malloc(MAX_FILENAME*sizeof(char));
+    if (!shell.cwd) {
+        ESP_LOGE(TAG, "Failed to allocate memory for shell.cwd\n");
+        goto cleanup;
+    }
+
+    strcpy(shell.cwd, SD_MOUNT_POINT);
+    strcat(shell.cwd, "/");
+
     ESP_LOGI(TAG, "Serial handler started\n");
 
     while(1) {        
@@ -408,19 +417,14 @@ void serial_handler_task(void *pvParameters) {
                      uxTaskGetStackHighWaterMark(NULL));
         }
         
-        /*if (fgets(command, BUF_SIZE, stdin) != NULL) {
-            command[strcspn(command, "\n")] = 0;
-
-            if(false){ // debug echo
-                ESP_LOGW(TAG, "Command: %s", command);
-                continue;
-            }
-            
-            command_status_t parse_status = parse_command(command, cmd_type, params);            
-        }*/
-
        end_exclusive_serial();
+
+       params->has_filename = false;
        command_status_t parse_status = wait_for_command(cmd_type, params);
+
+       if(params->has_filename) {
+            prepend_cwd(shell.cwd, params->filename);
+       }
 
        if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "Working on cmd_type: %s\n", cmd_type);
 
@@ -457,7 +461,7 @@ void serial_handler_task(void *pvParameters) {
                 continue;
             }
 
-            ESP_LOGI(TAG, "Starting reading file...\n");
+            if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "Starting reading file...\n");
             FILE* file = fopen(params->filename, "w");
             if (!file) {
                 char text[FILENAME_MAX + 128];
@@ -469,16 +473,16 @@ void serial_handler_task(void *pvParameters) {
 
             monitor_disable();
 
-            ESP_LOGI(TAG, "Calculating MD5\n");
+            if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "Calculating MD5\n");
             size_t total_received = 0;
             uint8_t chunk_buffer[1024];
             char calculated_hash[33];
             mbedtls_md5_context md5_ctx;
-            ESP_LOGI(TAG, "mbedtls_md5_init\n");
+            if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "mbedtls_md5_init\n");
             mbedtls_md5_init(&md5_ctx);
-            ESP_LOGI(TAG, "mbedtls_md5_init\n");
+            if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "mbedtls_md5_init\n");
             mbedtls_md5_starts(&md5_ctx);
-            ESP_LOGI(TAG, "mbedtls_md5_init COMPLETE\n");      
+            if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "mbedtls_md5_init COMPLETE\n");      
 
             sprintf(text, "OK:READY: Wait for chunks");    
             send_response(STATUS_OK, text);                  
@@ -513,7 +517,7 @@ void serial_handler_task(void *pvParameters) {
                 size_t to_read = params_chunk->chunk_size;
                 size_t total_read = 0;
 
-                ESP_LOGI(TAG, "Starting reading chunk of size %d\n", to_read);
+                if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "Starting reading chunk of size %d\n", to_read);
 
                 while (total_read < to_read) {
                     //ESP_LOGI(TAG, "serial_read_char()\n");
@@ -532,10 +536,10 @@ void serial_handler_task(void *pvParameters) {
 
                 // Verifica hash chunk
                 total_received += to_read;
-                ESP_LOGI(TAG, "Read %d of %d\n", total_received, params->filesize);
-                ESP_LOGI(TAG, "Verifying chunk MD5\n");
+                if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "Read %d of %d\n", total_received, params->filesize);
+                if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "Verifying chunk MD5\n");
                 calculate_md5(chunk_buffer, total_read, calculated_hash);
-                ESP_LOGI(TAG, "calculate_md5 done.\n");
+                if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "calculate_md5 done.\n");
                 if (strcmp(calculated_hash, params_chunk->chunk_hash) != 0) {
                     fclose(file);
                     unlink(params->filename);
@@ -555,7 +559,7 @@ void serial_handler_task(void *pvParameters) {
                 continue;
             }
 
-            ESP_LOGI(TAG, "All data received\n");
+            if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "All data received\n");
 
             if(true){ // IGNORE_FINAL_FILE_HASH 
                 // Verifica hash finale
@@ -566,7 +570,7 @@ void serial_handler_task(void *pvParameters) {
 
                 fclose(file);
 
-                ESP_LOGI(TAG, "Verifying total hash...\n");
+                if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "Verifying total hash...\n");
                 if (strcmp(calculated_hash, params->file_hash) != 0) {
                     unlink(params->filename);
                     send_response(STATUS_ERROR, "File hash mismatch");
@@ -769,7 +773,7 @@ void serial_handler_task(void *pvParameters) {
             send_response(STATUS_OK, "Running command");
             monitor_disable();
 
-            process_command(params->cmdline);
+            process_command(&shell, params->cmdline);
             free(params->cmdline);
 
             monitor_enable();

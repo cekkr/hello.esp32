@@ -133,6 +133,26 @@ esp_err_t prepend_mount_point(const char* filename, char* full_path) {
     return ESP_OK;
 }
 
+esp_err_t prepend_cwd(const char* cwd, char* full_path) {
+    if (cwd == NULL || full_path == NULL) {
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    if (strlen(cwd) + strlen(full_path) + 1 > MAX_FILENAME) {
+        return ESP_ERR_INVALID_SIZE;
+    }
+
+    char* filename = malloc(MAX_FILENAME*sizeof(char));
+    strcpy(filename, full_path);
+
+    strcpy(full_path, cwd);
+    strcat(full_path, filename);
+
+    free(filename);
+
+    return ESP_OK;
+}
+
 esp_err_t create_dir_if_not_exist(const char* path) {
     struct stat st;
     esp_err_t ret = ESP_OK;
