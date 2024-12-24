@@ -122,7 +122,7 @@ void taskStatusMonitor(void *pvParameters) {
         }
         
         end:
-        monitor_printf("!!clear!!");
+        monitor_printf("!!end!!");
         vTaskDelay(pdMS_TO_TICKS(1000*MONITOR_EVERY_SECONDS));
     }
 }
