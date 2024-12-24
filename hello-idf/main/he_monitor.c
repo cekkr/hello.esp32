@@ -39,7 +39,7 @@ void monitor_printf(const char* format, ...) {
     if(serial_mutex && xSemaphoreTake(serial_mutex, pdMS_TO_TICKS(SERIAL_SEMAPHORE_WAIT_MS)) != pdTRUE) {
         return; // Skip printing if can't get mutex
     }
-    
+
     printf(MONITOR_START);
     va_list args;
     va_start(args, format);
@@ -63,8 +63,7 @@ void taskStatusMonitor(void *pvParameters) {
     
     while(1) {
         if(exclusive_serial_mode || disable_monitor) {
-            vTaskDelay(pdMS_TO_TICKS(1000));
-            continue;
+            goto end;
         }
 
         monitor_printf("!!clear!!");
@@ -80,6 +79,10 @@ void taskStatusMonitor(void *pvParameters) {
             monitor_printf("Min Free Heap: %u bytes\n", esp_get_minimum_free_heap_size());
             
             for(int i = 0; i < uxArraySize; i++) {
+                if(exclusive_serial_mode || disable_monitor) {
+                    goto end;
+                }
+
                 TaskStatus_t status = pxTaskStatusArray[i];
 
                 // Calculate CPU usage percentage
@@ -118,6 +121,8 @@ void taskStatusMonitor(void *pvParameters) {
             monitor_printf("Failed to allocate memory for monitoring");
         }
         
+        end:
+        monitor_printf("!!clear!!");
         vTaskDelay(pdMS_TO_TICKS(1000*MONITOR_EVERY_SECONDS));
     }
 }
