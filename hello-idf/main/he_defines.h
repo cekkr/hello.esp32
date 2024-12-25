@@ -31,8 +31,41 @@ static const char *TAG = "HELLOESP";
 
 #define SERIAL_TASK_ADV 1
 #define SERIAL_TASK_CORE 0
+#define SERIAL_TASK_PRIORITY 5
 
-/// WASM 3
+////////////////////////////////////////////////////////////////
+///////////// SERIAL_WRITER_BROKER /////////////////////////////
+////////////////////////////////////////////////////////////////
+
+#define LOG_BUFFER_SIZE 2048
+
+#define SERIAL_WRITER_BROKER_ENABLE 1
+#define SERIAL_WRITER_BROKER_TASK_CORE 0
+#define SERIAL_WRITER_BROKER_TASK_PRIORITY 5
+#define SERIAL_WRITER_BROKER_TASK_STACK_SIZE (8*1024)
+
+#if SERIAL_WRITER_BROKER_ENABLE
+static bool serial_writer_broker_connected = false;
+static const char serial_writer_broker_name[] = "serial_writer_broker";
+static const char serial_writer_sender_name[] = "serial_writer_sender";
+#endif
+
+void serial_write(const char* data, size_t len);
+void* serial_print(const char* msg);
+
+////////////////////////////////////////////////////////////////
+/////////////////////// TASK BROKER ////////////////////////////
+////////////////////////////////////////////////////////////////
+
+#define MAX_TASKS 10
+#define MAX_TASK_NAME_LENGTH 16
+#define MAX_MESSAGE_SIZE LOG_BUFFER_SIZE
+#define BROKER_QUEUE_SIZE 20
+
+////////////////////////////////////////////////////////////////
+///////////////////////// WASM 3 ///////////////////////////////
+////////////////////////////////////////////////////////////////
+
 #define WASM_TASK_ADV 1
 #define WASM_TASK_CORE 1
 
@@ -40,7 +73,10 @@ static const char *TAG = "HELLOESP";
 #define WASM_TASK_SIZE WASM_STACK_SIZE + (16*1024)
 #define WASM_TASK_PRIORITY 5
 
-////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+//////////////////////// WATCHDOG //////////////////////////////
+////////////////////////////////////////////////////////////////
+
 #define ENABLE_WATCHDOG 0
 
 #if ENABLE_WATCHDOG
@@ -108,9 +144,7 @@ static SemaphoreHandle_t serial_mutex = NULL;
 static bool exclusive_serial_mode = false;
 static bool disable_monitor = false;
 
-void safe_printf(const char* format, ...);
-
-#define LOG_BUFFER_SIZE 2048
+void safe_printf(const char* format, size_t length, ...);
 
 #define LOG_COLOR_BLACK   "30"
 #define LOG_COLOR_RED     "31"
@@ -124,26 +158,26 @@ void safe_printf(const char* format, ...);
 
 #define ESP_LOGD(tag, format, ...) do { \
    char log_buf[LOG_BUFFER_SIZE]; \
-   snprintf(log_buf, LOG_BUFFER_SIZE, LOG_COLOR(LOG_COLOR_CYAN) "D (%s) %s: " format LOG_COLOR_RESET "\n", esp_log_system_timestamp(), tag, ##__VA_ARGS__); \
-   safe_printf("%s", log_buf); \
+   size_t len = snprintf(log_buf, LOG_BUFFER_SIZE, LOG_COLOR(LOG_COLOR_CYAN) "D (%s) %s: " format LOG_COLOR_RESET "\n", esp_log_system_timestamp(), tag, ##__VA_ARGS__); \
+   safe_printf("%s", len, log_buf); \
 } while(0)
 
 #define ESP_LOGI(tag, format, ...) do { \
    char log_buf[LOG_BUFFER_SIZE]; \
-   snprintf(log_buf, LOG_BUFFER_SIZE, LOG_COLOR(LOG_COLOR_GREEN) "I (%s) %s: " format LOG_COLOR_RESET "\n", esp_log_system_timestamp(), tag, ##__VA_ARGS__); \
-   safe_printf("%s", log_buf); \
+   size_t len = snprintf(log_buf, LOG_BUFFER_SIZE, LOG_COLOR(LOG_COLOR_GREEN) "I (%s) %s: " format LOG_COLOR_RESET "\n", esp_log_system_timestamp(), tag, ##__VA_ARGS__); \
+   safe_printf("%s", len, log_buf); \
 } while(0)
 
 #define ESP_LOGW(tag, format, ...) do { \
    char log_buf[LOG_BUFFER_SIZE]; \
-   snprintf(log_buf, LOG_BUFFER_SIZE, LOG_COLOR(LOG_COLOR_BROWN) "W (%s) %s: " format LOG_COLOR_RESET "\n", esp_log_system_timestamp(), tag, ##__VA_ARGS__); \
-   safe_printf("%s", log_buf); \
+   size_t len = snprintf(log_buf, LOG_BUFFER_SIZE, LOG_COLOR(LOG_COLOR_BROWN) "W (%s) %s: " format LOG_COLOR_RESET "\n", esp_log_system_timestamp(), tag, ##__VA_ARGS__); \
+   safe_printf("%s", len, log_buf); \
 } while(0)
 
 #define ESP_LOGE(tag, format, ...) do { \
    char log_buf[LOG_BUFFER_SIZE]; \
-   snprintf(log_buf, LOG_BUFFER_SIZE, LOG_COLOR(LOG_COLOR_RED) "E (%s) %s: " format LOG_COLOR_RESET "\n", esp_log_system_timestamp(), tag, ##__VA_ARGS__); \
-   safe_printf("%s", log_buf); \
+   size_t len = snprintf(log_buf, LOG_BUFFER_SIZE, LOG_COLOR(LOG_COLOR_RED) "E (%s) %s: " format LOG_COLOR_RESET "\n", esp_log_system_timestamp(), tag, ##__VA_ARGS__); \
+   safe_printf("%s", len, log_buf); \
 } while(0)
 
 ///

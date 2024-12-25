@@ -1,8 +1,6 @@
 // task_broker.c
 #include "he_task_broker.h"
 
-static const char* TAG = "TASK_BROKER";
-
 // Struttura per gestire le informazioni di ogni task
 typedef struct {
     char name[MAX_TASK_NAME_LENGTH];

@@ -5,27 +5,68 @@
 #include "esp_log.h"
 #include <errno.h>
 #include "driver/uart.h"     // Per UART_NUM_0 e altre costanti UART
-#include "esp_task_wdt.h"
 #include <dirent.h>
-#include "mbedtls/md5.h"
+
+#include "he_task_broker.h"
 #include "he_defines.h"
 #include "he_device.h"
-#include "he_sdcard.h"
 #include "he_monitor.h"
 
 #include "he_serial.h"
 #include "he_cmd.h"
 #include "he_io.h"
+#include "portmacro.h"
 
-void serial_write(const char* data, size_t len){
-    uart_write_bytes(UART_NUM_0, data, len);
-    uart_wait_tx_done(UART_NUM_0, portMAX_DELAY);
+///
+/// Serial writer broker
+///
+
+void serial_writer_broker_task(void *pvParameters){
+    if(serial_writer_broker_connected){
+        ESP_LOGW(TAG, "Serial writer broker already connected");
+        return;
+    }    
+
+    if(!broker_register_task(serial_writer_broker_name)){
+        ESP_LOGE(TAG, "Failed to register task %s", serial_writer_broker_name);
+        return;
+    }
+
+    if(!broker_register_task(serial_writer_sender_name)){
+        ESP_LOGE(TAG, "Failed to register task %s", serial_writer_sender_name);
+        return;
+    }
+
+    serial_writer_broker_connected = true;
+    ESP_LOGI(TAG, "Serial broker writer connected");
+
+    broker_message_t msg;
+    while(1) {        
+        // Ricevi messaggi
+        if (broker_receive_message(serial_writer_broker_name, &msg, portMAX_DELAY)) {
+            char* message = (char*)(msg.data);
+            
+            uart_write_bytes(UART_NUM_0, message, msg.data_length);
+            uart_wait_tx_done(UART_NUM_0, portMAX_DELAY);
+        }
+    }
 }
 
-void serial_write_auto(const char* data) {
-    uart_write_bytes(UART_NUM_0, data, strlen(data));
-    uart_wait_tx_done(UART_NUM_0, portMAX_DELAY);    
+void init_serial_writer_broker(){
+    BaseType_t ret = xTaskCreatePinnedToCore(
+        serial_handler_task,
+        "serial_handler",
+        SERIAL_WRITER_BROKER_TASK_STACK_SIZE,     // Aumentato a 8KB
+        NULL,
+        SERIAL_WRITER_BROKER_TASK_PRIORITY,              // Priorità media
+        NULL,           // Non ci serve l'handle
+        SERIAL_WRITER_BROKER_TASK_CORE               // Core 1
+    );
 }
+
+///
+///
+///
 
 void begin_exclusive_serial() {
     if(!EXCLUSIVE_SERIAL_ON_CMD) return;
@@ -81,13 +122,13 @@ char serial_read_char_or_null() {
 
 // Funzione per inviare la risposta
 static void send_response(command_status_t status, const char* message) {
-    char buffer[1024];
+    char buffer[LOG_BUFFER_SIZE];
     switch(status) {
         case STATUS_OK:
-            sprintf(buffer, "OK: %s\n", message);            
+            sprintf(buffer, "!!OK!!: %s\n", message);            
             break;
         default:
-            sprintf(buffer, "ERROR: %s\n", message);
+            sprintf(buffer, "!!ERROR!!: %s\n", message);
             break;
     }
 
@@ -415,7 +456,8 @@ void serial_handler_task(void *pvParameters) {
 
     ESP_LOGI(TAG, "Default shell cwd: %s\n", shell.cwd);
 
-    ////////////////////////////////
+    ////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
     ESP_LOGI(TAG, "Serial handler started\n");
 
@@ -841,6 +883,10 @@ cleanup:
 }
 
 esp_err_t start_serial_handler(void) {
+    #if SERIAL_WRITER_BROKER_ENABLE
+    init_serial_writer_broker();
+    #endif
+
     BaseType_t ret;
     if(SERIAL_TASK_ADV){
         ret = xTaskCreatePinnedToCore(
@@ -848,7 +894,7 @@ esp_err_t start_serial_handler(void) {
             "serial_handler",
             SERIAL_STACK_SIZE,     // Aumentato a 8KB
             NULL,
-            5,              // Priorità media
+            SERIAL_TASK_PRIORITY,              // Priorità media
             NULL,           // Non ci serve l'handle
             SERIAL_TASK_CORE               // Core 1
         );
@@ -859,7 +905,7 @@ esp_err_t start_serial_handler(void) {
             "serial_handler",
             SERIAL_STACK_SIZE,
             NULL, // params
-            5,
+            SERIAL_TASK_PRIORITY,
             NULL // handler
         );      
     }

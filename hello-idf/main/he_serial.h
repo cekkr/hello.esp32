@@ -59,8 +59,7 @@ typedef struct command_params {
     char* cmdline;
 } command_params_t;
 
-void serial_write(const char* data, size_t len);
-void serial_write_auto(const char* data);
+////////////////////////////////
 void begin_exclusive_serial();
 void end_exclusive_serial();
 char serial_read_char();

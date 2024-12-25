@@ -2,17 +2,14 @@
 #ifndef TASK_BROKER_H
 #define TASK_BROKER_H
 
+#include "he_defines.h"
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 #include "freertos/task.h"
 #include "esp_log.h"
 #include <string.h>
 #include <stdbool.h>
-
-#define MAX_TASKS 10
-#define MAX_TASK_NAME_LENGTH 16
-#define MAX_MESSAGE_SIZE 64
-#define BROKER_QUEUE_SIZE 20
 
 // Struttura del messaggio
 typedef struct {
@@ -22,6 +19,8 @@ typedef struct {
     size_t data_length;                     // Lunghezza dei dati
     uint8_t message_type;                   // Tipo di messaggio
 } broker_message_t;
+
+#define BROKER_MSG_TYPE_STRING 1
 
 // API pubbliche
 bool broker_init(void);

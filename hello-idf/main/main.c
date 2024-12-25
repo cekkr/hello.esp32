@@ -84,6 +84,9 @@ void init_uart() {
 void app_main(void) {   
     settings = settings_default;
 
+    // Init task broker
+    broker_init();
+
     // Inizializzazione della seriale
     init_uart();
 
@@ -100,10 +103,6 @@ void app_main(void) {
     //heap_caps_malloc_extmem_enable(20); // no PSRAM available, ergo useless       
 
     ////////////////////////////////////////////////////////////////////////
-
-    // Init task broker
-    broker_init();
-
     ////////////////////////////////////////////////////////////////////////
 
     ESP_LOGI(TAG, "\nStarting SD card test...\n");
