@@ -44,7 +44,7 @@ static const char *TAG = "HELLOESP";
 #define SERIAL_WRITER_BROKER_ENABLE 1
 #define SERIAL_WRITER_BROKER_TASK_CORE 0
 #define SERIAL_WRITER_BROKER_TASK_PRIORITY 5
-#define SERIAL_WRITER_BROKER_TASK_STACK_SIZE (8*1024)
+#define SERIAL_WRITER_BROKER_TASK_STACK_SIZE (16*1024)
 
 #if SERIAL_WRITER_BROKER_ENABLE
 static bool serial_writer_broker_connected = false;
@@ -131,7 +131,7 @@ static char* serial_wasm_read_string = NULL;
 ///
 
 #define MAX_CMD_LENGTH 512
-#define SERIAL_STACK_SIZE (1024*32)
+#define SERIAL_STACK_SIZE (1024*48)
 
 #define EXCLUSIVE_SERIAL_ON_CMD false
 
