@@ -47,7 +47,7 @@ static const char *TAG = "HELLOESP";
 #define SERIAL_WRITER_BROKER_TASK_STACK_SIZE (16*1024)
 
 #if SERIAL_WRITER_BROKER_ENABLE
-static bool serial_writer_broker_connected = false;
+extern bool serial_writer_broker_connected = false;
 static const char serial_writer_broker_name[] = "serial_writer_broker";
 static const char serial_writer_sender_name[] = "serial_writer_sender";
 #endif
@@ -96,8 +96,8 @@ void* serial_print(const char* msg);
 ///
 #define ENABLE_WATCHDOG_WASM3 0
 
-static bool serial_wasm_read = false; 
-static char* serial_wasm_read_string = NULL;
+extern bool serial_wasm_read = false; 
+extern char* serial_wasm_read_string = NULL;
 
 ///
 /// Serial and UART
@@ -142,9 +142,9 @@ static char* serial_wasm_read_string = NULL;
 #define ENABLE_MONITOR 1
 #define MONITOR_EVERY_SECONDS 4
 
-static SemaphoreHandle_t serial_mutex = NULL;
-static bool exclusive_serial_mode = false;
-static bool disable_monitor = false;
+extern SemaphoreHandle_t serial_mutex = NULL;
+extern bool exclusive_serial_mode = false;
+extern bool disable_monitor = false;
 
 void safe_printf(const char* format, size_t length, ...);
 
