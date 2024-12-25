@@ -66,10 +66,17 @@ void monitor_printf(const char* format, ...) {
     }
     
     // Seconda chiamata per effettuare la formattazione
-    size_t length = vsnprintf(buffer, required_length, format, args_copy);
+    vsnprintf(buffer, required_length, format, args_copy);
     va_end(args_copy);
 
-    safe_printf(buffer, required_length);
+    size_t tot_len = (required_length + strlen(MONITOR_START) + strlen(MONITOR_END)+1);
+    char* buffer2Print = (char*)malloc(tot_len*sizeof(char));
+    sprintf(buffer2Print, "%s%s%s", MONITOR_START, buffer, MONITOR_END);
+    free(buffer);
+
+    safe_printf(buffer2Print);
+
+    free(buffer2Print);
 
     #else
     settings_t* settings = get_main_settings();
