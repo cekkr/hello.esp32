@@ -224,7 +224,7 @@ M3Result wasm_esp_read_serial(IM3Runtime runtime, IM3ImportContext *ctx, uint64_
 
         *raw_return = retStr;
         
-        free(settings->_serial_wasm_read_string);
+        m3_free(_mem, settings->_serial_wasm_read_string);
         settings->_serial_wasm_read_string = NULL;
     }
     else {
