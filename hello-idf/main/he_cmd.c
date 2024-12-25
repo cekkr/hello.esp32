@@ -84,6 +84,7 @@ static int cmd_run(shell_t* shell, int argc, char** argv) {
         
         params->wasm_data = data;
         params->wasm_size = size;
+        params->shell = shell;
         
         // Crea la task
         TaskHandle_t task_handle;

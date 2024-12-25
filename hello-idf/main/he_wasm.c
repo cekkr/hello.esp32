@@ -38,7 +38,7 @@ bool prepare_wasm_execution(const uint8_t* wasm_data, size_t size) {
 const bool HELLOESP_RUN_WASM_WDT = ENABLE_WATCHDOG_WASM3 && ENABLE_WATCHDOG;
 const bool HELLOESP_WASM_RUNTIME_AT_PARSE = true;
 const bool HELLOESP_DEBUG_run_wasm = false;
-void run_wasm(uint8_t* wasm, uint32_t fsize)
+void run_wasm(uint8_t* wasm, uint32_t fsize, shell_t* shell)
 {
     //disable_watchdog();
     if(HELLOESP_RUN_WASM_WDT) { WATCHDOG_ADD }   // Aggiunge il task corrente    
@@ -87,7 +87,7 @@ void run_wasm(uint8_t* wasm, uint32_t fsize)
     if (result) FATAL(env, "m3_LoadModule: %s", result);
 
     if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "run_wasm: m3_LinkEspWASI_Hello\n");
-    result = m3_LinkEspWASI_Hello (module); // runtime->modules
+    result = m3_LinkEspWASI_Hello (module, shell); // runtime->modules
     if (result) FATAL(env, "m3_LinkEspWASI: %s", result);
 
     // Linking native functions
@@ -149,7 +149,7 @@ void wasm_task(void* pvParameters) {
     wasm_task_params_t* params = (wasm_task_params_t*)pvParameters;
     
     // Esegui WASM in un contesto isolato
-    run_wasm(params->wasm_data, params->wasm_size);
+    run_wasm(params->wasm_data, params->wasm_size, params->shell);
     
     if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "wasm_task: after run_wasm execution");
 

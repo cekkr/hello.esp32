@@ -11,16 +11,10 @@
 #include "m3_api_esp_wasi.h"
 //#include "m3_core.h"
 
-/*typedef struct m3_wasi_context
-{
-    i32                     exit_code;
-    u32                     argc;
-    ccstr_t *               argv;
-} m3_wasi_context_t;*/
-
 typedef struct wasm_task_params{
     uint8_t* wasm_data;
     size_t wasm_size;
+    shell_t * shell;
 } wasm_task_params_t;
 
 typedef struct {
@@ -32,7 +26,7 @@ typedef struct {
 
 
 bool prepare_wasm_execution(const uint8_t* wasm_data, size_t size);
-void run_wasm(uint8_t* wasm, uint32_t fsize);
+void run_wasm(uint8_t* wasm, uint32_t fsize, shell_t* shell);
 void wasm_task(void* pvParameters);
 
 #endif // HELLOESP_WASM
