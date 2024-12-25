@@ -429,11 +429,6 @@ void serial_handler_task(void *pvParameters) {
         
         end_exclusive_serial();
 
-        if(params->cmdline != NULL){
-            free(params->cmdline);
-            params->cmdline = NULL;
-        }
-
         if(params->has_filename){
             params->filename[0] = '\0';
             params->has_filename = false;    
@@ -799,6 +794,8 @@ void serial_handler_task(void *pvParameters) {
 
                 serial_wasm_read = false;
                 send_response(STATUS_OK, "Command sent to WASM");
+
+                free(params->cmdline);
                 continue;
             }
 
