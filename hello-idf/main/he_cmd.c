@@ -211,11 +211,11 @@ static int cmd_help(shell_t* shell, int argc, char **argv) {
 // Funzione principale per l'elaborazione dei comandi
 int process_command(shell_t* shell, char* cmd_str) {
     char* argv[MAX_ARGS];
-    char cmd_copy[MAX_COMMAND_LENGTH];
+    char cmd_copy[MAX_CMD_LENGTH];
     
     // Copia il comando per non modificare l'originale
-    strncpy(cmd_copy, cmd_str, MAX_COMMAND_LENGTH - 1);
-    cmd_copy[MAX_COMMAND_LENGTH - 1] = '\0';
+    strncpy(cmd_copy, cmd_str, MAX_CMD_LENGTH - 1);
+    cmd_copy[MAX_CMD_LENGTH - 1] = '\0';
     
     // Rimuove spazi iniziali e finali
     char* trimmed_cmd = trim(cmd_copy);

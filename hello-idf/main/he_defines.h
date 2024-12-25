@@ -86,7 +86,7 @@ static char* serial_wasm_read_string = NULL;
 /// Serial and commands
 ///
 
-#define SERIAL_MAX_CMD_LENGTH 512
+#define MAX_CMD_LENGTH 512
 #define SERIAL_STACK_SIZE 1024*16
 
 ///

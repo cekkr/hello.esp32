@@ -269,7 +269,7 @@ static command_status_t parse_command(const char* command, char* cmd_type, comma
     else if(strncmp(command, CMD_CMD, strlen(CMD_CMD)) == 0) {
         strcpy(cmd_type, CMD_CMD);
 
-        char* cmd = malloc(sizeof(char) * SERIAL_MAX_CMD_LENGTH);
+        char* cmd = malloc(sizeof(char) * MAX_CMD_LENGTH);
         if (sscanf(command + strlen(CMD_CMD), " %[^]]", cmd) != 1) {
             return STATUS_ERROR_PARAMS;
         }
