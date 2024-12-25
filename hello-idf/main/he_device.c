@@ -135,10 +135,10 @@ size_t get_min_free_executable_size(void) {
 // Stampa tutte le informazioni sulla memoria eseguibile
 void print_executable_memory_info(void) {
     ESP_LOGI(TAG, "Executable Memory Information:");
-    ESP_LOGI(TAG, "Total size: %d bytes", get_total_executable_size());
-    ESP_LOGI(TAG, "Free size: %d bytes", get_free_executable_size());
-    ESP_LOGI(TAG, "Largest free block: %d bytes", get_largest_free_executable_block());
-    ESP_LOGI(TAG, "Minimum free size ever: %d bytes", get_min_free_executable_size());
+    ESP_LOGI(TAG, "Total size: %zu bytes", get_total_executable_size());
+    ESP_LOGI(TAG, "Free size: %zu bytes", get_free_executable_size());
+    ESP_LOGI(TAG, "Largest free block: %zu bytes", get_largest_free_executable_block());
+    ESP_LOGI(TAG, "Minimum free size ever: %zu bytes", get_min_free_executable_size());
     
     // Stampa informazioni dettagliate usando l'API integrata
     ESP_LOGI(TAG, "\nDetailed heap info:");
@@ -175,7 +175,7 @@ void print_flash_info(void) {
     esp_flash_get_size(NULL, &flash_size);
     
     ESP_LOGI(TAG, "Flash Memory:");
-    ESP_LOGI(TAG, "- Size: %lu MB", flash_size / (1024 * 1024));
+    ESP_LOGI(TAG, "- Size: %u MB", flash_size / (1024 * 1024));
     //ESP_LOGI(TAG, "- Speed: %u MHz", ESP_FLASH_SPEED / 1000000); // don't know where to include it
     /*ESP_LOGI(TAG, "- Mode: %s", 
         (ESP_FLASH_MODE == 0) ? "QIO" :
@@ -187,8 +187,8 @@ void print_flash_info(void) {
 // Informazioni sulla memoria RAM
 void print_ram_info(void) {
     ESP_LOGI(TAG, "RAM Info:");
-    ESP_LOGI(TAG, "- Total heap size: %lu bytes", esp_get_free_heap_size());
-    ESP_LOGI(TAG, "- Minimum free heap size: %lu bytes", esp_get_minimum_free_heap_size());
+    ESP_LOGI(TAG, "- Total heap size: %u bytes", esp_get_free_heap_size());
+    ESP_LOGI(TAG, "- Minimum free heap size: %u bytes", esp_get_minimum_free_heap_size());
     
     multi_heap_info_t info;
     heap_caps_get_info(&info, MALLOC_CAP_INTERNAL);

@@ -87,7 +87,7 @@ static char* serial_wasm_read_string = NULL;
 ///
 
 #define MAX_CMD_LENGTH 512
-#define SERIAL_STACK_SIZE 1024*16
+#define SERIAL_STACK_SIZE 1024*32
 
 ///
 /// Serial semaphore
