@@ -1,8 +1,6 @@
 #ifndef HELLOESP_NATIVE_H
 #define HELLOESP_NATIVE_H
 
-#include "he_defines.h"
-
 #include <stdint.h>
 #include <stdarg.h>
 

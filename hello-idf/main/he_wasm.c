@@ -3,8 +3,12 @@
 #include <unistd.h>
 #include "esp_log.h"
 
+#include "he_defines.h"
 #include "he_wasm.h"
 #include "he_wasm_native.h"
+
+#include "m3_env.h"
+#include "m3_api_esp_wasi.h"
 
 /////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////

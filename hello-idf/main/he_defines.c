@@ -1,4 +1,5 @@
 #include "driver/uart.h"
+#include "he_settings.h"
 #include "he_defines.h"
 
 #if SERIAL_WRITER_BROKER_ENABLE
@@ -7,7 +8,8 @@
 
 void serial_write(const char* data, size_t len){    
     #if SERIAL_WRITER_BROKER_ENABLE
-    if(serial_writer_broker_connected){
+    settings_t* settings = get_main_settings();
+    if(settings->_serial_writer_broker_connected){
         int tries = 0;
         while(!broker_send_message(serial_writer_sender_name, serial_writer_broker_name, (const uint8_t*)data, len, BROKER_MSG_TYPE_STRING))
         {

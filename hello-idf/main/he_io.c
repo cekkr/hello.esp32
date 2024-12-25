@@ -5,7 +5,10 @@
 #include "esp_log.h"
 #include "esp_err.h"
 #include "esp_rom_sys.h"
-//#include "soc/soc.h"
+#include "soc/soc.h"
+#include "esp_rom_sys.h"
+#include "esp_log.h"
+
 #include "he_defines.h"
 
 #include "he_io.h"

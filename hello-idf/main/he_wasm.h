@@ -4,11 +4,10 @@
 #include <time.h>
 #include <unistd.h>
 #include "esp_log.h"
-#include "he_defines.h"
-#include "he_device.h"
+
+#include "he_cmd.h"
 #include "wasm3.h"
-#include "m3_env.h"
-#include "m3_api_esp_wasi.h"
+
 //#include "m3_core.h"
 
 typedef struct wasm_task_params{

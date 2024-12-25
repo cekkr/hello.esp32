@@ -1,6 +1,5 @@
 
 #include "he_settings.h"
-
 #include "cJSON.h"
 
 char* settings_save(const settings_t* settings) {
@@ -70,7 +69,7 @@ settings_field_t settings_get_field(settings_t* settings, const char* field_name
 
     // Macro helper che confronta il nome del campo e imposta il risultato
     #define X(_name, _type, _default) \
-        if (strcmp(field_name, #_name) == 0) { \
+        if (#_name[0] != '_' && strcmp(field_name, #_name) == 0) { \
             result.found = true; \
             result.value = &settings->_name; \
             /* Determiniamo il tipo in base al tipo dichiarato nella macro */ \
@@ -90,4 +89,9 @@ settings_field_t settings_get_field(settings_t* settings, const char* field_name
     #undef X
 
     return result;
+}
+
+settings_t settings;
+settings_t* get_main_settings(){
+    return &settings;
 }

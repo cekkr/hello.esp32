@@ -4,11 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
-#include "esp_log.h"
 #include "esp_err.h"
-#include "esp_rom_sys.h"
-//#include "soc/soc.h"
-#include "he_defines.h"
+
 
 esp_err_t read_file_to_memory(const char* file_path, uint8_t** out_data, size_t* out_size);
 esp_err_t read_file_to_executable_memory(const char* file_path, uint8_t** out_data, size_t* out_size);

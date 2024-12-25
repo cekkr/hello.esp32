@@ -1,19 +1,8 @@
 #pragma once
 
-#include "sdkconfig.h"
-
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "esp_log.h"
-#include "esp_system.h"
 #include "string.h"  // per memset()
-#include "esp_heap_caps.h"  // per le funzioni di heap debugging
-
-#include <stdio.h>
-#include <string.h>
-#include <stdarg.h>
-
-#include "he_defines.h"
 
 ////////////////////////////////////////////////////////////////
 

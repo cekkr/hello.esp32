@@ -2,14 +2,27 @@
 #include "freertos/task.h"
 #include "esp_log.h"
 #include "esp_system.h"
+#include "he_settings.h"
 #include "string.h"  // per memset()
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
 
+#include "esp_log.h"
+#include "esp_system.h"
+#include "esp_heap_caps.h"  // per le funzioni di heap debugging
+#include "sdkconfig.h"
+
 #include "he_defines.h"
 #include "he_monitor.h"
 #include "he_device.h"
+
+#include <stdio.h>
+#include <string.h>
+#include <stdarg.h>
+
+#include "he_defines.h"
+
 
 
 ////////////////////////////////////////////////////////////////
@@ -20,12 +33,14 @@ void enable_log_debug(){
 }
 
 void monitor_disable(){
-    disable_monitor = true;
-    enable_log_debug();
+    settings_t* settings = get_main_settings();
+    settings->_disable_monitor = true;
+    enable_log_debug(); // ??
 }
 
 void monitor_enable(){
-    disable_monitor = false;
+    settings_t* settings = get_main_settings();
+    settings->_disable_monitor = false;
     enable_log_debug();
 }
 
@@ -33,9 +48,10 @@ void monitor_enable(){
 
 // Funzione proxy per i log del monitor
 void monitor_printf(const char* format, ...) {
-    if(exclusive_serial_mode || disable_monitor) return;
+    settings_t* settings = get_main_settings();
+    if(settings->_exclusive_serial_mode || settings->_disable_monitor) return;
 
-    if(serial_mutex && xSemaphoreTake(serial_mutex, pdMS_TO_TICKS(SERIAL_SEMAPHORE_WAIT_MS)) != pdTRUE) {
+    if(settings->_serial_mutex && xSemaphoreTake(settings->_serial_mutex, pdMS_TO_TICKS(SERIAL_SEMAPHORE_WAIT_MS)) != pdTRUE) {
         return; // Skip printing if can't get mutex
     }
 
@@ -47,7 +63,7 @@ void monitor_printf(const char* format, ...) {
     printf(MONITOR_END);
     
     uart_wait_tx_done(UART_NUM_0, portMAX_DELAY);    
-    if(serial_mutex) xSemaphoreGive(serial_mutex);
+    if(settings->_serial_mutex) xSemaphoreGive(settings->_serial_mutex);
     //vTaskDelay(pdMS_TO_TICKS(10)); // 0.01s delay after printing
 }
 
@@ -59,9 +75,11 @@ void taskStatusMonitor(void *pvParameters) {
     volatile UBaseType_t uxArraySize;
     uint32_t ulTotalRunTime, ulStatsAsPercentage;
     char pcWriteBuffer[50];
+
+    settings_t* settings = get_main_settings();
     
     while(1) {
-        if(exclusive_serial_mode || disable_monitor) {
+        if(settings->_exclusive_serial_mode || settings->_disable_monitor) {
             goto end;
         }
 
@@ -80,7 +98,7 @@ void taskStatusMonitor(void *pvParameters) {
             monitor_printf("Min Free Heap: %u bytes\n", esp_get_minimum_free_heap_size());
             
             for(int i = 0; i < uxArraySize; i++) {
-                if(exclusive_serial_mode || disable_monitor) {
+                if(settings->_exclusive_serial_mode || settings->_disable_monitor) {
                     goto end;
                 }
 

@@ -1,8 +1,13 @@
 #pragma once
 
+#ifndef HE_DEFINES_H
+#define HE_DEFINES_H
+
+
 #include <stdio.h>
 #include <string.h>
 #include <sys/unistd.h>
+
 #include "driver/gpio.h"
 #include "driver/spi_common.h"
 #include "driver/uart_vfs.h"
@@ -47,7 +52,6 @@ static const char *TAG = "HELLOESP";
 #define SERIAL_WRITER_BROKER_TASK_STACK_SIZE (16*1024)
 
 #if SERIAL_WRITER_BROKER_ENABLE
-extern bool serial_writer_broker_connected = false;
 static const char serial_writer_broker_name[] = "serial_writer_broker";
 static const char serial_writer_sender_name[] = "serial_writer_sender";
 #endif
@@ -96,9 +100,6 @@ void* serial_print(const char* msg);
 ///
 #define ENABLE_WATCHDOG_WASM3 0
 
-extern bool serial_wasm_read = false; 
-extern char* serial_wasm_read_string = NULL;
-
 ///
 /// Serial and UART
 ///
@@ -142,10 +143,6 @@ extern char* serial_wasm_read_string = NULL;
 #define ENABLE_MONITOR 1
 #define MONITOR_EVERY_SECONDS 4
 
-extern SemaphoreHandle_t serial_mutex = NULL;
-extern bool exclusive_serial_mode = false;
-extern bool disable_monitor = false;
-
 void safe_printf(const char* format, size_t length, ...);
 
 #define LOG_COLOR_BLACK   "30"
@@ -186,14 +183,8 @@ void safe_printf(const char* format, size_t length, ...);
    free(log_buf); \
 } while(0)
 
-///
-/// Settings
-///
+////////////////////////////////////////////////////////////////
 
-#include "he_settings.h"
-static settings_t settings;
+#define MIN(x, y) ((x) < (y) ? (x) : (y)) 
 
-///
-/// Global static vars
-///
-//static bool sd_card_initialized = false;
+#endif

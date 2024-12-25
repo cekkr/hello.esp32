@@ -1,20 +1,19 @@
 #include "esp_system.h"
 #include "esp_debug_helpers.h"
 #include "esp_log.h"
-#include "esp_event.h"
 #include "esp_err.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
 #include "esp_debug_helpers.h"
 #include "esp_private/panic_internal.h"
-#include "esp_timer.h"
-#include "freertos/FreeRTOS.h"
-#include "esp_private/panic_internal.h"
 #include "esp_core_dump.h"
+#include "esp_debug_helpers.h"
+#include "esp_timer.h"
 #include "esp_partition.h"
+#include "esp_system.h"
+#include "esp_debug_helpers.h"
+#include "esp_log.h"
+#include "esp_event.h"
 
 #include "he_esp_exception.h"
-
 #include "he_defines.h"
 
 
@@ -293,5 +292,5 @@ void init_custom_logging(void) {
     //esp_log_level_set("*", ESP_LOG_INFO);  // ESP_LOG_NONE ESP_LOG_INFO    
 
     // Registra l'handler personalizzato
-    esp_log_set_vprintf(custom_log_handler); // uncomment to make this work
+    //esp_log_set_vprintf(custom_log_handler); // uncomment to make this work
 }

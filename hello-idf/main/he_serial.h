@@ -11,9 +11,6 @@
 #include <dirent.h>
 #include "mbedtls/md5.h"
 #include "he_defines.h"
-#include "he_device.h"
-#include "he_sdcard.h"
-#include "he_monitor.h"
 
 // Definizioni
 #define SERIAL_FILE_BUFFER_SIZE 1024

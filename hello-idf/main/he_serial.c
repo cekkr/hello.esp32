@@ -6,6 +6,11 @@
 #include <errno.h>
 #include "driver/uart.h"     // Per UART_NUM_0 e altre costanti UART
 #include <dirent.h>
+#include "portmacro.h"
+
+#include "he_device.h"
+#include "he_monitor.h"
+#include "he_settings.h" // maintaing it
 
 #include "he_task_broker.h"
 #include "he_defines.h"
@@ -15,14 +20,16 @@
 #include "he_serial.h"
 #include "he_cmd.h"
 #include "he_io.h"
-#include "portmacro.h"
+
 
 ///
 /// Serial writer broker
 ///
 
 void serial_writer_broker_task(void *pvParameters){
-    if(serial_writer_broker_connected){
+    settings_t* settings = get_main_settings();
+
+    if(settings->_serial_writer_broker_connected){
         ESP_LOGW(TAG, "Serial writer broker already connected");
         return;
     }    
@@ -37,7 +44,7 @@ void serial_writer_broker_task(void *pvParameters){
         return;
     }
 
-    serial_writer_broker_connected = true;
+    settings->_serial_writer_broker_connected = true;
     ESP_LOGI(TAG, "Serial broker writer connected");
 
     broker_message_t msg;
@@ -71,15 +78,17 @@ void init_serial_writer_broker(){
 void begin_exclusive_serial() {
     if(!EXCLUSIVE_SERIAL_ON_CMD) return;
 
-    if(!exclusive_serial_mode){
-        exclusive_serial_mode = true;
+    settings_t* settings = get_main_settings();
+    if(!settings->_exclusive_serial_mode){
+        settings->_exclusive_serial_mode = true;
         esp_log_level_set("*", ESP_LOG_NONE);
     }
 }
 
-void end_exclusive_serial() {    
-    if(exclusive_serial_mode){
-        exclusive_serial_mode = false;
+void end_exclusive_serial() {  
+    settings_t* settings = get_main_settings();  
+    if(settings->_exclusive_serial_mode){
+        settings->_exclusive_serial_mode = false;
         enable_log_debug();
     }
 }
@@ -459,6 +468,8 @@ void serial_handler_task(void *pvParameters) {
     ////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////
 
+    settings_t* settings = get_main_settings();
+
     ESP_LOGI(TAG, "Serial handler started\n");
 
     while(1) {        
@@ -827,14 +838,14 @@ void serial_handler_task(void *pvParameters) {
             }
         }
         else if(strcmp(cmd_type, CMD_CMD) == 0){
-            if(serial_wasm_read){
-                if(serial_wasm_read_string != NULL)
-                    free(serial_wasm_read_string);
+            if(settings->_serial_wasm_read){
+                if(settings->_serial_wasm_read_string != NULL)
+                    free(settings->_serial_wasm_read_string);
 
-                serial_wasm_read_string = malloc(sizeof(char) * strlen(params->cmdline));
-                strcpy(serial_wasm_read_string, params->cmdline);
+                settings->_serial_wasm_read_string = malloc(sizeof(char) * strlen(params->cmdline));
+                strcpy(settings->_serial_wasm_read_string, params->cmdline);
 
-                serial_wasm_read = false;
+                settings->_serial_wasm_read = false;
                 send_response(STATUS_OK, "Command sent to WASM");
 
                 free(params->cmdline);
@@ -843,7 +854,7 @@ void serial_handler_task(void *pvParameters) {
 
             send_response(STATUS_OK, "Running command");
 
-            if(settings.disable_serial_monitor_during_run)
+            if(settings->disable_serial_monitor_during_run)
                 monitor_disable();
 
             process_command(&shell, params->cmdline);

@@ -7,9 +7,8 @@
 #include <ctype.h>
 
 #include "esp_log.h"
-
-#include "he_device.h"
 #include "he_defines.h"
+
 
 #define MAX_ARGS 32
 

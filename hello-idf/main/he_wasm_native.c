@@ -5,7 +5,7 @@
 #include "esp_log.h"
 
 #include "he_defines.h"
-
+#include "he_settings.h"
 #include "he_screen.h"
 #include "wasm3.h"
 
@@ -200,19 +200,22 @@ M3Result wasm_esp_read_serial(IM3Runtime runtime, IM3ImportContext *ctx, uint64_
 
     m3ApiReturnType  (char*)
 
-    if(HELLO_DEBUG_wasm_esp_read_serial) ESP_LOGI("WASM3", "esp_read_serial: setting serial_wasm_read true");
-    serial_wasm_read = true;
+    settings_t* settings = get_main_settings();
 
-    while(serial_wasm_read){
+    if(HELLO_DEBUG_wasm_esp_read_serial) ESP_LOGI("WASM3", "esp_read_serial: setting serial_wasm_read true");
+    settings->_serial_wasm_read = true;
+
+    while(settings->_serial_wasm_read){
         vTaskDelay(pdMS_TO_TICKS(100));
     }
 
     if(HELLO_DEBUG_wasm_esp_read_serial) ESP_LOGI("WASM3", "esp_read_serial: serial_wasm_read setted to false");
 
-    if(serial_wasm_read_string){
-        if(HELLO_DEBUG_wasm_esp_read_serial) ESP_LOGI("WASM3", "esp_read_serial: content is: %s", serial_wasm_read_string);       
-        *raw_return = serial_wasm_read_string;
-        serial_wasm_read_string = NULL;
+    if(settings->_serial_wasm_read_string){
+        if(HELLO_DEBUG_wasm_esp_read_serial) ESP_LOGI("WASM3", "esp_read_serial: content is: %s", settings->_serial_wasm_read_string);   
+        // todo: alloc to _mem    
+        *raw_return = settings->_serial_wasm_read_string;
+        settings->_serial_wasm_read_string = NULL;
     }
     else {
         *raw_return = NULL;

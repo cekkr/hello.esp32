@@ -6,11 +6,9 @@
 #include <esp_log.h>
 #include <string.h>
 #include <stdio.h>
-#include <inttypes.h>
 #include "esp_timer.h"
 
 #include "he_defines.h"
-#include "he_sdcard.h"
 #include "he_io.h"
 #include "he_device.h"
 

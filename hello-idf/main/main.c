@@ -1,15 +1,13 @@
 #include "he_defines.h"
+#include "he_settings.h"
 
 // General functions
-#include "he_io.h"
 #include "he_esp_exception.h"
 #include "he_task_broker.h"
 #include "he_device.h"
 #include "he_monitor.h"
 
 // CMDs
-#include "he_cmd.h"
-
 #include "he_screen.h"
 #include "he_sdcard.h"
 #include "he_serial.h"
@@ -45,9 +43,7 @@ void init_spi(){
 
 static const int UART_BUFFER_SIZE = 1024;  // Cambiato da bool a int
 
-void init_uart() {
-    serial_mutex = xSemaphoreCreateMutex();
-
+void init_uart() {    
     uart_config_t uart_config = {
         .baud_rate = SERIAL_BAUD,
         .data_bits = UART_DATA_8_BITS,
@@ -81,8 +77,11 @@ void init_uart() {
 ////
 ////
 
-void app_main(void) {   
-    settings = settings_default;
+void app_main(void) { 
+    settings_t* settings = get_main_settings();
+    *settings = settings_default;
+
+    settings->_serial_mutex = xSemaphoreCreateMutex();
 
     // Init task broker
     broker_init();
@@ -107,7 +106,7 @@ void app_main(void) {
 
     ESP_LOGI(TAG, "\nStarting SD card test...\n");
     if(init_sd_card()){
-        settings._sd_card_initialized = true;
+        settings->_sd_card_initialized = true;
         load_global_settings();
     }
     else {

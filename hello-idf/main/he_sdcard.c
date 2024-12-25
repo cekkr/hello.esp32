@@ -2,24 +2,18 @@
 #include <string.h>
 #include <sys/unistd.h>
 #include <sys/stat.h>
-#include "esp_system.h"
 #include "driver/gpio.h"
-#include "esp_vfs.h"
 #include "esp_vfs_fat.h"
-#include "sdmmc_cmd.h"
-#include "driver/sdmmc_host.h"
-#include "driver/sdmmc_types.h"
 #include "driver/sdspi_host.h"
 #include "driver/gpio.h"
 #include "driver/spi_common.h"
-#include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
 #include "he_defines.h"
-#include "he_mgt_string.h"
-#include "he_screen.h"
 #include "he_sdcard.h"
 #include "he_io.h"
+#include "he_settings.h"
+#include "he_screen.h" // maintaing it
 
 void init_sd_pins() {
     ESP_LOGI(TAG, "Initializing SD pins with pull-ups...\n");
@@ -164,15 +158,17 @@ bool init_sd_card() {
 }
 
 void load_global_settings(){
+    settings_t *settings = get_main_settings();
+
     char* settings_filename = malloc(MAX_FILENAME * sizeof(char));
     char default_settings_filename[] = "settings.json";
-    prepend_mount_point(&default_settings_filename, settings_filename);
+    prepend_mount_point(default_settings_filename, settings_filename);
 
     uint8_t* json_content = NULL;
     size_t json_size = 0;
     read_file_to_memory(settings_filename, &json_content, &json_size);
 
-    settings_load((const char*)json_content, &settings);
+    settings_load((const char*)json_content, settings);
 
     free(settings_filename);
     free(json_content);
