@@ -1,6 +1,8 @@
 #include "he_cmd.h"
 
 // WASM
+#include "he_esp_exception.h"
+#include "he_monitor.h"
 #include "he_wasm.h"
 #include "he_io.h"
 
@@ -187,7 +189,8 @@ static int cmd_core_dump(shell_t* shell, int argc, char** argv){
 }
 
 static int cmd_devinfo(shell_t* shell, int argc, char** argv){
-    device_info();    
+    monitor_disable();
+    device_info();        
     return 0;
 }
 

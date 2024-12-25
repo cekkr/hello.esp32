@@ -441,7 +441,7 @@ void serial_handler_task(void *pvParameters) {
 
         if(params->has_filename) {
             prepend_cwd(shell.cwd, params->filename);
-            ESP_LOGI(TAG, "prepend_cwd: %s (cmd: %s)", params->filename, cmd_type); 
+            if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "prepend_cwd: %s (cmd: %s)", params->filename, cmd_type); 
         }
 
         if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "Working on cmd_type: %s\n", cmd_type);
@@ -609,7 +609,7 @@ void serial_handler_task(void *pvParameters) {
             }
             else {
                 char resp [128];
-                sprintf(resp, "%ld: File found", file_stat.st_size);            
+                sprintf(resp, "%lld: File found", file_stat.st_size);            
                 send_response(STATUS_OK, "1: File found");
             }                
             continue;
@@ -635,7 +635,7 @@ void serial_handler_task(void *pvParameters) {
 
             // Invia dimensione file e hash
             char response[100];
-            snprintf(response, sizeof(response), "%ld,%s", file_stat.st_size, hash);
+            snprintf(response, sizeof(response), "%lld,%s", file_stat.st_size, hash);
             send_response(STATUS_OK, response);
 
             // Leggi e invia il file a chunks
@@ -808,8 +808,7 @@ void serial_handler_task(void *pvParameters) {
             process_command(&shell, params->cmdline);
             free(params->cmdline);
 
-            if(settings.disable_serial_monitor_during_run)
-                monitor_enable();
+            monitor_enable();
         }
         else if(strcmp(cmd_type, CMD_CHUNK) == 0){
             send_response(STATUS_ERROR, "Chunk out of context");

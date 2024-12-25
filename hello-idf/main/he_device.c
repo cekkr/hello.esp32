@@ -1,15 +1,11 @@
 #include "esp_system.h"
-#include "esp_task_wdt.h"
 #include "soc/timer_group_struct.h"
-#include "driver/timer.h"      
 #include "soc/timer_group_reg.h"
 #include "soc/rtc_cntl_reg.h"
 #include <stdio.h>
-#include "esp_log.h"
 #include "esp_chip_info.h"
-#include "esp_flash_spi_init.h"
 #include "esp_heap_caps.h"
-//#include "esp_spi_flash.h"
+
 #include "he_defines.h"
 
 #include "he_device.h"
