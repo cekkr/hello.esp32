@@ -95,6 +95,8 @@ static char* serial_wasm_read_string = NULL;
 #define MAX_CMD_LENGTH 512
 #define SERIAL_STACK_SIZE WASM_TASK_SIZE + (1024*16)
 
+#define EXCLUSIVE_SERIAL_ON_CMD false
+
 ///
 /// Serial semaphore
 ///

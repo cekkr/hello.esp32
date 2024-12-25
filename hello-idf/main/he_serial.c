@@ -28,13 +28,15 @@ void serial_write_auto(const char* data) {
 }
 
 void begin_exclusive_serial() {
+    if(!EXCLUSIVE_SERIAL_ON_CMD) return;
+
     if(!exclusive_serial_mode){
         exclusive_serial_mode = true;
         esp_log_level_set("*", ESP_LOG_NONE);
     }
 }
 
-void end_exclusive_serial() {
+void end_exclusive_serial() {    
     if(exclusive_serial_mode){
         exclusive_serial_mode = false;
         enable_log_debug();
