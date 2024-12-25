@@ -37,6 +37,8 @@ static const char *TAG = "HELLOESP";
 ///////////// SERIAL_WRITER_BROKER /////////////////////////////
 ////////////////////////////////////////////////////////////////
 
+#define SERIAL_WRITER_WAIT_MS 10
+
 #define LOG_BUFFER_SIZE 2048
 
 #define SERIAL_WRITER_BROKER_ENABLE 1
@@ -57,10 +59,10 @@ void* serial_print(const char* msg);
 /////////////////////// TASK BROKER ////////////////////////////
 ////////////////////////////////////////////////////////////////
 
-#define MAX_TASKS 10
+#define MAX_TASKS 16
 #define MAX_TASK_NAME_LENGTH 16
 #define MAX_MESSAGE_SIZE LOG_BUFFER_SIZE
-#define BROKER_QUEUE_SIZE 20
+#define BROKER_QUEUE_SIZE 24
 
 ////////////////////////////////////////////////////////////////
 ///////////////////////// WASM 3 ///////////////////////////////
@@ -110,7 +112,7 @@ static char* serial_wasm_read_string = NULL;
 #define SERIAL_BAUD 230400
 
 #define SERIAL_SEMAPHORE_WAIT_MS 25
-#define SERIAL_MUTEX_MAX_TRIES 40
+#define SERIAL_MUTEX_MAX_TRIES 10
 
 ///
 /// SD and touch

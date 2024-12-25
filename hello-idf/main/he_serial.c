@@ -43,7 +43,7 @@ void serial_writer_broker_task(void *pvParameters){
     broker_message_t msg;
     while(1) {        
         // Ricevi messaggi
-        if (broker_receive_message(serial_writer_broker_name, &msg, portMAX_DELAY)) {
+        if (broker_receive_message(serial_writer_broker_name, &msg, pdMS_TO_TICKS(SERIAL_WRITER_WAIT_MS))) {
             char* message = (char*)(msg.data);
             
             uart_write_bytes(UART_NUM_0, message, msg.data_length);

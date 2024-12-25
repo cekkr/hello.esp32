@@ -12,7 +12,7 @@ void serial_write(const char* data, size_t len){
         while(!broker_send_message(serial_writer_sender_name, serial_writer_broker_name, (const uint8_t*)data, len, BROKER_MSG_TYPE_STRING))
         {
             if(tries++ > SERIAL_MUTEX_MAX_TRIES) break;
-            vTaskDelay(pdMS_TO_TICKS(SERIAL_SEMAPHORE_WAIT_MS));
+            vTaskDelay(pdMS_TO_TICKS(SERIAL_WRITER_WAIT_MS));
         }
         return;
     }
