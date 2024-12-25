@@ -94,7 +94,7 @@ On the left-bottom there is the Task Monitor, that are special serial lines sent
 
 ## Esposed native functions to WASM
 
-Currently, only few WASI native functions are implemented, the fundamental twos: `args_get` and `args_sizes_get`. Anyway, it's essential to implement every of them to achieve a realistic porting of important GNU applications on HelloESP. The native function are compiled in the WASM3 environment using the brand-new function `RegisterWasmFunctions` through the structure:
+Currently, only few WASI native functions are implemented, the fundamental twos: `args_get` and `args_sizes_get`, beyond the lack of essential libc functions. It's very important to implement every of them to achieve a realistic porting of important GNU applications on HelloESP. The native function are compiled in the WASM3 environment using the brand-new function `RegisterWasmFunctions` through the structure:
 
 ```c
 typedef struct {
