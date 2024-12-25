@@ -59,13 +59,13 @@ find_serial_port() {
 }
 
 # Usa la funzione per settare la variabile
-ESP_DEV=$(find_serial_port)
+export ESP_DEV="/dev/tty.usbserial-1120"
+
+ESP_DEV_found=$(find_serial_port | sed -r "s/\x1B\[([0-9]{1,3}(;[0-9]{1,3})*)?[mGK]//g")
 if [ $? -eq 0 ]; then
-    export ESP_DEV
+    export ESP_DEV=$ESP_DEV_found
     echo "Porta seriale trovata: $ESP_DEV"
 else
     echo "Errore nel trovare la porta seriale"
     exit 1
 fi
-
-#export ESP_DEV="/dev/tty.usbserial-1120"

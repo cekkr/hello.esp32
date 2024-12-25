@@ -218,8 +218,6 @@ void list_files(const char* dirname) {
 
     struct dirent *entry;
     while ((entry = readdir(dir)) != NULL) {
-        ESP_LOGI(TAG, "Found file: %s", entry->d_name);
-        
         // Per file che non sono directory
         if (entry->d_type != DT_DIR) {
             char fullpath[MAX_FILENAME*2];
@@ -228,7 +226,10 @@ void list_files(const char* dirname) {
             struct stat st = {0};
             if (stat(fullpath, &st) == 0) {
                 float kb = (float)st.st_size / 1024.0;  // Convert to kilobytes
-                ESP_LOGI(TAG, "  Size: %f.2 KB", kb);
+                ESP_LOGI(TAG, "%s \t %f.2 KB", entry->d_name, kb);
+            }
+            else {
+                ESP_LOGI(TAG, "%s", entry->d_name);
             }
         }
     }
