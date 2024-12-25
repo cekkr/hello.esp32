@@ -48,6 +48,8 @@ void safe_printf(const char* format, ...) {
 
     serial_write(buffer, length);
 
+    free(buffer);
+
     #else
     bool monitor_disabled = disable_monitor;
     disable_monitor = true;
