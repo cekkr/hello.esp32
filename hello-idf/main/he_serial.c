@@ -397,6 +397,8 @@ void serial_handler_task(void *pvParameters) {
         goto cleanup;
     }
 
+    ////////////////////////////////
+    // Init shell
     shell_t shell = { 0 };
     //shell_init(&shell); // useless
 
@@ -409,6 +411,8 @@ void serial_handler_task(void *pvParameters) {
     strcpy(shell.cwd, SD_MOUNT_POINT);
     strcat(shell.cwd, "/");
 
+    ////////////////////////////////
+
     ESP_LOGI(TAG, "Serial handler started\n");
 
     while(1) {        
@@ -419,22 +423,27 @@ void serial_handler_task(void *pvParameters) {
                      uxTaskGetStackHighWaterMark(NULL));
         }
         
-       end_exclusive_serial();
+        end_exclusive_serial();
 
-       params->has_filename = false;
-       command_status_t parse_status = wait_for_command(cmd_type, params);
+        if(params->cmdline != NULL){
+            free(params->cmdline);
+            params->cmdline = NULL;
+        }
 
-       if(params->has_filename) {
+        params->has_filename = false;
+        command_status_t parse_status = wait_for_command(cmd_type, params);
+
+        if(params->has_filename) {
             prepend_cwd(shell.cwd, params->filename);
-       }
+        }
 
-       if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "Working on cmd_type: %s\n", cmd_type);
+        if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "Working on cmd_type: %s\n", cmd_type);
 
-       if (parse_status != STATUS_OK) {
+        if (parse_status != STATUS_OK) {
             sprintf(text, "Invalid command parameters: %s", cmd_type);             
             send_response(parse_status, text);
             continue;
-       }
+        }
 
         if (strcmp(cmd_type, CMD_WRITE_FILE) == 0) {
             // Validazione parametri
@@ -772,6 +781,13 @@ void serial_handler_task(void *pvParameters) {
             }
         }
         else if(strcmp(cmd_type, CMD_CMD) == 0){
+            if(serial_wasm_read){
+                serial_wasm_read_string = params->cmdline;
+                serial_wasm_read = false;
+                send_response(STATUS_OK, "Command sent to WASM");
+                continue;
+            }
+
             send_response(STATUS_OK, "Running command");
 
             if(settings.disable_serial_monitor_during_run)

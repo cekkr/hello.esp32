@@ -21,11 +21,12 @@ float esp_get_temperature();
 int32_t esp_wifi_scan();
 */
 
-// Printf-like function for ESP32
 extern void esp_printf(const char* format, ...)  __attribute__((import_module("env"), import_name("esp_printf")));
 
 extern void lcd_draw_text(int x, int y, int size, const char* text)  __attribute__((import_module("env"), import_name("lcd_draw_text")));
 
 extern int esp_add(int a, int b)  __attribute__((import_module("env"), import_name("esp_add")));
+
+extern char* esp_read_serial()  __attribute__((import_module("env"), import_name("esp_read_serial")));
 
 #endif // ESP32_WASM_BINDINGS_H

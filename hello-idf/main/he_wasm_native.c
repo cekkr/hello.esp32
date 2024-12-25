@@ -7,6 +7,7 @@
 #include "he_defines.h"
 
 #include "he_screen.h"
+#include "wasm3.h"
 
 ///
 ///
@@ -188,6 +189,37 @@ M3Result wasm_esp_add(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, 
     return NULL;  // Ritorna NULL per indicare successo
 }
 
+////////////////////////////////////////////////////////////////
+
+M3Result wasm_esp_read_serial(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, void* _mem) {
+    if (!runtime || !_mem) {
+        ESP_LOGW("WASM3", "wasm_esp_read_serial blocked: runtime=%p, mem=%p", runtime, _mem);
+        return ERROR_MSG_NULLS;
+    }
+
+    m3ApiReturnType  (char*)
+
+    serial_wasm_read = true;
+
+    while(serial_wasm_read){
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
+
+    if(serial_wasm_read_string){
+        char* line = malloc(sizeof(char) * strlen(serial_wasm_read_string));
+        strcpy(line, serial_wasm_read_string);
+        serial_wasm_read_string = NULL;
+
+        *raw_return = line;
+    }
+    else {
+        *raw_return = NULL;
+        ESP_LOGW("WASM3", "wasm_esp_read_serial had NULL serial_wasm_read_string");
+    }
+
+    return NULL;
+}
+
 ///
 ///
 ///
@@ -209,6 +241,11 @@ const WasmFunctionEntry functionTable[] = {
         .func = wasm_esp_add,    // Pointer to function
         .signature = (const char*)"i(ii)"        // Signature
     },
+    {
+        .name = (const char*)"esp_read_serial",           // Function name in WASM
+        .func = wasm_esp_read_serial,    // Pointer to function
+        .signature = (const char*)"i()"        // Signature
+    }
     // Altre funzioni possono essere aggiunte qui
 };
 

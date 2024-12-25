@@ -53,8 +53,13 @@ static const char *TAG = "HELLOESP";
 #define WATCHDOG_END
 #endif
 
+///
 /// WASM3
+///
 #define ENABLE_WATCHDOG_WASM3 0
+
+static bool serial_wasm_read = false; 
+static char* serial_wasm_read_string = NULL;
 
 ////////////////////////////////////////////////////////////////////////
 // or Component config -> Driver configurations -> SPI configuration -> (x) Place SPI driver ISR function into IRAM   
