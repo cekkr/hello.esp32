@@ -439,11 +439,6 @@ void serial_handler_task(void *pvParameters) {
             params->has_filename = false;    
         }
 
-        if(params->cmdline){
-            free(params->cmdline);
-            params->cmdline = NULL;
-        }
-
         command_status_t parse_status = wait_for_command(cmd_type, params);
 
         if(params->has_filename) {
