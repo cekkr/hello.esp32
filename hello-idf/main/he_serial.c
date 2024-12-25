@@ -782,7 +782,12 @@ void serial_handler_task(void *pvParameters) {
         }
         else if(strcmp(cmd_type, CMD_CMD) == 0){
             if(serial_wasm_read){
-                serial_wasm_read_string = params->cmdline;
+                if(serial_wasm_read_string != NULL)
+                    free(serial_wasm_read_string);
+
+                serial_wasm_read_string = malloc(sizeof(char) * strlen(params->cmdline));
+                strcpy(serial_wasm_read_string, params->cmdline);
+
                 serial_wasm_read = false;
                 send_response(STATUS_OK, "Command sent to WASM");
                 continue;

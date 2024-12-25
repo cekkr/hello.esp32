@@ -205,12 +205,9 @@ M3Result wasm_esp_read_serial(IM3Runtime runtime, IM3ImportContext *ctx, uint64_
         vTaskDelay(pdMS_TO_TICKS(100));
     }
 
-    if(serial_wasm_read_string){
-        char* line = malloc(sizeof(char) * strlen(serial_wasm_read_string));
-        strcpy(line, serial_wasm_read_string);
+    if(serial_wasm_read_string){              
+        *raw_return = serial_wasm_read_string;
         serial_wasm_read_string = NULL;
-
-        *raw_return = line;
     }
     else {
         *raw_return = NULL;
