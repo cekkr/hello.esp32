@@ -9,6 +9,7 @@
 
 #include "he_defines.h"
 #include "he_monitor.h"
+#include "he_device.h"
 
 
 ////////////////////////////////////////////////////////////////
@@ -71,6 +72,8 @@ void taskStatusMonitor(void *pvParameters) {
         if (pxTaskStatusArray != NULL) {
             uxArraySize = uxTaskGetSystemState(pxTaskStatusArray, uxArraySize, &ulTotalRunTime);
             
+            multi_heap_info_t ram_info = get_ram_info();
+
             monitor_printf("\n=== System Task Status (%d tasks) ===\n", uxArraySize);
             monitor_printf("Total Runtime: %u ticks\n", ulTotalRunTime);
             monitor_printf("Free Heap: %u bytes\n", esp_get_free_heap_size());
@@ -104,7 +107,7 @@ void taskStatusMonitor(void *pvParameters) {
                     status.uxBasePriority);
                 monitor_printf("- Stack HWM: %u bytes (%u%%)", 
                     status.usStackHighWaterMark * sizeof(StackType_t),
-                    (status.usStackHighWaterMark * 100) / configMINIMAL_STACK_SIZE);
+                    (status.usStackHighWaterMark * 100) / ram_info.total_allocated_bytes);
                 monitor_printf("- State: %s", taskState);
                 monitor_printf("- Core: %d", status.xCoreID);
                 

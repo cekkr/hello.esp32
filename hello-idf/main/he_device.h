@@ -22,4 +22,7 @@ void handle_watchdog();
 void print_ram_info(void);
 void device_info(void);
 
+multi_heap_info_t get_ram_info();
+uint32_t get_total_ram();
+
 #endif  // HELLOESP_DEVICE_H

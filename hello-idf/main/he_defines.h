@@ -61,6 +61,10 @@ static const char *TAG = "HELLOESP";
 static bool serial_wasm_read = false; 
 static char* serial_wasm_read_string = NULL;
 
+///
+/// Serial and UART
+///
+
 ////////////////////////////////////////////////////////////////////////
 // or Component config -> Driver configurations -> SPI configuration -> (x) Place SPI driver ISR function into IRAM   
 #define ENABLE_INTR_FLAG_IRAM_SPI 1 // for SPI interrupts
@@ -68,7 +72,9 @@ static char* serial_wasm_read_string = NULL;
 
 //#define SERIAL_BAUD 115200
 #define SERIAL_BAUD 230400
-#define SERIAL_SEMAPHORE_WAIT_MS 50
+
+#define SERIAL_SEMAPHORE_WAIT_MS 10
+#define SERIAL_MUTEX_MAX_TRIES 5
 
 ///
 /// SD and touch
@@ -96,7 +102,6 @@ static char* serial_wasm_read_string = NULL;
 #define ENABLE_MONITOR 1
 #define MONITOR_EVERY_SECONDS 4
 
-#define SERIAL_MUTEX_MAX_TRIES 5
 static SemaphoreHandle_t serial_mutex = NULL;
 static bool exclusive_serial_mode = false;
 static bool disable_monitor = false;

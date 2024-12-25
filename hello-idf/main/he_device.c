@@ -2,6 +2,7 @@
 #include "soc/timer_group_struct.h"
 #include "soc/timer_group_reg.h"
 #include "soc/rtc_cntl_reg.h"
+#include <stdint.h>
 #include <stdio.h>
 #include "esp_chip_info.h"
 #include "esp_heap_caps.h"
@@ -197,6 +198,19 @@ void print_ram_info(void) {
     ESP_LOGI(TAG, "- Total allocated bytes: %lu", info.total_allocated_bytes);
     ESP_LOGI(TAG, "- Largest free block: %lu", info.largest_free_block);
 }
+
+
+multi_heap_info_t get_ram_info(){
+    multi_heap_info_t info;
+    heap_caps_get_info(&info, MALLOC_CAP_INTERNAL);
+    return info;
+}
+
+uint32_t get_total_ram(){
+    multi_heap_info_t info = get_ram_info();
+    return info.total_allocated_bytes + info.total_free_bytes;
+}
+
 
 // Informazioni sulla PSRAM (se disponibile)
 void print_psram_info(void) {
