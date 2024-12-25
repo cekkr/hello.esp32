@@ -7,7 +7,10 @@
 #include "he_defines.h"
 #include "he_settings.h"
 #include "he_screen.h"
+
 #include "wasm3.h"
+#include "m3_pointers.h"
+#include "m3_segmented_memory.h"
 
 ///
 ///
@@ -213,8 +216,15 @@ M3Result wasm_esp_read_serial(IM3Runtime runtime, IM3ImportContext *ctx, uint64_
 
     if(settings->_serial_wasm_read_string){
         if(HELLO_DEBUG_wasm_esp_read_serial) ESP_LOGI("WASM3", "esp_read_serial: content is: %s", settings->_serial_wasm_read_string);   
-        // todo: alloc to _mem    
-        *raw_return = settings->_serial_wasm_read_string;
+
+        char* str = settings->_serial_wasm_read_string;
+        size_t len = strlen(str);
+        void* retStr = m3_Malloc(_mem, len*sizeof(char));
+        m3_memcpy(_mem, retStr, str, len);
+
+        *raw_return = retStr;
+        
+        free(settings->_serial_wasm_read_string);
         settings->_serial_wasm_read_string = NULL;
     }
     else {

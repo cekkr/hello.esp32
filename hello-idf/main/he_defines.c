@@ -24,14 +24,14 @@ void serial_write(const char* data, size_t len){
     uart_wait_tx_done(UART_NUM_0, portMAX_DELAY);
 }
 
-void safe_printf(const char* format, size_t length, ...) {          
+void safe_printf(const char* format, ...) {          
     #if SERIAL_WRITER_BROKER_ENABLE
 
     va_list args;
     va_list args_copy;
     
     // Prima chiamata per determinare la lunghezza necessaria
-    va_start(args, length);
+    va_start(args, format);
     va_copy(args_copy, args);
     int required_length = vsnprintf(NULL, 0, format, args) + 1; // +1 per il terminatore
     va_end(args);
@@ -39,12 +39,11 @@ void safe_printf(const char* format, size_t length, ...) {
     // Allocazione della memoria
     char* buffer = (char*)malloc(required_length);
     if (buffer == NULL) {
-        length = 0;
         return;
     }
     
     // Seconda chiamata per effettuare la formattazione
-    length = vsnprintf(buffer, required_length, format, args_copy);
+    size_t length = vsnprintf(buffer, required_length, format, args_copy);
     va_end(args_copy);
 
     serial_write(buffer, length);

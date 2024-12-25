@@ -48,6 +48,30 @@ void monitor_enable(){
 
 // Funzione proxy per i log del monitor
 void monitor_printf(const char* format, ...) {
+    #if SERIAL_WRITER_BROKER_ENABLE
+
+    va_list args;
+    va_list args_copy;
+    
+    // Prima chiamata per determinare la lunghezza necessaria
+    va_start(args, format);
+    va_copy(args_copy, args);
+    int required_length = vsnprintf(NULL, 0, format, args) + 1; // +1 per il terminatore
+    va_end(args);
+    
+    // Allocazione della memoria
+    char* buffer = (char*)malloc(required_length);
+    if (buffer == NULL) {
+        return;
+    }
+    
+    // Seconda chiamata per effettuare la formattazione
+    size_t length = vsnprintf(buffer, required_length, format, args_copy);
+    va_end(args_copy);
+
+    safe_printf(buffer, required_length);
+
+    #else
     settings_t* settings = get_main_settings();
     if(settings->_exclusive_serial_mode || settings->_disable_monitor) return;
 
@@ -65,6 +89,7 @@ void monitor_printf(const char* format, ...) {
     uart_wait_tx_done(UART_NUM_0, portMAX_DELAY);    
     if(settings->_serial_mutex) xSemaphoreGive(settings->_serial_mutex);
     //vTaskDelay(pdMS_TO_TICKS(10)); // 0.01s delay after printing
+    #endif
 }
 
 ////////////////////////////////////////////////////////////////

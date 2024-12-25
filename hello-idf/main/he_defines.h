@@ -143,7 +143,7 @@ void* serial_print(const char* msg);
 #define ENABLE_MONITOR 1
 #define MONITOR_EVERY_SECONDS 4
 
-void safe_printf(const char* format, size_t length, ...);
+void safe_printf(const char* format, ...);
 
 #define LOG_COLOR_BLACK   "30"
 #define LOG_COLOR_RED     "31"
@@ -158,28 +158,28 @@ void safe_printf(const char* format, size_t length, ...);
 #define ESP_LOGD(tag, format, ...) do { \
    char* log_buf = malloc(LOG_BUFFER_SIZE*sizeof(char)); \
    size_t len = snprintf(log_buf, LOG_BUFFER_SIZE, LOG_COLOR(LOG_COLOR_CYAN) "D (%s) %s: " format LOG_COLOR_RESET "\n", esp_log_system_timestamp(), tag, ##__VA_ARGS__); \
-   safe_printf("%s", len, log_buf); \
+   safe_printf("%s", log_buf); \
    free(log_buf); \
 } while(0)
 
 #define ESP_LOGI(tag, format, ...) do { \
    char* log_buf = malloc(LOG_BUFFER_SIZE*sizeof(char)); \
    size_t len = snprintf(log_buf, LOG_BUFFER_SIZE, LOG_COLOR(LOG_COLOR_GREEN) "I (%s) %s: " format LOG_COLOR_RESET "\n", esp_log_system_timestamp(), tag, ##__VA_ARGS__); \
-   safe_printf("%s", len, log_buf); \
+   safe_printf("%s", log_buf); \
    free(log_buf); \
 } while(0)
 
 #define ESP_LOGW(tag, format, ...) do { \
    char* log_buf = malloc(LOG_BUFFER_SIZE*sizeof(char)); \
    size_t len = snprintf(log_buf, LOG_BUFFER_SIZE, LOG_COLOR(LOG_COLOR_BROWN) "W (%s) %s: " format LOG_COLOR_RESET "\n", esp_log_system_timestamp(), tag, ##__VA_ARGS__); \
-   safe_printf("%s", len, log_buf); \
+   safe_printf("%s", log_buf); \
    free(log_buf); \
 } while(0)
 
 #define ESP_LOGE(tag, format, ...) do { \
    char* log_buf = malloc(LOG_BUFFER_SIZE*sizeof(char)); \
    size_t len = snprintf(log_buf, LOG_BUFFER_SIZE, LOG_COLOR(LOG_COLOR_RED) "E (%s) %s: " format LOG_COLOR_RESET "\n", esp_log_system_timestamp(), tag, ##__VA_ARGS__); \
-   safe_printf("%s", len, log_buf); \
+   safe_printf("%s", log_buf); \
    free(log_buf); \
 } while(0)
 
