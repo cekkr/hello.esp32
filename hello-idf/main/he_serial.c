@@ -218,11 +218,10 @@ static command_status_t parse_command(const char* command, char* cmd_type, comma
     }
     else if (strncmp(command, CMD_WRITE_FILE, strlen(CMD_WRITE_FILE)) == 0) {
         strcpy(cmd_type, CMD_WRITE_FILE);
-
-        char filename[MAX_FILENAME];
+        
         if (sscanf(command + strlen(CMD_WRITE_FILE), 
                 "%255[^,],%zu,%32s",  // Limitare la lunghezza di lettura
-                filename,
+                params->filename,
                 &params->filesize, 
                 params->file_hash) != 3) {
             return STATUS_ERROR_PARAMS;
@@ -442,7 +441,7 @@ void serial_handler_task(void *pvParameters) {
 
         if(params->has_filename) {
             prepend_cwd(shell.cwd, params->filename);
-            ESP_LOGI("HELLO", "prepend_cwd: %s", params->filename);                    
+            ESP_LOGI(TAG, "prepend_cwd: %s (cmd: %s)", params->filename, cmd_type); 
         }
 
         if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "Working on cmd_type: %s\n", cmd_type);
