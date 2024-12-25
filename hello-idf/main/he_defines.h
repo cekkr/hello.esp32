@@ -96,6 +96,7 @@ static char* serial_wasm_read_string = NULL;
 #define ENABLE_MONITOR 1
 #define MONITOR_EVERY_SECONDS 4
 
+#define SERIAL_MUTEX_MAX_TRIES 5
 static SemaphoreHandle_t serial_mutex = NULL;
 static bool exclusive_serial_mode = false;
 static bool disable_monitor = false;

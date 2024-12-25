@@ -1,8 +1,13 @@
+#include "driver/uart.h"
+
 #include "he_defines.h"
 
 void safe_printf(const char* format, ...) {
     if(serial_mutex){
+        int max_tries = 0;
         while(xSemaphoreTake(serial_mutex, pdMS_TO_TICKS(SERIAL_SEMAPHORE_WAIT_MS)) != pdTRUE) {
+            if(max_tries++ > SERIAL_MUTEX_MAX_TRIES) return;
+
             vTaskDelay(pdMS_TO_TICKS(SERIAL_SEMAPHORE_WAIT_MS));
         }
     }

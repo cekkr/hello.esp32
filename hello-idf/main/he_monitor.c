@@ -1,15 +1,13 @@
-#include "sdkconfig.h"
-#include "freertos/FreeRTOS.h"
+#include "driver/uart.h"
 #include "freertos/task.h"
 #include "esp_log.h"
 #include "esp_system.h"
 #include "string.h"  // per memset()
-#include "esp_heap_caps.h"  // per le funzioni di heap debugging
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
-#include "he_defines.h"
 
+#include "he_defines.h"
 #include "he_monitor.h"
 
 
@@ -58,7 +56,7 @@ void monitor_printf(const char* format, ...) {
 void taskStatusMonitor(void *pvParameters) {
     TaskStatus_t *pxTaskStatusArray;
     volatile UBaseType_t uxArraySize;
-    uint32_t ulTotalRunTime, ulStatsAsPercentage;
+    uint64_t ulTotalRunTime, ulStatsAsPercentage;
     char pcWriteBuffer[50];
     
     while(1) {
