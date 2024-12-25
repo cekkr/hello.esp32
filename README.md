@@ -23,7 +23,7 @@ I wanted to make every kind of programming language portable on the HelloESP, ev
 
 But let's take it one step at a time.
 
-***First of all, a note about the WASM3 developer***: he suffered of the strike of air bomb over his house during the russian invasion, and this makes the repository [wasm3](https://github.com/wasm3/wasm3) 
+***First of all, a note about the WASM3 developer***: he suffered of the strike of air bomb over his house during the russian invasion, and this makes the repository [wasm3](https://github.com/wasm3/wasm3) looking for essential external contributions.
 
 My fork, [wasm3-helloesp](https://github.com/cekkr/wasm3-helloesp), it's very off-road respect the main repo at the moment. For example, while messing with circular references, during a desperation moment I've substitute some `#ifndef WASM_FILE_H` with `#pragma once` randomly.
 There are a lot of python scripts in the folder analyze/ that aims only to build the best circular reference order for the project. The last script I tried finally worked, only I don't remember what of those ones. But I let them there for reference due to the fact that, sometimes, it's still useful have a C project parser using libclang.
