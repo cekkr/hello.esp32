@@ -92,6 +92,73 @@ The "Show Traceback" allows to paste a backtrace line to convert the addresses t
 
 On the left-bottom there is the Task Monitor, that are special serial lines sent by the `he_monitor.c` task, allowing to have in real time informations about the system and running tasks without interference with the main terminal view. 
 
+## Esposed native functions to WASM
+
+Currently, only few WASI native functions are implemented, the fundamental twos: `args_get` and `args_sizes_get`. Anyway, it's essential to implement every of them to achieve a realistic porting of important GNU applications on HelloESP. The native function are compiled in the WASM3 environment using the brand-new function `RegisterWasmFunctions` through the structure:
+
+```c
+typedef struct {
+    const char* name;  			// Function's name
+    void* func;     			// Function's pointer
+    const char* signature;  	// Function's signature
+} WasmFunctionEntry;
+```
+
+The HelloESP native functions signatures are generated following the description `hello-wasm/bindings/esp_wasm.h`, that can be directly referenced by a C code to be compiled in emscripten, where using `hello-wasm/bindingsGenerator.py` generates also the bindings for **TypeScript** and **Rust** (todo: **AssemblyScript**).
+
+At the same directory is available the script `compile.sh`, the compiles in WASM every C file found in `samples/` directory, with an example of a TypeScript to wasm compilation.
+
+It's fundamental the right configuration of emscripten for the right execution of the programs in WASM3 on ESP32: 
+
+```sh
+emcc "samples/${script_name}.c" -o "output/${script_name}.wasm" \
+        -s WASM=1 \
+        -s STANDALONE_WASM=0 \
+        -s IMPORTED_MEMORY=1 \
+        -s STACK_SIZE=${stack_size} \
+        -s ALLOW_MEMORY_GROWTH=1 \
+        -s EXPORTED_FUNCTIONS='["_start"]' \
+        --no-entry \
+        -O1 \
+        -fno-inline 
+```
+It's fundamental to use a low level optimization (**`-O1`**): infact in the case of a simple fibonacci cycle execution, a too high optimization used to calculate automatically the series of numbers, where the next cycle were executed by using calls of over calls, making the ESP32 to crash at the recursive sub stack number 75 circa. Command `wasm2wat` could be used to make readable the output wasm and discover the trick. 
+
+Currently implemented HelloESP native functions in `esp_wasm.h`:
+
+```c
+extern void esp_printf(const char* format, ...)  __attribute__((import_module("env"), import_name("esp_printf")));
+
+extern void lcd_draw_text(int x, int y, int size, const char* text)  __attribute__((import_module("env"), import_name("lcd_draw_text")));
+
+extern int esp_add(int a, int b)  __attribute__((import_module("env"), import_name("esp_add")));
+
+extern char* esp_read_serial()  __attribute__((import_module("env"), import_name("esp_read_serial")));
+```
+
+As you can see, they're associated to the module named "env". 
+
+This is an example of C wasm program `testSerialRead.wasm`:
+
+```c
+#include "esp_wasm.h"
+
+void start() {
+    esp_printf("Write something: \n");
+    char* res = esp_read_serial(); // write on the command text box
+    esp_printf("You wrote: %s\n", res);    
+    //todo: ironically, you can't free(res) after using it (not implemented)
+    // anyway, a sort of garbage collector is studyable    
+}
+```
+
+## Current default parameters
+| Parameter    | Default value |
+| -------- | ------- |
+| WASM stack size  | 32 KB    |
+| M3Memory segment size | 4096 bytes     |
+| Pointers (offset) type    | uint64    |
+
 ## Considerations
 It's obvious that 2 MB/s of speed of paging could be a certain bottleneck for the execution of complex wasm binaries or their concurrencies to the goal of running a complete operating system with a graphical interface. It's fundamental to create a WASM3 tasks' scheduler highly efficient, also on choosing the best order and distribution to achieve a smooth execution.
 
