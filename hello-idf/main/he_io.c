@@ -11,6 +11,8 @@
 #include "he_io.h"
 #include <sys/dirent.h>
 
+const bool HE_DEBUG_IO = false;
+
 esp_err_t read_file_to_memory(const char* file_path, uint8_t** out_data, size_t* out_size) {
     FILE* file = NULL;
     uint8_t* buffer = NULL;
@@ -58,7 +60,7 @@ esp_err_t read_file_to_memory(const char* file_path, uint8_t** out_data, size_t*
     // Assegna il buffer al puntatore di output
     *out_data = buffer;
 
-    ESP_LOGI(TAG, "File read successfully: %d bytes", *out_size);
+    if(HE_DEBUG_IO) ESP_LOGI(TAG, "File read successfully: %d bytes", *out_size);
     return ESP_OK;
 }
 
@@ -107,7 +109,7 @@ esp_err_t read_file_to_executable_memory(const char* file_path, uint8_t** out_da
     //esp_rom_Cache_Invalidate(0);
 
     *out_data = dma_buffer;
-    ESP_LOGI(TAG, "read_file_to_executable_memory: File loaded into memory: %d bytes at %p", *out_size, dma_buffer);
+    if(HE_DEBUG_IO) ESP_LOGI(TAG, "read_file_to_executable_memory: File loaded into memory: %d bytes at %p", *out_size, dma_buffer);
     
     return ESP_OK;
 }
