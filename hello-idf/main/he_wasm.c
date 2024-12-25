@@ -97,7 +97,7 @@ void run_wasm(uint8_t* wasm, uint32_t fsize, shell_t* shell)
     //result = justLinkWASMFunctions(module);
 
     if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "run_wasm: registerNativeWASMFunctions\n");
-    result = registerNativeWASMFunctions(module);
+    result = registerNativeWASMFunctions(module, wasi_ctx);
     if (result) FATAL(env, "registerNativeWASMFunctions: %s", result);
 
     /*result = m3_LinkRawFunction(module, "env", "esp_printf", "v(ii)", &wasm_esp_printf);

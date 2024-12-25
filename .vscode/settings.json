@@ -68,5 +68,6 @@
     "notebook.defaultFormatter": "espressif.esp-idf-extension",
     "clangd.arguments": [
         "--compile-commands-dir=${workspaceFolder}/hello-idf/build"
-    ]
+    ],
+    "terminal.integrated.scrollback": 100000,
 }

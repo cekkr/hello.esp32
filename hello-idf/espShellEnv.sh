@@ -5,6 +5,8 @@
 
 #python3 overrideSdkconfig.py
 
+clear
+
 CUR_DIR=$(pwd)
 
 cd "$IDF_PATH"

@@ -212,8 +212,8 @@ const WasmFunctionEntry functionTable[] = {
     // Altre funzioni possono essere aggiunte qui
 };
 
-M3Result registerNativeWASMFunctions(IM3Module module){
-    M3Result result = RegisterWasmFunctions(module, functionTable, sizeof(functionTable)/sizeof(functionTable[0]));
+M3Result registerNativeWASMFunctions(IM3Module module, m3_wasi_context_t *ctx){
+    M3Result result = RegisterWasmFunctions(module, functionTable, sizeof(functionTable)/sizeof(functionTable[0]), ctx);
     if (result) {
         ESP_LOGE(TAG, "Failed to register functions: %s", result);
     }
