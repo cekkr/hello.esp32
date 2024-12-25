@@ -16,9 +16,8 @@
 #include "he_monitor.h"
 
 // Definizioni
-#define BUF_SIZE 1024
-#define STACK_SIZE 1024*32
-#define CHUNK_SIZE 1024
+#define SERIAL_FILE_BUFFER_SIZE 1024
+#define SERIAL_FILE_CHUNK_SIZE 1024
 
 // Comandi
 #define CMD_PING "$$$PING$$$"
@@ -56,7 +55,7 @@ typedef struct command_params {
     size_t filesize;
     char file_hash[33];
     size_t chunk_size;
-    char chunk_hash[33];
+    char chunk_hash[33]; // todo: merge with file_hash?
     char* cmdline;
 } command_params_t;
 

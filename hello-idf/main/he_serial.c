@@ -155,7 +155,7 @@ static command_status_t handle_write_file(const command_params_t* params) {
         return STATUS_ERROR_OPEN;
     }
 
-    char* buf = malloc(BUF_SIZE);
+    char* buf = malloc(SERIAL_FILE_BUFFER_SIZE);
     if (!buf) {
         fclose(f);
         ESP_LOGE(TAG, "handle_write_file: STATUS_ERROR_MEMORY");
@@ -166,7 +166,7 @@ static command_status_t handle_write_file(const command_params_t* params) {
     command_status_t status = STATUS_OK;
 
     while (remaining > 0) {
-        size_t to_read = (remaining > BUF_SIZE) ? BUF_SIZE : remaining;
+        size_t to_read = (remaining > SERIAL_FILE_BUFFER_SIZE) ? SERIAL_FILE_BUFFER_SIZE : remaining;
         size_t received = fread(buf, 1, to_read, stdin);
 
         if (received > 0) {
@@ -269,7 +269,7 @@ static command_status_t parse_command(const char* command, char* cmd_type, comma
     else if(strncmp(command, CMD_CMD, strlen(CMD_CMD)) == 0) {
         strcpy(cmd_type, CMD_CMD);
 
-        char* cmd = malloc(sizeof(char) * MAX_COMMAND_LENGTH);
+        char* cmd = malloc(sizeof(char) * SERIAL_MAX_CMD_LENGTH);
         if (sscanf(command + strlen(CMD_CMD), " %[^]]", cmd) != 1) {
             return STATUS_ERROR_PARAMS;
         }
@@ -385,9 +385,12 @@ static bool is_filename_valid(const char* filename) {
 void serial_handler_task(void *pvParameters) {    
     WATCHDOG_ADD
 
-    //char* command = malloc(BUF_SIZE);
-    char* cmd_type = malloc(BUF_SIZE);
+    //char* command = malloc(SERIAL_FILE_BUFFER_SIZE);
+    char* cmd_type = malloc(SERIAL_FILE_BUFFER_SIZE);
+    
     command_params_t* params = malloc(sizeof(command_params_t));
+    memset(params, 0, sizeof(command_params_t));
+
     struct stat file_stat;
 
     char text [512];
@@ -503,7 +506,7 @@ void serial_handler_task(void *pvParameters) {
             while (total_received < params->filesize) {
                 // Attendi comando chunk
 
-                char* cmd_type_chunk = malloc(BUF_SIZE);
+                char* cmd_type_chunk = malloc(SERIAL_FILE_BUFFER_SIZE);
                 command_params_t* params_chunk = malloc(sizeof(command_params_t));
                 if (wait_for_command(cmd_type_chunk, params_chunk) != STATUS_OK || strcmp(cmd_type_chunk, CMD_CHUNK) != 0) {
                     fclose(file);
@@ -638,7 +641,7 @@ void serial_handler_task(void *pvParameters) {
                 continue;
             }
 
-            uint8_t *chunk = malloc(CHUNK_SIZE);
+            uint8_t *chunk = malloc(SERIAL_FILE_CHUNK_SIZE);
             if (!chunk) {
                 fclose(f);
                 send_response(STATUS_ERROR, "Failed to allocate chunk buffer");
@@ -649,7 +652,7 @@ void serial_handler_task(void *pvParameters) {
 
             size_t bytes_sent = 0;
             while (bytes_sent < file_stat.st_size) {
-                size_t to_read = MIN(CHUNK_SIZE, file_stat.st_size - bytes_sent);
+                size_t to_read = MIN(SERIAL_FILE_CHUNK_SIZE, file_stat.st_size - bytes_sent);
                 size_t read = fread(chunk, 1, to_read, f);
                 if (read != to_read) {
                     free(chunk);
@@ -841,7 +844,7 @@ esp_err_t start_serial_handler(void) {
         ret = xTaskCreatePinnedToCore(
             serial_handler_task,
             "serial_handler",
-            STACK_SIZE,     // Aumentato a 8KB
+            SERIAL_STACK_SIZE,     // Aumentato a 8KB
             NULL,
             5,              // Priorità media
             NULL,           // Non ci serve l'handle
@@ -852,7 +855,7 @@ esp_err_t start_serial_handler(void) {
         ret = xTaskCreate(
             serial_handler_task,
             "serial_handler",
-            STACK_SIZE,
+            SERIAL_STACK_SIZE,
             NULL, // params
             5,
             NULL // handler

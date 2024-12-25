@@ -32,7 +32,7 @@ static const char *TAG = "HELLOESP";
 #define SERIAL_TASK_ADV 1
 #define SERIAL_TASK_CORE 0
 
-// WASM 3
+/// WASM 3
 #define WASM_TASK_ADV 1
 #define WASM_TASK_CORE 1
 
@@ -86,7 +86,8 @@ static char* serial_wasm_read_string = NULL;
 /// Serial and commands
 ///
 
-#define MAX_COMMAND_LENGTH 256
+#define SERIAL_MAX_CMD_LENGTH 512
+#define SERIAL_STACK_SIZE 1024*16
 
 ///
 /// Serial semaphore
