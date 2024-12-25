@@ -1,4 +1,4 @@
-file(GLOB HELLO_SRCS "./*.c")
+file(GLOB HELLO_SRCS "he_wasm.c" "./*.c")
 file(GLOB_RECURSE WASM_SRCS "wasm3/source/*.c")
 
 idf_component_register(

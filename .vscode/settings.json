@@ -62,5 +62,11 @@
         "VENDOR": "espressif",
         "BOARD": "esp32_devkitc"
     },
-    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "editor.defaultFormatter": "espressif.esp-idf-extension",
+    "editor.defaultFoldingRangeProvider": "espressif.esp-idf-extension",
+    "notebook.defaultFormatter": "espressif.esp-idf-extension",
+    "clangd.arguments": [
+        "--compile-commands-dir=${workspaceFolder}/hello-idf/build"
+    ]
 }

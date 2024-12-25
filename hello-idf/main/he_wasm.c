@@ -87,7 +87,8 @@ void run_wasm(uint8_t* wasm, uint32_t fsize, shell_t* shell)
     if (result) FATAL(env, "m3_LoadModule: %s", result);
 
     if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "run_wasm: m3_LinkEspWASI_Hello\n");
-    result = m3_LinkEspWASI_Hello (module, shell); // runtime->modules
+    m3_wasi_context_t* wasi_ctx;
+    result = m3_LinkEspWASI_Hello (module, shell, &wasi_ctx); // runtime->modules
     if (result) FATAL(env, "m3_LinkEspWASI: %s", result);
 
     // Linking native functions
@@ -115,7 +116,7 @@ void run_wasm(uint8_t* wasm, uint32_t fsize, shell_t* shell)
     const char* i_argv[] = {"main.wasm", NULL}; //todo: set right wasm name(?)
 
     if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "run_wasm: m3_GetWasiContext\n");
-    m3_wasi_context_t* wasi_ctx = m3_GetWasiContext();
+    //m3_wasi_context_t* wasi_ctx = m3_GetWasiContext();
     wasi_ctx->argc = 1;
     wasi_ctx->argv = i_argv;
 
