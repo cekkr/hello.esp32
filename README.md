@@ -4,7 +4,7 @@ HelloESP is a sub(operating system) built on the basis of UNIX-like POSIX librar
 Well, let's go in order.
 
 Some time ago I bought this thing:
-![](md-assets/product.jpg)
+![](https://github.com/cekkr/hello.esp32/blob/main/md-assets/product.jpg?raw=true)
 
 It's an ESP32 with a TFT with resistive touch and SD card support. And it's an ESP32, so bluetooth, Wi-Fi etc. Anyway this lacks of PSRAM support. But patience, I always had a dream about to create a sort of OS for Arduino with touch and SD card support, using every component to achieve the maximum functionality possible. The problem is that if you pay poor, you get poor quality. And I never managed to get SD to work on that shield. 
 
@@ -60,7 +60,7 @@ Where `m3_Malloc` works on M3Memory segmentation, instead `m3_Def_Malloc` is the
 Anyway, all these experimentations, implementation and modifications mades WASM3-HelloESP currently not mergeable with original WASM3 repo. Anyway, this would be achieve in a second moment with the stabilization of the subsystem.
 
 ## HelloESP.Terminal
-![](md-assets/hello-terminal.jpg)
+![](https://github.com/cekkr/hello.esp32/blob/main/md-assets/hello-terminal.jpg?raw=true)
 
 [HelloESP.Terminal](https://github.com/cekkr/helloesp.terminal) is a python GTK GUI program that I use to develop and test the various system features.
 
