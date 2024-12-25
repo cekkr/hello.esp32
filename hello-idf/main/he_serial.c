@@ -304,7 +304,7 @@ command_status_t wait_for_command(char* cmd_type, command_params_t* params) {
         //if (uart_read_bytes(UART_NUM_0, &c, 1, portMAX_DELAY) > 0) {
 
         if(incipit == 0){
-            if(c == 0xFF || c == '\0' || c != '$'){
+            if(c == '\0' || c != '$'){
                 vTaskDelay(0.01);            
                 continue;
             }
@@ -334,7 +334,7 @@ command_status_t wait_for_command(char* cmd_type, command_params_t* params) {
         
         if (c == '\n') {            
             command_buffer[length] = '\0';
-            if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "wait_for_command: end (%d) '%s'\n", sizeof(command_buffer), command_buffer);
+            if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "wait_for_command: end (%lu) '%s'\n", sizeof(command_buffer), command_buffer);
             break;
         }
         
@@ -437,6 +437,11 @@ void serial_handler_task(void *pvParameters) {
         if(params->has_filename){
             params->filename[0] = '\0';
             params->has_filename = false;    
+        }
+
+        if(params->cmdline){
+            free(params->cmdline);
+            params->cmdline = NULL;
         }
 
         command_status_t parse_status = wait_for_command(cmd_type, params);
