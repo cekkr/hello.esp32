@@ -68,7 +68,7 @@ static char* serial_wasm_read_string = NULL;
 
 //#define SERIAL_BAUD 115200
 #define SERIAL_BAUD 230400
-#define SERIAL_SEMAPHORE_WAIT_MS 10
+#define SERIAL_SEMAPHORE_WAIT_MS 50
 
 ///
 /// SD and touch
