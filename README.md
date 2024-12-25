@@ -64,4 +64,42 @@ Anyway, all these experimentations, implementation and modifications mades WASM3
 
 [HelloESP.Terminal](https://github.com/cekkr/helloesp.terminal) is a python GTK GUI program that I use to develop and test the various system features.
 
-Work in progress...
+In this screenshot, is still evident the italian footprint on the project, but I'll translate labels ASAP. Anyway, I want to use this screenshot to explain the time line of the project development.
+
+The first challenge was to make working SD card reader and TFT screen at the same time. This could be sound very stupid for an expert ESP developer, but that was my first time. And I guess passed a lot of time since the last time I coded in C. 
+
+Then, I developed the basic serial commands that, as seen at the right-top panel of the window, allows me to update the current SD's mount point files list, to upload a file, to delete it and theoretically download it again. Yes, I never tried it. 
+
+Then, I developed the commands system. If the first text box under the terminal is the "raw input", the second text box is for the "shell input". This allows to execute the functions currently implemented in [`he_cmd.h`](https://github.com/cekkr/hello.esp32/blob/main/hello-idf/main/he_cmd.h).
+
+At the moment of writing this test, the command help replies with:
+
+```
+$ help
+I (03:13:52.285) HELLOESP: Available commands:
+I (03:13:52.288) HELLOESP:   - run
+I (03:13:52.290) HELLOESP:   - echo
+I (03:13:52.292) HELLOESP:   - ls
+I (03:13:52.295) HELLOESP:   - restart
+I (03:13:52.297) HELLOESP:   - core_dump
+I (03:13:52.300) HELLOESP:   - devinfo
+I (03:13:52.302) HELLOESP:   - help
+```
+
+Anyway the `shell_t` struct already supports the `cwd` storing (by default the `SD_MOUNT_POINT`), so it's already technically possible navigate through the directories.
+
+The "Show Traceback" allows to paste a backtrace line to convert the addresses to the source code files and lines. This is made automatically when it's received through the serial and printed on the terminal text view. Setting the project folder, is possible also to build and flash the project on the run, without disconnecting and reconnecting to the serial port. 
+
+On the left-bottom there is the Task Monitor, that are special serial lines sent by the `he_monitor.c` task, allowing to have in real time informations about the system and running tasks without interference with the main terminal view. 
+
+## Considerations
+It's obvious that 2 MB/s of speed of paging could be a certain bottleneck for the execution of complex wasm binaries or their concurrencies to the goal of running a complete operating system with a graphical interface. It's fundamental to create a WASM3 tasks' scheduler highly efficient, also on choosing the best order and distribution to achieve a smooth execution.
+
+Finally, SD cards have the obvious write cycle limits, so it's essential to create an effective system of distributing and relocating pages to different sectors of the FAT32 partition.
+
+### Documentation
+I finally made a README, but it's necessary a more structured documentation about how works HelloESP. Anyway, at the moment I'm at the 20% of progress in the development of the project, so many things could change (and complicate). 
+
+## Credits
+
+Made by Riccardo Cecchini (cekkr) 
