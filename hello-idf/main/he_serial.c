@@ -433,11 +433,16 @@ void serial_handler_task(void *pvParameters) {
             params->cmdline = NULL;
         }
 
+        if(params->has_filename){
+            params->filename[0] = '\0';
+            params->has_filename = false;    
+        }
+
         command_status_t parse_status = wait_for_command(cmd_type, params);
 
         if(params->has_filename) {
             prepend_cwd(shell.cwd, params->filename);
-            ESP_LOGI("HELLO", "prepend_cwd: %s", params->filename);            
+            ESP_LOGI("HELLO", "prepend_cwd: %s", params->filename);                    
         }
 
         if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "Working on cmd_type: %s\n", cmd_type);
