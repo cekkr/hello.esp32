@@ -1,5 +1,5 @@
 # HELLO ESP32!
-HelloESP is a sub(operating system) built on the basis of UNIX-like POSIX libraries of ESP-IDF environment that aims to provide a shell for ESP32 systems with SD card support. 
+HelloESP is a sub(operating system) built on the basis of UNIX-like FreeRTOS POSIX libraries of ESP-IDF environment that aims to provide a shell for ESP32 systems with SD card support. 
 
 Well, let's go in order.
 
