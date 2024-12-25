@@ -22,7 +22,7 @@ typedef struct variable {
 
 // Modificare la struttura shell per includere le variabili
 typedef struct shell {
-    const char *cwd;        // Current working directory
+    char *cwd;        // Current working directory
     variable_t *variables;  // Puntatore alla prima variabile
 } shell_t;
 

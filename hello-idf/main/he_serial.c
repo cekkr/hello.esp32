@@ -15,6 +15,7 @@
 
 #include "he_serial.h"
 #include "he_cmd.h"
+#include "he_io.h"
 
 void serial_write(const char* data, size_t len){
     uart_write_bytes(UART_NUM_0, data, len);
@@ -239,8 +240,7 @@ static command_status_t parse_command(const char* command, char* cmd_type, comma
     } else if (strncmp(command, CMD_READ_FILE, strlen(CMD_READ_FILE)) == 0) {
         strcpy(cmd_type, CMD_READ_FILE);
 
-        char filename[MAX_FILENAME];
-        if (sscanf(command + strlen(CMD_READ_FILE), "%s", filename) != 1) {
+        if (sscanf(command + strlen(CMD_READ_FILE), "%s", params->filename) != 1) {
             return STATUS_ERROR_PARAMS;
         }
         params->has_filename = true;
@@ -251,8 +251,7 @@ static command_status_t parse_command(const char* command, char* cmd_type, comma
     else if(strncmp(command, CMD_DELETE_FILE, strlen(CMD_DELETE_FILE)) == 0) {
         strcpy(cmd_type, CMD_DELETE_FILE);
 
-        char filename[MAX_FILENAME];
-        if (sscanf(command + strlen(CMD_DELETE_FILE), "%s", filename) != 1) {            
+        if (sscanf(command + strlen(CMD_DELETE_FILE), "%s", params->filename) != 1) {            
             return STATUS_ERROR_PARAMS;
         }
         params->has_filename = true;
@@ -260,8 +259,7 @@ static command_status_t parse_command(const char* command, char* cmd_type, comma
     else if(strncmp(command, CMD_CHECK_FILE, strlen(CMD_CHECK_FILE)) == 0) {
         strcpy(cmd_type, CMD_CHECK_FILE);
 
-        char filename[MAX_FILENAME];
-        if (sscanf(command + strlen(CMD_CHECK_FILE), "%s", filename) != 1) {            
+        if (sscanf(command + strlen(CMD_CHECK_FILE), "%s", params->filename) != 1) {            
             return STATUS_ERROR_PARAMS;
         }
         params->has_filename = true;
@@ -414,6 +412,8 @@ void serial_handler_task(void *pvParameters) {
     strcpy(shell.cwd, SD_MOUNT_POINT);
     strcat(shell.cwd, "/");
 
+    ESP_LOGI(TAG, "Default shell cwd: %s\n", shell.cwd);
+
     ////////////////////////////////
 
     ESP_LOGI(TAG, "Serial handler started\n");
@@ -433,11 +433,11 @@ void serial_handler_task(void *pvParameters) {
             params->cmdline = NULL;
         }
 
-        params->has_filename = false;
         command_status_t parse_status = wait_for_command(cmd_type, params);
 
         if(params->has_filename) {
             prepend_cwd(shell.cwd, params->filename);
+            ESP_LOGI("HELLO", "prepend_cwd: %s", params->filename);            
         }
 
         if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "Working on cmd_type: %s\n", cmd_type);

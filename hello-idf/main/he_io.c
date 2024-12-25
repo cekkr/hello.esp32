@@ -147,7 +147,6 @@ esp_err_t prepend_cwd(const char* cwd, char* full_path) {
 
     char* filename = malloc(MAX_FILENAME*sizeof(char));
     strcpy(filename, full_path);
-
     strcpy(full_path, cwd);
     strcat(full_path, filename);
 
