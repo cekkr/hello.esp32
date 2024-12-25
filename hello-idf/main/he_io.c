@@ -226,7 +226,7 @@ void list_files(const char* dirname) {
             struct stat st = {0};
             if (stat(fullpath, &st) == 0) {
                 float kb = (float)st.st_size / 1024.0;  // Convert to kilobytes
-                ESP_LOGI(TAG, "%s \t %f.2 KB", entry->d_name, kb);
+                ESP_LOGI(TAG, "%s \t %.2f KB", entry->d_name, kb);
             }
             else {
                 ESP_LOGI(TAG, "%s", entry->d_name);
