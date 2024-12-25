@@ -195,7 +195,7 @@ static int cmd_devinfo(shell_t* shell, int argc, char** argv){
 }
 
 static int cmd_help(shell_t* shell, int argc, char **argv) {
-    ESP_LOGI(TAG, "Comandi disponibili:");
+    ESP_LOGI(TAG, "Available commands:");
     
     // Itera attraverso l'array dei comandi fino al terminatore
     const command_entry_t *cmd = &commands[0];
