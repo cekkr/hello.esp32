@@ -36,13 +36,13 @@ But it doesn't care: a deep study of WASM3 source code was essential, even if it
 Essentialy, if WASM3 when calls `RunCode` use as arguments the macro:
 
 ```c
-# define d_m3BaseOpSig                  pc_t _pc, m3stack_t _sp, M3MemoryHeader * _mem, m3reg_t _r0
+# define d_m3BaseOpSig  pc_t _pc, m3stack_t _sp, M3MemoryHeader * _mem, m3reg_t _r0
 ```
 
 WASM3-HelloESP has as base arguments:
 
 ```c
-# define d_m3BaseOpSig                  pc_t _pc, m3stack_t _sp, M3Memory * _mem, m3reg_t _r0
+# define d_m3BaseOpSig  pc_t _pc, m3stack_t _sp, M3Memory * _mem, m3reg_t _r0
 ```
 
 `M3MemoryHeader` is **deprecated** and M3Memory is used instead directly. Several macros are used to combine various combinations of memory allocation. This could be seen directly in function `m3_NewRuntime` in `m3_env.c`:
