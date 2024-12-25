@@ -56,7 +56,7 @@ void init_serial_writer_broker(){
     BaseType_t ret = xTaskCreatePinnedToCore(
         serial_handler_task,
         "serial_handler",
-        SERIAL_WRITER_BROKER_TASK_STACK_SIZE,     // Aumentato a 8KB
+        SERIAL_WRITER_BROKER_TASK_STACK_SIZE,     
         NULL,
         SERIAL_WRITER_BROKER_TASK_PRIORITY,              // Priorità media
         NULL,           // Non ci serve l'handle

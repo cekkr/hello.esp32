@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
+#include "esp_vfs.h"
 #include "esp_log.h"
 #include "esp_err.h"
 #include "esp_rom_sys.h"
@@ -9,7 +9,7 @@
 #include "he_defines.h"
 
 #include "he_io.h"
-#include <sys/dirent.h>
+//#include <sys/dirent.h>
 
 const bool HE_DEBUG_IO = false;
 
@@ -222,12 +222,13 @@ void list_files(const char* dirname) {
         
         // Per file che non sono directory
         if (entry->d_type != DT_DIR) {
-            char fullpath[300];
-            snprintf(fullpath, sizeof(fullpath), "%s/%s", dirname, entry->d_name);
+            char fullpath[MAX_FILENAME*2];
+            snprintf(fullpath, sizeof(fullpath), "%s%s", dirname, entry->d_name);
             
-            struct stat st;
+            struct stat st = {0};
             if (stat(fullpath, &st) == 0) {
-                ESP_LOGI(TAG, "  Size: %lld bytes", st.st_size);
+                float kb = (float)st.st_size / 1024.0;  // Convert to kilobytes
+                ESP_LOGI(TAG, "  Size: %f.2 KB", kb);
             }
         }
     }
