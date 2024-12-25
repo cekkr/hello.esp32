@@ -56,7 +56,7 @@ void monitor_printf(const char* format, ...) {
 void taskStatusMonitor(void *pvParameters) {
     TaskStatus_t *pxTaskStatusArray;
     volatile UBaseType_t uxArraySize;
-    uint64_t ulTotalRunTime, ulStatsAsPercentage;
+    uint32_t ulTotalRunTime, ulStatsAsPercentage;
     char pcWriteBuffer[50];
     
     while(1) {

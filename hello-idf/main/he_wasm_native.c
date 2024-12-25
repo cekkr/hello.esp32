@@ -191,6 +191,7 @@ M3Result wasm_esp_add(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, 
 
 ////////////////////////////////////////////////////////////////
 
+const bool HELLO_DEBUG_wasm_esp_read_serial = true;
 M3Result wasm_esp_read_serial(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, void* _mem) {
     if (!runtime || !_mem) {
         ESP_LOGW("WASM3", "wasm_esp_read_serial blocked: runtime=%p, mem=%p", runtime, _mem);
@@ -199,13 +200,17 @@ M3Result wasm_esp_read_serial(IM3Runtime runtime, IM3ImportContext *ctx, uint64_
 
     m3ApiReturnType  (char*)
 
+    if(HELLO_DEBUG_wasm_esp_read_serial) ESP_LOGI("WASM3", "esp_read_serial: setting serial_wasm_read true");
     serial_wasm_read = true;
 
     while(serial_wasm_read){
         vTaskDelay(pdMS_TO_TICKS(100));
     }
 
-    if(serial_wasm_read_string){              
+    if(HELLO_DEBUG_wasm_esp_read_serial) ESP_LOGI("WASM3", "esp_read_serial: serial_wasm_read setted to false");
+
+    if(serial_wasm_read_string){
+        if(HELLO_DEBUG_wasm_esp_read_serial) ESP_LOGI("WASM3", "esp_read_serial: content is: %s", serial_wasm_read_string);       
         *raw_return = serial_wasm_read_string;
         serial_wasm_read_string = NULL;
     }

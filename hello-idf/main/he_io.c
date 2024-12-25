@@ -227,7 +227,7 @@ void list_files(const char* dirname) {
             
             struct stat st;
             if (stat(fullpath, &st) == 0) {
-                ESP_LOGI(TAG, "  Size: %ld bytes", st.st_size);
+                ESP_LOGI(TAG, "  Size: %lld bytes", st.st_size);
             }
         }
     }

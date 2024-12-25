@@ -170,7 +170,7 @@ static int cmd_ls(shell_t* shell, int argc, char** argv) {
         //const char* path = argc > 0 ? argv[0] : ".";    
         //ESP_LOGI(TAG, "Listing directory: %s\n", path);
 
-        ESP_LOGI(TAG, "ls: currently unmanaged arguments");
+        ESP_LOGI(TAG, "ls: currently unmanaged arguments (fixed on %s)", shell->cwd);
     }
     
     list_files(shell->cwd);
