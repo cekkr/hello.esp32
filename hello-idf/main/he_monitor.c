@@ -35,13 +35,11 @@ void enable_log_debug(){
 void monitor_disable(){
     settings_t* settings = get_main_settings();
     settings->_disable_monitor = true;
-    enable_log_debug(); // ??
 }
 
 void monitor_enable(){
     settings_t* settings = get_main_settings();
     settings->_disable_monitor = false;
-    enable_log_debug();
 }
 
 ////////////////////////////////////////////////////////////////
