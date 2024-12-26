@@ -27,7 +27,8 @@ char* create_segment_page_name(char* basePath, int segment_id){
 ///
 
 size_t default_get_available_memory(paging_stats_t* g_stats){
-    return heap_caps_get_free_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
+    g_stats->available_memory = heap_caps_get_free_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
+    return g_stats->available_memory;
 }
 
 const bool HE_DEBUG_default_request_segment_paging = true;
@@ -150,9 +151,9 @@ esp_err_t paging_init(paging_stats_t** _g_stats, segment_handlers_t* handlers, s
         return ESP_ERR_NO_MEM;
     }
     memcpy(g_stats->handlers, handlers, sizeof(segment_handlers_t));
-
-    g_stats->total_memory = g_stats->handlers->get_available_memory(g_stats);
-    g_stats->available_memory = g_stats->total_memory;
+    
+    g_stats->total_memory = heap_caps_get_total_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);;
+    g_stats->handlers->get_available_memory(g_stats);
 
     g_stats->set_access_as_modified = true;
     
@@ -318,9 +319,7 @@ esp_err_t paging_check_paging_needed(paging_stats_t* g_stats){
     if(HE_DEBUG_paging_check_paging_needed){
         ESP_LOGI(TAG, "paging_check_paging_needed: g_stats: %p", g_stats); 
         ESP_LOGI(TAG, "paging_check_paging_needed: g_stats->handlers->get_available_memory: %p", g_stats->handlers->get_available_memory); 
-    }
-
-    g_stats->available_memory = g_stats->handlers->get_available_memory(g_stats);
+    }    
 
     if(HE_DEBUG_paging_check_paging_needed){
         ESP_LOGI(TAG, "paging_check_paging_needed: g_stats->handlers->get_available_memory executed (%lu)", g_stats->available_memory);
@@ -336,6 +335,7 @@ esp_err_t paging_check_paging_needed(paging_stats_t* g_stats){
         segment_info_t* segment = g_stats->segments[i];
         total_frequency += segment->usage_frequency;
 
+        g_stats->available_memory = g_stats->handlers->get_available_memory(g_stats);
         if(g_stats->available_memory > (g_stats->total_memory / 3)){
             break;
         }
@@ -352,6 +352,7 @@ esp_err_t paging_check_paging_needed(paging_stats_t* g_stats){
                 segment->has_page = true;   
 
                 g_stats->page_writes++;
+                g_stats->available_memory -= g_stats->segment_size;
             }
             else {
                 g_stats->page_faults++;
