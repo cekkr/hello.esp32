@@ -262,24 +262,24 @@ M3Result wasm_esp_read_serial(IM3Runtime runtime, IM3ImportContext *ctx, uint64_
 // Definizione della lookup table entry
 const WasmFunctionEntry functionTable[] = {
     { 
-        .name = (const char*)"esp_printf",           // Function name in WASM
+        .name = "esp_printf",           // Function name in WASM
         .func = wasm_esp_printf,    // Pointer to function
-        .signature = (const char*)"v(ii)"        // Signature: void (raw_ptr, int32)
+        .signature = "v(pi)"        // Signature: void (raw_ptr, int32)
     },
     { 
-        .name = (const char*)"lcd_draw_text",           // Function name in WASM
+        .name = "lcd_draw_text",           // Function name in WASM
         .func = wasm_lcd_draw_text,    // Pointer to function
-        .signature = (const char*)"v(iiii)"        // Signature
+        .signature = "v(iiip)"        // Signature
     },
     { 
-        .name = (const char*)"esp_add",           // Function name in WASM
+        .name = "esp_add",           // Function name in WASM
         .func = wasm_esp_add,    // Pointer to function
-        .signature = (const char*)"i(ii)"        // Signature
+        .signature = "i(ii)"        // Signature
     },
     {
-        .name = (const char*)"esp_read_serial",           // Function name in WASM
+        .name = "esp_read_serial",           // Function name in WASM
         .func = wasm_esp_read_serial,    // Pointer to function
-        .signature = (const char*)"i()"        // Signature
+        .signature = "p()"        // Signature
     }
     // Altre funzioni possono essere aggiunte qui
 };

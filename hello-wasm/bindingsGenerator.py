@@ -25,6 +25,9 @@ class WasmFunction:
 
 
 class BindingGenerator:
+
+    wasm_pointer_as = 64 # 32 or 64 (bits)
+
     TYPE_MAPPINGS = {
         'c': {
             'int': 'int32_t',
@@ -49,7 +52,8 @@ class BindingGenerator:
             'const char*': 'const char*',
             'char*': 'char*',
             'void': 'void',
-            'varargs': '...'
+            'varargs': '...',
+            'size_t': 'uint32_t' if wasm_pointer_as == 32 else 'uint64_t'
         },
         'rust': {
             'int': 'i32',
@@ -74,7 +78,8 @@ class BindingGenerator:
             'const char*': '*const i8',
             'char*': '*mut i8',
             'void': '()',
-            'varargs': '*const i32'
+            'varargs': '*const i32',
+            'size_t': 'i32' if wasm_pointer_as == 32 else 'i64'
         },
         'typescript': {
             'int': 'number',
@@ -99,7 +104,8 @@ class BindingGenerator:
             'const char*': 'number',
             'char*': 'number',
             'void': 'void',
-            'varargs': '...number[]'
+            'varargs': '...number[]',
+            'size_t': 'number'
         },
         'wasm3': {
             'int': 'i',
@@ -124,7 +130,8 @@ class BindingGenerator:
             'const char*': 'i',
             'char*': 'i',
             'void': 'v',
-            'varargs': 'i'
+            'varargs': 'i',
+            'size_t': 'i' if wasm_pointer_as == 32 else 'I'
         }
     }
 
@@ -157,6 +164,10 @@ class BindingGenerator:
 
     def _parse_c_function(self, line: str) -> Tuple[str, str, List[Tuple[str, str]], bool]:
         """Parse C function declaration."""
+
+        if line.startswith('typedef'):
+            return None, None, None, False
+
         # Remove extern keyword and attributes if present
         line = re.sub(r'extern|__attribute__\s*\(\([^)]+\)\)', '', line).strip()
         line = re.sub(r'\s+', ' ', line)  # Normalize whitespace
@@ -249,6 +260,10 @@ class BindingGenerator:
 
                 try:
                     return_type, name, params, is_pointer_return = self._parse_c_function(line)
+
+                    if(return_type is None):
+                        i += 1
+                        continue  # Skip non-function declarations
 
                     func_params = []
                     has_varargs = False

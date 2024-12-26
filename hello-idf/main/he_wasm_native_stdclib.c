@@ -12,17 +12,9 @@
 #include "esp_log.h"
 
 #include "he_defines.h"
-#include "he_settings.h"
-#include "he_screen.h"
 
 #include "wasm3.h"
-#include "m3_pointers.h"
 #include "m3_segmented_memory.h"
-
-// Common error messages
-#define ERROR_INVALID_MEMORY "Invalid memory access"
-#define ERROR_NULL_POINTER "Null pointer argument"
-#define ERROR_INVALID_ARGUMENT "Invalid argument"
 
 // Helper function to validate memory access in WASM space
 static bool ValidateMemoryAccess(IM3Runtime runtime, void* mem, void* ptr, size_t size) {
@@ -142,33 +134,161 @@ M3Result wasm_realloc(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, 
 }
 
 // Initial function table
+// memcmp implementation for WASM
+M3Result wasm_memcmp(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, void* _mem) {
+    m3ApiReturnType  (int32_t)
+    m3ApiGetArg      (const void*, ptr1)
+    m3ApiGetArg      (const void*, ptr2)
+    m3ApiGetArg      (uint32_t, num)
+
+    if (!ValidateMemoryAccess(runtime, _mem, (void*)ptr1, num) || 
+        !ValidateMemoryAccess(runtime, _mem, (void*)ptr2, num)) {
+        return m3Err_trapOutOfBoundsMemoryAccess;
+    }
+
+    const void* real_ptr1 = m3_ResolvePointer(_mem, ptr1);
+    const void* real_ptr2 = m3_ResolvePointer(_mem, ptr2);
+
+    *raw_return = memcmp(real_ptr1, real_ptr2, num);
+    return m3Err_none;
+}
+
+// strcmp implementation for WASM
+M3Result wasm_strcmp(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, void* _mem) {
+    m3ApiReturnType  (int32_t)
+    m3ApiGetArg      (const char*, str1)
+    m3ApiGetArg      (const char*, str2)
+
+    if (!ValidateMemoryAccess(runtime, _mem, (void*)str1, 1) || 
+        !ValidateMemoryAccess(runtime, _mem, (void*)str2, 1)) {
+        return m3Err_trapOutOfBoundsMemoryAccess;
+    }
+
+    const char* real_str1 = m3_ResolvePointer(_mem, str1);
+    const char* real_str2 = m3_ResolvePointer(_mem, str2);
+
+    // We need to validate the entire strings
+    size_t i = 0;
+    while (ValidateMemoryAccess(runtime, _mem, (void*)(str1 + i), 1) && 
+           ValidateMemoryAccess(runtime, _mem, (void*)(str2 + i), 1)) {
+        if (real_str1[i] != real_str2[i] || real_str1[i] == '\0') {
+            break;
+        }
+        i++;
+    }
+
+    *raw_return = (real_str1[i] - real_str2[i]);
+    return m3Err_none;
+}
+
+// memset implementation for WASM
+M3Result wasm_memset(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, void* _mem) {
+    m3ApiReturnType  (void*)
+    m3ApiGetArg      (void*, dest)
+    m3ApiGetArg      (int32_t, c)
+    m3ApiGetArg      (uint32_t, count)
+
+    if (!ValidateMemoryAccess(runtime, _mem, dest, count)) {
+        return m3Err_trapOutOfBoundsMemoryAccess;
+    }
+
+    void* real_dest = m3_ResolvePointer(_mem, dest);
+    M3Result result = m3_memset(_mem, real_dest, c, count);
+    if (result) return result;
+
+    *raw_return = dest;
+    return m3Err_none;
+}
+
+// strcat implementation for WASM
+M3Result wasm_strcat(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, void* _mem) {
+    m3ApiReturnType  (char*)
+    m3ApiGetArg      (char*, dest)
+    m3ApiGetArg      (const char*, src)
+
+    // First validate basic pointers
+    if (!ValidateMemoryAccess(runtime, _mem, dest, 1) || 
+        !ValidateMemoryAccess(runtime, _mem, (void*)src, 1)) {
+        return m3Err_trapOutOfBoundsMemoryAccess;
+    }
+
+    char* real_dest = m3_ResolvePointer(_mem, dest);
+    const char* real_src = m3_ResolvePointer(_mem, src);
+    
+    // Find end of dest string
+    size_t dest_len = 0;
+    while (ValidateMemoryAccess(runtime, _mem, dest + dest_len, 1) && 
+           real_dest[dest_len] != '\0') {
+        dest_len++;
+    }
+
+    // Copy src to end of dest
+    size_t i = 0;
+    while (ValidateMemoryAccess(runtime, _mem, (void*)(src + i), 1) && 
+           ValidateMemoryAccess(runtime, _mem, dest + dest_len + i, 1) && 
+           real_src[i] != '\0') {
+        real_dest[dest_len + i] = real_src[i];
+        i++;
+    }
+
+    // Add null terminator if we have space
+    if (ValidateMemoryAccess(runtime, _mem, dest + dest_len + i, 1)) {
+        real_dest[dest_len + i] = '\0';
+    } else {
+        return m3Err_trapOutOfBoundsMemoryAccess;
+    }
+
+    *raw_return = dest;
+    return m3Err_none;
+}
+
 const WasmFunctionEntry stdlibFunctionTable[] = {
     // String functions
     {
         .name = "strlen",
         .func = wasm_strlen,
-        .signature = "i(*)"  // uint32_t (const char*)
+        .signature = "i(p)"  // uint32_t (const char*)
     },
     {
         .name = "strcpy",
         .func = wasm_strcpy,
-        .signature = "*(**)"  // char* (char*, const char*)
+        .signature = "p(pp)"  // char* (char*, const char*)
     },
     // Memory functions
     {
         .name = "malloc",
         .func = wasm_malloc,
-        .signature = "*(i)"  // void* (size_t)
+        .signature = "p(p)"  // void* (size_t)
     },
     {
         .name = "free",
         .func = wasm_free,
-        .signature = "v(*)"  // void (void*)
+        .signature = "v(p)"  // void (void*)
     },
     {
         .name = "realloc",
         .func = wasm_realloc,
-        .signature = "*(*i)"  // void* (void*, size_t)
+        .signature = "p(pp)"  // void* (void*, size_t)
+    },
+    {
+        .name = "memcmp",
+        .func = wasm_memcmp,
+        .signature = "i(ppp)"  // int (const void*, const void*, size_t)
+    },
+    {
+        .name = "strcmp",
+        .func = wasm_strcmp,
+        .signature = "i(pp)"  // int (const char*, const char*)
+    },
+    {
+        .name = "memset",
+        .func = wasm_memset,
+        .signature = "p(pii)"  // void* (void*, int, size_t)
+    },
+    {
+        .name = "strcat",
+        .func = wasm_strcat,
+        .signature = "p(pp)"  // char* (char*, const char*)
     }
 };
 

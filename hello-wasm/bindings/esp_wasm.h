@@ -3,23 +3,45 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <stdarg.h>
 
-// Auto-generated ESP32 WASM bindings
+typedef uint32_t size_t;
 
-/*
-// Controls an LED connected to a GPIO pin
-void esp_led_write(int32_t pin, int32_t level);
+///
+/// Standard C Library
+///
 
-// Reads an ADC channel
-int32_t esp_adc_read(int32_t channel);
+// String functions
+extern size_t strlen(const char* str) 
+    __attribute__((import_module("env"), import_name("strlen")));
 
-// Reads the internal temperature sensor
-float esp_get_temperature();
+extern char* strcpy(char* dest, const char* src) 
+    __attribute__((import_module("env"), import_name("strcpy")));
 
-// Performs a WiFi scan and returns number of networks found
-int32_t esp_wifi_scan();
-*/
+extern int strcmp(const char* str1, const char* str2) 
+    __attribute__((import_module("env"), import_name("strcmp")));
+
+extern char* strcat(char* dest, const char* src) 
+    __attribute__((import_module("env"), import_name("strcat")));
+
+// Memory functions
+extern void* malloc(size_t size) 
+    __attribute__((import_module("env"), import_name("malloc")));
+
+extern void free(void* ptr) 
+    __attribute__((import_module("env"), import_name("free")));
+
+extern void* realloc(void* ptr, size_t size) 
+    __attribute__((import_module("env"), import_name("realloc")));
+
+extern void* memset(void* dest, int c, size_t count) 
+    __attribute__((import_module("env"), import_name("memset")));
+
+extern int memcmp(const void* ptr1, const void* ptr2, size_t num) 
+    __attribute__((import_module("env"), import_name("memcmp")));
+
+///
+/// Hello ESP functions
+///
 
 extern void esp_printf(const char* format, ...)  __attribute__((import_module("env"), import_name("esp_printf")));
 
