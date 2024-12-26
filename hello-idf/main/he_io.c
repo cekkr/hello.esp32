@@ -158,6 +158,17 @@ esp_err_t prepend_cwd(const char* cwd, char* full_path) {
     return ESP_OK;
 }
 
+bool file_exists(const char* path) {
+    struct stat st;
+
+    if (stat(path, &st) != 0) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
 esp_err_t create_dir_if_not_exist(const char* path) {
     struct stat st;
     esp_err_t ret = ESP_OK;

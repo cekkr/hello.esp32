@@ -60,7 +60,17 @@ esp_err_t default_request_segment_load(paging_stats_t* g_stats, uint32_t segment
 
     segment_info_t* segment = g_stats->segments[segment_id];
     char* pageName = create_segment_page_name(g_stats->base_path, segment_id);
-    if(HE_DEBUG_default_request_segment_load) ESP_LOGI(TAG, "default_request_segment_load: segment page name: %s", pageName);
+    if(HE_DEBUG_default_request_segment_load){ 
+        ESP_LOGI(TAG, "default_request_segment_load: segment page name: %s", pageName);
+        ESP_LOGI(TAG, "default_request_segment_load: read_data_chunk buffer: %p, chunk_size: %ld", *segment->data, g_stats->segment_size);
+    }
+
+    if(!file_exists){
+        if(HE_DEBUG_default_request_segment_load){
+            ESP_LOGE(TAG, "default_request_segment_load: page %s does not exist", pageName);
+        }
+        return ESP_ERR_NOT_FOUND;
+    }
 
     esp_err_t res = read_data_chunk(pageName, *segment->data, g_stats->segment_size, 0);
     free(pageName);
@@ -264,7 +274,7 @@ esp_err_t paging_notify_segment_allocation(paging_stats_t* g_stats, segment_info
     return ESP_OK;
 }
 
-const bool HE_DEBUG_paging_notify_segment_access = false;
+const bool HE_DEBUG_paging_notify_segment_access = true;
 esp_err_t paging_notify_segment_access(paging_stats_t* g_stats, uint32_t segment_id) {
     segment_info_t* target = NULL;
     
@@ -282,6 +292,7 @@ esp_err_t paging_notify_segment_access(paging_stats_t* g_stats, uint32_t segment
     g_stats->last_segment_id = segment_id;
     
     if (target->is_paged && target->is_allocated) {
+        if(HE_DEBUG_paging_notify_segment_access) ESP_LOGI("WASM3", "paging_notify_segment_access: request segment load for segment %d", segment_id);
         esp_err_t err = g_stats->handlers->request_segment_load(g_stats, segment_id);
         if (err != ESP_OK) {
             g_stats->page_faults++;
