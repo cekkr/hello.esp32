@@ -11,6 +11,7 @@
 #include "he_defines.h"
 #include "he_io.h"
 #include "he_device.h"
+#include "m3_core.h"
 
 ///
 ///
@@ -59,11 +60,7 @@ esp_err_t default_request_segment_load(paging_stats_t* g_stats, uint32_t segment
     }
 
     segment_info_t* segment = g_stats->segments[segment_id];
-    char* pageName = create_segment_page_name(g_stats->base_path, segment_id);
-    if(HE_DEBUG_default_request_segment_load){ 
-        ESP_LOGI(TAG, "default_request_segment_load: segment page name: %s", pageName);
-        ESP_LOGI(TAG, "default_request_segment_load: read_data_chunk buffer: %p, chunk_size: %ld", *segment->data, g_stats->segment_size);
-    }
+    char* pageName = create_segment_page_name(g_stats->base_path, segment_id);    
 
     if(!file_exists){
         if(HE_DEBUG_default_request_segment_load){
@@ -72,8 +69,20 @@ esp_err_t default_request_segment_load(paging_stats_t* g_stats, uint32_t segment
         return ESP_ERR_NOT_FOUND;
     }
 
+    *segment->data = default_malloc(g_stats->segment_size);
+
+    if(HE_DEBUG_default_request_segment_load){ 
+        ESP_LOGI(TAG, "default_request_segment_load: segment page name: %s", pageName);
+        ESP_LOGI(TAG, "default_request_segment_load: read_data_chunk buffer: %p, chunk_size: %ld", *segment->data, g_stats->segment_size);
+    }
+
     esp_err_t res = read_data_chunk(pageName, *segment->data, g_stats->segment_size, 0);
     free(pageName);
+
+    if(HE_DEBUG_default_request_segment_load){ 
+        ESP_LOGI("WASM3", "default_request_segment_load done");
+    }
+
     return res;
 }
 
@@ -274,7 +283,7 @@ esp_err_t paging_notify_segment_allocation(paging_stats_t* g_stats, segment_info
     return ESP_OK;
 }
 
-const bool HE_DEBUG_paging_notify_segment_access = true;
+const bool HE_DEBUG_paging_notify_segment_access = false;
 esp_err_t paging_notify_segment_access(paging_stats_t* g_stats, uint32_t segment_id) {
     segment_info_t* target = NULL;
     
