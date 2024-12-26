@@ -22,7 +22,7 @@ const char* ERROR_MSG_NULLS = "wasm_esp_printf: runtime or _mem is null";
 const char* ERROR_MSG_FAILED = "wasm_esp_printf: failed";
 
 const bool HELLO_DEBUG_wasm_esp_printf = false;
-M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, void* _mem) {
+M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, mos _sp, void* _mem) {
     if(HELLO_DEBUG_wasm_esp_printf){
         ESP_LOGI("WASM3", "Entering wasm_esp_printf with params:");
         ESP_LOGI("WASM3", "  runtime: %p", runtime);
@@ -44,13 +44,13 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _s
         //return ERROR_MSG_NULLS;
     }
 
-    uint64_t* stack = m3ApiOffsetToPtr(_sp);
+    uint64_t* stack = (uint64_t*)m3ApiOffsetToPtr(_sp);
     _sp++;
 
     char formatted_output[512];  // Increased buffer for safety
     
     // Recupera e valida il puntatore al formato
-    const char* format = m3ApiOffsetToPtr((void*)stack[0]);    
+    const char* format = (const char*) m3ApiOffsetToPtr((mos)stack[0]);    
     if (!format) {
         ESP_LOGE("WASM3", "esp_printf: Invalid format string pointer");
         return ERROR_MSG_FAILED;
@@ -58,7 +58,7 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _s
 
     if(HELLO_DEBUG_wasm_esp_printf) ESP_LOGE("WASM3", "wasm_esp_printf: format(%p): %s", format, format);
 
-    void* args_ptr = m3ApiOffsetToPtr((void*)stack[1]);
+    mos args_ptr = m3ApiOffsetToPtr((mos)stack[1]);
     if (!args_ptr) {
         ESP_LOGE("WASM3", "esp_printf: Invalid format string pointer");
         return ERROR_MSG_FAILED;
@@ -86,7 +86,8 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _s
                 }
 
                 // Processa l'argomento basandosi sul tipo
-                void* stack_ptr = m3ApiOffsetToPtr(args_ptr);
+                mos stack_ptr_mos = m3ApiOffsetToPtr(args_ptr);
+                void* stack_ptr = (void*)stack_ptr_mos;
                 switch (*fmt_ptr) {
                     case 'd': case 'i': case 'u': case 'x': case 'X':
                         args[arg_count].i = m3ApiReadMem32(stack_ptr);
@@ -97,13 +98,13 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _s
                         break;
                     case 's': {
                         // Gestione stringhe con validazione del puntatore
-                        void* ptr = m3ApiOffsetToPtr(stack_ptr);
+                        void* ptr = (void*) m3ApiOffsetToPtr(stack_ptr_mos);
 
                         if(ptr != NULL){
                             //todo: check the nature of this redudancy
-                            void* base_ptr = *(void**)ptr;
-                            if(IsValidMemoryAccess(_mem, (mos)base_ptr, 1)){
-                                ptr = m3_ResolvePointer(_mem, base_ptr);
+                            mos base_ptr = *(mos*)ptr;
+                            if(IsValidMemoryAccess(_mem, base_ptr, 1)){
+                                ptr = (void*)m3_ResolvePointer(_mem, base_ptr);
                             }
                         }
 
@@ -121,7 +122,7 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _s
                         break;
                     }                    
                 }
-                args_ptr += sizeof(uint64_t*);
+                args_ptr += sizeof(mos);
                 arg_count++;
             }
         }
@@ -152,13 +153,13 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _s
 ////////////////////////////////////////////////////////////////
 
 const bool HELLO_DEBUG_wasm_lcd_draw_text = false;
-M3Result wasm_lcd_draw_text(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, void* _mem){
-    uint64_t* args = m3ApiOffsetToPtr(_sp++);
+M3Result wasm_lcd_draw_text(IM3Runtime runtime, IM3ImportContext *ctx, mos _sp, void* _mem){
+    uint64_t* args = (uint64_t*) m3ApiOffsetToPtr(_sp++);
 
     int x = (int)args[0];
     int y = (int)args[1];
     int size = (int)args[2];
-    const char* text = (const char *)m3ApiOffsetToPtr((void*)args[3]); // is m3ApiOffsetToPtr still needed?
+    const char* text = (const char *)m3ApiOffsetToPtr((mos)args[3]); // is m3ApiOffsetToPtr still needed?
 
     if(HELLO_DEBUG_wasm_lcd_draw_text){
         printf("lcd_draw_text called with x:%d y:%d size:%d text: %s\n", x, y, size, text);
@@ -172,7 +173,7 @@ M3Result wasm_lcd_draw_text(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t*
 ////////////////////////////////////////////////////////////////////////
 
 const bool HELLO_DEBUG_wasm_esp_add = false;
-M3Result wasm_esp_add(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, void* _mem) {
+M3Result wasm_esp_add(IM3Runtime runtime, IM3ImportContext *ctx, mos _sp, void* _mem) {
     if (!runtime || !_mem) {
         ESP_LOGW("WASM3", "wasm_esp_add blocked: runtime=%p, mem=%p", runtime, _mem);
         return ERROR_MSG_NULLS;
@@ -181,10 +182,10 @@ M3Result wasm_esp_add(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, 
     m3ApiReturnType  (int32_t)
 
     // Ottiene il puntatore allo stack
-    uint64_t* stack = m3ApiOffsetToPtr(_sp++);
+    uint64_t* stack = (uint64_t*)m3ApiOffsetToPtr(_sp++);
 
     // Legge i due parametri dallo stack
-    int32_t a = (int32_t)stack[0];
+    int32_t a = stack[0];
     int32_t b = (int32_t)stack[1];
 
     if(HELLO_DEBUG_wasm_esp_add) {
@@ -208,7 +209,7 @@ M3Result wasm_esp_add(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, 
 ////////////////////////////////////////////////////////////////
 
 const bool HELLO_DEBUG_wasm_esp_read_serial = false;
-M3Result wasm_esp_read_serial(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, void* _mem) {
+M3Result wasm_esp_read_serial(IM3Runtime runtime, IM3ImportContext *ctx, mos _sp, void* _mem) {
     if (!runtime || !_mem) {
         ESP_LOGW("WASM3", "wasm_esp_read_serial blocked: runtime=%p, mem=%p", runtime, _mem);
         return ERROR_MSG_NULLS;
@@ -304,7 +305,7 @@ M3Result registerNativeWASMFunctions(IM3Module module, m3_wasi_context_t *ctx){
 Example returns:
 
 // 1. Esempio di funzione che ritorna un intero
-M3Result wasm_esp_get_temperature(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, void* _mem) {
+M3Result wasm_esp_get_temperature(IM3Runtime runtime, IM3ImportContext *ctx, mos _sp, void* _mem) {
     if (!runtime || !_mem) {
         ESP_LOGW("WASM3", "wasm_esp_get_temperature blocked: runtime=%p, mem=%p", runtime, _mem);
         return ERROR_MSG_NULLS;
@@ -314,21 +315,21 @@ M3Result wasm_esp_get_temperature(IM3Runtime runtime, IM3ImportContext *ctx, uin
     int32_t temperature = 25;  // Esempio valore
 
     // In WASM3, i valori di ritorno vengono pushati sullo stack
-    uint64_t* stack = m3ApiOffsetToPtr(_sp);
+    mos stack = m3ApiOffsetToPtr(_sp);
     m3ApiWriteMem32(stack, temperature);
     
     return NULL;  // NULL indica successo in WASM3
 }
 
 // 2. Esempio di funzione che ritorna una stringa
-M3Result wasm_esp_get_version(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, void* _mem) {
+M3Result wasm_esp_get_version(IM3Runtime runtime, IM3ImportContext *ctx, mos _sp, void* _mem) {
     if (!runtime || !_mem) {
         ESP_LOGW("WASM3", "wasm_esp_get_version blocked: runtime=%p, mem=%p", runtime, _mem);
         return ERROR_MSG_NULLS;
     }
 
     // Ottieni il puntatore allo stack
-    uint64_t* stack = m3ApiOffsetToPtr(_sp);
+    mos stack = m3ApiOffsetToPtr(_sp);
     
     // Il primo parametro è il puntatore al buffer di destinazione
     char* dest_buffer = m3ApiOffsetToPtr(stack[0]);
@@ -351,13 +352,13 @@ M3Result wasm_esp_get_version(IM3Runtime runtime, IM3ImportContext *ctx, uint64_
 }
 
 // 3. Esempio di funzione che ritorna una struttura
-M3Result wasm_esp_get_system_status(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, void* _mem) {
+M3Result wasm_esp_get_system_status(IM3Runtime runtime, IM3ImportContext *ctx, mos _sp, void* _mem) {
     if (!runtime || !_mem) {
         ESP_LOGW("WASM3", "wasm_esp_get_system_status blocked: runtime=%p, mem=%p", runtime, _mem);
         return ERROR_MSG_NULLS;
     }
 
-    uint64_t* stack = m3ApiOffsetToPtr(_sp);
+    mos stack = m3ApiOffsetToPtr(_sp);
     
     // Struttura di esempio per lo stato del sistema
     struct SystemStatus {
@@ -384,7 +385,7 @@ M3Result wasm_esp_get_system_status(IM3Runtime runtime, IM3ImportContext *ctx, u
 }
 
 // 4. Esempio di funzione che ritorna un float
-M3Result wasm_esp_get_battery_voltage(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, void* _mem) {
+M3Result wasm_esp_get_battery_voltage(IM3Runtime runtime, IM3ImportContext *ctx, mos _sp, void* _mem) {
     if (!runtime || !_mem) {
         ESP_LOGW("WASM3", "wasm_esp_get_battery_voltage blocked: runtime=%p, mem=%p", runtime, _mem);
         return ERROR_MSG_NULLS;
@@ -394,7 +395,7 @@ M3Result wasm_esp_get_battery_voltage(IM3Runtime runtime, IM3ImportContext *ctx,
     float voltage = 3.7f;  // Esempio valore
 
     // Ottieni il puntatore allo stack
-    uint64_t* stack = m3ApiOffsetToPtr(_sp);
+    mos stack = m3ApiOffsetToPtr(_sp);
     
     // Scrivi il float sullo stack
     // Nota: potrebbe essere necessario gestire l'allineamento
@@ -403,14 +404,14 @@ M3Result wasm_esp_get_battery_voltage(IM3Runtime runtime, IM3ImportContext *ctx,
     return NULL;
 }
 
-M3Result wasm_esp_add(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, void* _mem) {
+M3Result wasm_esp_add(IM3Runtime runtime, IM3ImportContext *ctx, mos _sp, void* _mem) {
     if (!runtime || !_mem) {
         ESP_LOGW("WASM3", "wasm_esp_add blocked: runtime=%p, mem=%p", runtime, _mem);
         return ERROR_MSG_NULLS;
     }
 
     // Ottiene il puntatore allo stack
-    uint64_t* stack = m3ApiOffsetToPtr(_sp);
+    mos stack = m3ApiOffsetToPtr(_sp);
 
     // Legge i due parametri dallo stack
     int32_t a = m3ApiReadMem32(&stack[0]);
