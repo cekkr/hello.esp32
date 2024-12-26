@@ -101,7 +101,7 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _s
                             //todo: check the nature of this redudancy
                             void* base_ptr = *(void**)ptr;
                             if(IsValidMemoryAccess(_mem, (mos)base_ptr, 1)){
-                                ptr = resolve_pointer(_mem, base_ptr);
+                                ptr = m3_ResolvePointer(_mem, base_ptr);
                             }
                         }
 
@@ -231,7 +231,7 @@ M3Result wasm_esp_read_serial(IM3Runtime runtime, IM3ImportContext *ctx, uint64_
         
         if(HELLO_DEBUG_wasm_esp_read_serial){ 
             ESP_LOGI("WASM3", "esp_read_serial: retStr: %p (len: %lu)", retStr, settings->_serial_wasm_read_string_len); 
-            ESP_LOGI("WASM3", "esp_read_serial: retStr content: %s", (char*)resolve_pointer(_mem, retStr));  // it works
+            ESP_LOGI("WASM3", "esp_read_serial: retStr content: %s", (char*)m3_ResolvePointer(_mem, retStr));  // it works
         }
 
         if(res != NULL){
