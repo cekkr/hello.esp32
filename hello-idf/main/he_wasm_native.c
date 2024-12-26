@@ -12,6 +12,8 @@
 #include "m3_pointers.h"
 #include "m3_segmented_memory.h"
 
+#include "he_wasm_native_stdclib.h"
+
 ///
 ///
 ///
@@ -283,7 +285,14 @@ const WasmFunctionEntry functionTable[] = {
 };
 
 M3Result registerNativeWASMFunctions(IM3Module module, m3_wasi_context_t *ctx){
-    M3Result result = RegisterWasmFunctions(module, functionTable, sizeof(functionTable)/sizeof(functionTable[0]), ctx);
+    // C Standard Library
+    M3Result result = RegisterStandardCLibFunctions(module, ctx);
+    if (result) {
+        return result;
+    }
+
+    // HelloESP Functions
+    result = RegisterWasmFunctions(module, functionTable, sizeof(functionTable)/sizeof(functionTable[0]), ctx);
     if (result) {
         ESP_LOGE(TAG, "Failed to register functions: %s", result);
     }
