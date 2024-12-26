@@ -153,7 +153,7 @@ void taskStatusMonitor(void *pvParameters) {
                 monitor_printf("- Priority: %d (Base: %d)", 
                     status.uxCurrentPriority,
                     status.uxBasePriority);
-                monitor_printf("- Stack HWM: %u bytes (%u%%)", 
+                monitor_printf("- Stack HWM: %u bytes (%u %%)", 
                     status.usStackHighWaterMark * sizeof(StackType_t),
                     (status.usStackHighWaterMark * 100) / ram_info.total_allocated_bytes);
                 monitor_printf("- State: %s", taskState);

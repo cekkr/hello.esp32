@@ -67,5 +67,9 @@ if [ $? -eq 0 ]; then
     echo "Porta seriale trovata: $ESP_DEV"
 else
     echo "Errore nel trovare la porta seriale"
-    exit 1
 fi
+
+export C_FLAGS="-fstack-usage"
+
+export MAKEFLAGS="-j8"
+export NINJA_JOBS=8

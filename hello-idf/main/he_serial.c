@@ -159,20 +159,21 @@ static command_status_t calculate_file_md5(const char* filename, char* hash_out)
         return STATUS_ERROR;
     }
 
-    mbedtls_md5_context md5_ctx;
-    mbedtls_md5_init(&md5_ctx);
-    mbedtls_md5_starts(&md5_ctx);
+    mbedtls_md5_context* md5_ctx = malloc(sizeof(mbedtls_md5_context));
+    mbedtls_md5_init(md5_ctx);
+    mbedtls_md5_starts(md5_ctx);
 
     unsigned char buffer[1024];
     size_t bytes;
     while ((bytes = fread(buffer, 1, sizeof(buffer), file)) != 0) {
-        mbedtls_md5_update(&md5_ctx, buffer, bytes);
+        mbedtls_md5_update(md5_ctx, buffer, bytes);
     }
 
     unsigned char digest[16];
-    mbedtls_md5_finish(&md5_ctx, digest);
-    mbedtls_md5_free(&md5_ctx);
+    mbedtls_md5_finish(md5_ctx, digest);
+    mbedtls_md5_free(md5_ctx);
     fclose(file);
+    free(md5_ctx);
 
     for(int i = 0; i < 16; i++) {
         sprintf(&hash_out[i*2], "%02x", (unsigned int)digest[i]);
@@ -190,15 +191,16 @@ static void calculate_md5_hex(const unsigned char* digest, char* hash_out) {
 }
 
 static void calculate_md5(const unsigned char* data, size_t len, char* hash_out) {
-    mbedtls_md5_context md5_ctx;
-    mbedtls_md5_init(&md5_ctx);
-    mbedtls_md5_starts(&md5_ctx);
-    mbedtls_md5_update(&md5_ctx, data, len);
+    mbedtls_md5_context* md5_ctx = malloc(sizeof(mbedtls_md5_context));
+    mbedtls_md5_init(md5_ctx);
+    mbedtls_md5_starts(md5_ctx);
+    mbedtls_md5_update(md5_ctx, data, len);
     
     unsigned char digest[16];
-    mbedtls_md5_finish(&md5_ctx, digest);
-    mbedtls_md5_free(&md5_ctx);
-    
+    mbedtls_md5_finish(md5_ctx, digest);
+    mbedtls_md5_free(md5_ctx);
+    free(md5_ctx);
+
     calculate_md5_hex(digest, hash_out);
 }
 
@@ -560,11 +562,11 @@ void serial_handler_task(void *pvParameters) {
             size_t total_received = 0;
             uint8_t* chunk_buffer = malloc(SERIAL_FILE_CHUNK_SIZE*sizeof(uint8_t));
             char* calculated_hash = malloc(SERIAL_HASH_SIZE * sizeof(char));
-            mbedtls_md5_context md5_ctx;
+            mbedtls_md5_context* md5_ctx = malloc(sizeof(mbedtls_md5_context));
             if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "mbedtls_md5_init\n");
-            mbedtls_md5_init(&md5_ctx);
+            mbedtls_md5_init(md5_ctx);
             if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "mbedtls_md5_init\n");
-            mbedtls_md5_starts(&md5_ctx);
+            mbedtls_md5_starts(md5_ctx);
             if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "mbedtls_md5_init COMPLETE\n");      
 
             text = malloc(text_size*sizeof(char));
@@ -636,7 +638,7 @@ void serial_handler_task(void *pvParameters) {
                 }
 
                 // Aggiorna hash totale e scrivi
-                mbedtls_md5_update(&md5_ctx, chunk_buffer, total_read);
+                mbedtls_md5_update(md5_ctx, chunk_buffer, total_read);
                 fwrite(chunk_buffer, sizeof(chunk_buffer[0]), total_received, file);                
 
                 send_response(STATUS_OK, "Chunk received");                
@@ -653,8 +655,8 @@ void serial_handler_task(void *pvParameters) {
             if(!SERIAL_IGNORE_FINAL_FILE_HASH){ 
                 // Verifica hash finale
                 uint8_t* hash_result = malloc(16*sizeof(uint8_t));
-                mbedtls_md5_finish(&md5_ctx, hash_result);
-                mbedtls_md5_free(&md5_ctx);
+                mbedtls_md5_finish(md5_ctx, hash_result);
+                mbedtls_md5_free(md5_ctx);
                 calculate_md5_hex(hash_result, calculated_hash);
                 free(hash_result);                
 
@@ -674,6 +676,7 @@ void serial_handler_task(void *pvParameters) {
             }
             
             freeEverything: {
+                free(md5_ctx);
                 free(chunk_buffer);
                 free(calculated_hash);
                 continue;
