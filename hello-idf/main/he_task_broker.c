@@ -1,5 +1,6 @@
 // task_broker.c
 #include "he_task_broker.h"
+#include "he_defines.h"
 
 // Struttura per gestire le informazioni di ogni task
 typedef struct {
@@ -52,7 +53,7 @@ bool broker_init(void) {
     }
 
     // Crea il task del broker
-    BaseType_t ret = xTaskCreate(broker_task, "broker_task", 4096, NULL, 5, NULL);
+    BaseType_t ret = xTaskCreate(broker_task, "broker_task", BROKER_TASK_STACK_SIZE, NULL, 5, NULL);
     if (ret != pdPASS) {
         ESP_LOGE(TAG, "Failed to create broker task");
         vQueueDelete(broker_ctx.broker_queue);
@@ -70,7 +71,7 @@ bool broker_register_task(const char* task_name) {
     }
 
     // Verifica se il task è già registrato
-    for (int i = 0; i < MAX_TASKS; i++) {
+    for (int i = 0; i < MAX_TASKS; i++) {        
         if (broker_ctx.tasks[i].in_use && 
             strcmp(broker_ctx.tasks[i].name, task_name) == 0) {
             return true;
@@ -87,7 +88,7 @@ bool broker_register_task(const char* task_name) {
                 return false;
             }
 
-            // Registra il task
+            // Registra il task            
             strncpy(broker_ctx.tasks[i].name, task_name, MAX_TASK_NAME_LENGTH - 1);
             broker_ctx.tasks[i].queue = queue;
             broker_ctx.tasks[i].in_use = true;
@@ -125,14 +126,26 @@ bool broker_unregister_task(const char* task_name) {
 
 bool broker_send_message(const char* source, const char* destination, 
                         const uint8_t* data, size_t length, uint8_t type) {
-    if (!broker_ctx.initialized || !source || !destination || 
-        !data || length > MAX_MESSAGE_SIZE) {
+    if (!broker_ctx.initialized || !source || !destination || !data) {
+        return false;
+    }
+    
+    // Define maximum data size in the broker_message_t struct
+    const size_t max_data_size = sizeof(((broker_message_t*)0)->data);
+    
+    // Ensure we don't overflow the buffer
+    if (length > max_data_size) {
+        ESP_LOGW(TAG, "Message too large: %zu bytes (max: %zu)", length, max_data_size);
         return false;
     }
 
     broker_message_t message = {0};
     strncpy(message.source, source, MAX_TASK_NAME_LENGTH - 1);
+    message.source[MAX_TASK_NAME_LENGTH - 1] = '\0';  // Ensure null termination
+    
     strncpy(message.destination, destination, MAX_TASK_NAME_LENGTH - 1);
+    message.destination[MAX_TASK_NAME_LENGTH - 1] = '\0';  // Ensure null termination
+    
     memcpy(message.data, data, length);
     message.data_length = length;
     message.message_type = type;

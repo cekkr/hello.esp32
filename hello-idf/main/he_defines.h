@@ -135,6 +135,7 @@ void* serial_print(const char* msg);
 
 #define MAX_CMD_LENGTH 512
 #define SERIAL_STACK_SIZE (1024*16)
+#define BROKER_TASK_STACK_SIZE (1024*12)
 
 #define EXCLUSIVE_SERIAL_ON_CMD false
 

@@ -513,6 +513,7 @@ void serial_handler_task(void *pvParameters) {
         }
         
         monitor_enable();
+        vTaskDelay(pdMS_TO_TICKS(100));
         //end_exclusive_serial();
 
         if(params->has_filename){
@@ -584,7 +585,7 @@ void serial_handler_task(void *pvParameters) {
             size_t total_received = 0;
             uint8_t* chunk_buffer = malloc(SERIAL_FILE_CHUNK_SIZE*sizeof(uint8_t));            
             char* calculated_hash = malloc(SERIAL_HASH_SIZE * sizeof(char));
-            memset(calculated_hash, 0, SERIAL_FILE_CHUNK_SIZE*sizeof(char));
+            memset(calculated_hash, 0, SERIAL_HASH_SIZE*sizeof(char));
             mbedtls_md5_context* md5_ctx = malloc(sizeof(mbedtls_md5_context));
             if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "mbedtls_md5_init\n");
             mbedtls_md5_init(md5_ctx);
@@ -612,19 +613,20 @@ void serial_handler_task(void *pvParameters) {
             while (total_received < params->filesize) {
                 // Attendi comando chunk
 
-                char* cmd_type_chunk = malloc(SERIAL_FILE_BUFFER_SIZE);
+                char* cmd_type_chunk = malloc(SERIAL_MAX_CMD_SIZE*sizeof(char));
                 command_params_t* params_chunk = malloc(sizeof(command_params_t));
                 if (wait_for_command(cmd_type_chunk, params_chunk) != STATUS_OK || strcmp(cmd_type_chunk, CMD_CHUNK) != 0) {
                     fclose(file);
                     unlink(params->filename);
 
                     sprintf(text, "Invalid chunk command: %s\n", cmd_type_chunk);             
-                    send_response(STATUS_ERROR, text);
+                    send_response_immediate(STATUS_ERROR, text);
 
                     if(invalidChunkCmds++ > 2){
                         send_response(STATUS_ERROR, "Too many invalid chunk commands\n");
+                        free(text);
+                        free(cmd_type_chunk);
                         goto freeEverything;
-                        break;
                     }
                     
                     continue;
@@ -634,7 +636,7 @@ void serial_handler_task(void *pvParameters) {
                     send_response_immediate(STATUS_OK, text);
                 }    
 
-                free(cmd_type_chunk);             
+                free(cmd_type_chunk);
 
                 // Leggi e verifica chunk
                 size_t to_read = params_chunk->chunk_size;
@@ -861,6 +863,7 @@ void serial_handler_task(void *pvParameters) {
                     ESP_LOGE(TAG, "File %s stat error: %s", fullpath, strerror(errno));                    
                 }
             }
+            free(fullpath);
             closedir(dir);
 
             send_response_immediate(STATUS_OK, "!!END!!\n");
