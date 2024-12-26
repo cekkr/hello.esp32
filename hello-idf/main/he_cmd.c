@@ -60,6 +60,7 @@ static int parse_arguments(char* input, char** argv) {
 ////
 
 // Handler per il comando "run"
+const bool HELLO_DEBUG_cmd_run = false;
 static int cmd_run(shell_t* shell, int argc, char** argv) {
     if (argc < 1) {
         ESP_LOGI(TAG, "Usage: run <filename> [args...]\n");
@@ -108,7 +109,7 @@ static int cmd_run(shell_t* shell, int argc, char** argv) {
                 &task_handle,
                 WASM_TASK_CORE
             );
-            error_msg = "task pinnata al core";
+            error_msg = "task pinned to core";
         } else {
             ret = xTaskCreate(
                 wasm_task,
@@ -125,20 +126,19 @@ static int cmd_run(shell_t* shell, int argc, char** argv) {
             const char* err_reason;
             switch (ret) {
                 case errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY:
-                    err_reason = "memoria insufficiente";
+                    err_reason = "no memory";
                     break;
                 case errQUEUE_BLOCKED:
-                    err_reason = "coda bloccata";
+                    err_reason = "queue locked";
                     break;
                 case errQUEUE_YIELD:
-                    err_reason = "yield richiesto";
+                    err_reason = "yield requested";
                     break;
                 default:
-                    err_reason = "errore sconosciuto";
+                    err_reason = "unknown error";
             }
             
-            ESP_LOGE(TAG, "Creazione %s fallita: %s (codice: %d)", 
-                    error_msg, err_reason, ret);
+            ESP_LOGE(TAG, "Creation %s failed: %s (code: %d)", error_msg, err_reason, ret);
             
             // Pulizia memoria
             free(params->filename);
@@ -147,8 +147,7 @@ static int cmd_run(shell_t* shell, int argc, char** argv) {
             return ESP_ERR_NO_MEM;
         }
         
-        ESP_LOGI(TAG, "Task WASM creata con successo (handle: %p)", 
-                (void*)task_handle);
+        if(HELLO_DEBUG_cmd_run) ESP_LOGI(TAG, "Task WASM successfully created (handle: %p)", (void*)task_handle);
         return ESP_OK;
     
     } else {
