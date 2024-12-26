@@ -15,6 +15,8 @@
 // Definizioni
 #define SERIAL_FILE_BUFFER_SIZE 1024
 #define SERIAL_FILE_CHUNK_SIZE 1024
+#define SERIAL_HASH_SIZE 33
+#define SERIAL_IGNORE_FINAL_FILE_HASH false
 
 // Comandi
 #define CMD_PING "$$$PING$$$"

@@ -341,8 +341,9 @@ static command_status_t parse_command(const char* command, char* cmd_type, comma
     return STATUS_OK;
 }
 
+#define COMMAND_BUFFER_SIZE 1536
 command_status_t wait_for_command(char* cmd_type, command_params_t* params) {    
-    char command_buffer[1536] = {0};
+    char* command_buffer = malloc(COMMAND_BUFFER_SIZE*sizeof(char));
     size_t length = 0;
     
     int incipit = 0;
@@ -401,6 +402,8 @@ command_status_t wait_for_command(char* cmd_type, command_params_t* params) {
     
     command_status_t res = parse_command(command_buffer, cmd_type, params);
 
+    free(command_buffer);
+
     if(res == STATUS_OK) {
         if(strncmp(cmd_type, CMD_PING, strlen(CMD_PING)) == 0){
             send_response(STATUS_OK, "PONG");
@@ -444,7 +447,8 @@ void serial_handler_task(void *pvParameters) {
 
     struct stat file_stat;
 
-    char text [512];
+    const int text_size = 512;
+    char* text = NULL;
 
     if (!cmd_type || !params) { // || !command
         ESP_LOGE(TAG, "Failed to allocate buffers\n");
@@ -499,8 +503,10 @@ void serial_handler_task(void *pvParameters) {
         if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "Working on cmd_type: %s\n", cmd_type);
 
         if (parse_status != STATUS_OK) {
+            text = malloc(text_size*sizeof(char));
             sprintf(text, "Invalid command parameters: %s", cmd_type);             
             send_response(parse_status, text);
+            free(text);
             continue;
         }
 
@@ -519,25 +525,29 @@ void serial_handler_task(void *pvParameters) {
 
             // Controllo caratteri validi nel nome file
             if (!is_filename_valid(params->filename)) {
+                text = malloc(text_size*sizeof(char));
                 sprintf(text, "Invalid filename characters: %s", params->filename);             
                 send_response(STATUS_ERROR, text);
+                free(text);
                 continue;
             }
 
             // Controllo dimensione file
             if (params->filesize > (1024*1024*32) || params->filesize == 0) {
+                text = malloc(text_size*sizeof(char));
                 sprintf(text, "Invalid file size: %d", params->filesize);             
                 send_response(STATUS_ERROR, text);
+                free(text);
                 continue;
             }
 
             if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "Starting reading file...\n");
             FILE* file = fopen(params->filename, "w");
             if (!file) {
-                char text[FILENAME_MAX + 128];
-                sprintf(text, "Failed to create file %s: %s", 
-                        params->filename, strerror(errno));
+                text = malloc(text_size*sizeof(char));
+                sprintf(text, "Failed to create file %s: %s", params->filename, strerror(errno));
                 send_response(STATUS_ERROR, text);
+                free(text);
                 continue;
             }
 
@@ -545,8 +555,8 @@ void serial_handler_task(void *pvParameters) {
 
             if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "Calculating MD5\n");
             size_t total_received = 0;
-            uint8_t chunk_buffer[1024];
-            char calculated_hash[33];
+            uint8_t* chunk_buffer = malloc(SERIAL_FILE_CHUNK_SIZE*sizeof(uint8_t));
+            char* calculated_hash = malloc(SERIAL_HASH_SIZE * sizeof(char));
             mbedtls_md5_context md5_ctx;
             if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "mbedtls_md5_init\n");
             mbedtls_md5_init(&md5_ctx);
@@ -554,8 +564,9 @@ void serial_handler_task(void *pvParameters) {
             mbedtls_md5_starts(&md5_ctx);
             if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "mbedtls_md5_init COMPLETE\n");      
 
+            text = malloc(text_size*sizeof(char));
             sprintf(text, "OK:READY: Wait for chunks");    
-            send_response(STATUS_OK, text);                  
+            send_response(STATUS_OK, text);                              
 
             bool chunkHashFailed = false;
             int invalidChunkCmds = 0;
@@ -575,13 +586,13 @@ void serial_handler_task(void *pvParameters) {
                         send_response(STATUS_ERROR, "Too many invalid chunk commands");
                         break;
                     }
-
+                    
                     continue;
                 }    
                 else {
                     sprintf(text, "OK:READY: Ready for chunk (%d)", params->filesize);    
                     send_response(STATUS_OK, text);
-                }            
+                }                    
 
                 // Leggi e verifica chunk
                 size_t to_read = params_chunk->chunk_size;
@@ -610,11 +621,14 @@ void serial_handler_task(void *pvParameters) {
                 if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "Verifying chunk MD5\n");
                 calculate_md5(chunk_buffer, total_read, calculated_hash);
                 if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "calculate_md5 done.\n");
-                if (strcmp(calculated_hash, params_chunk->chunk_hash) != 0) {
+
+                int hash_cmp = strcmp(calculated_hash, params_chunk->chunk_hash);                
+
+                if (hash_cmp != 0) {
                     fclose(file);
                     unlink(params->filename);
                     send_response(STATUS_ERROR, "Chunk hash mismatch");
-                    chunkHashFailed = true;                    
+                    chunkHashFailed = true;                
                     break;
                 }
 
@@ -625,18 +639,21 @@ void serial_handler_task(void *pvParameters) {
                 send_response(STATUS_OK, "Chunk received");                
             }
 
+            free(text); // no more needed
+
             if(chunkHashFailed){                
-                continue;
+                goto freeEverything;
             }
 
             if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "All data received\n");
 
-            if(true){ // IGNORE_FINAL_FILE_HASH 
+            if(!SERIAL_IGNORE_FINAL_FILE_HASH){ 
                 // Verifica hash finale
-                uint8_t hash_result[16];
+                uint8_t* hash_result = malloc(16*sizeof(uint8_t));
                 mbedtls_md5_finish(&md5_ctx, hash_result);
                 mbedtls_md5_free(&md5_ctx);
                 calculate_md5_hex(hash_result, calculated_hash);
+                free(hash_result);                
 
                 fclose(file);
 
@@ -652,7 +669,12 @@ void serial_handler_task(void *pvParameters) {
                 fclose(file);
                 send_response(STATUS_OK, "File written successfully");
             }
-
+            
+            freeEverything: {
+                free(chunk_buffer);
+                free(calculated_hash);
+                continue;
+            }
         }
         else if (strcmp(cmd_type, CMD_CHECK_FILE) == 0) {
             // Controllo esistenza file
@@ -679,16 +701,18 @@ void serial_handler_task(void *pvParameters) {
             }
 
             // Calcolo e invio hash MD5 del file
-            char hash[33];
+            char* hash = malloc(SERIAL_HASH_SIZE*sizeof(char));
             if (calculate_file_md5(params->filename, hash) != STATUS_OK) {
                 send_response(STATUS_ERROR, "Failed to calculate file hash");
                 continue;
             }
 
             // Invia dimensione file e hash
-            char response[100];
-            snprintf(response, sizeof(response), "%lld,%s", file_stat.st_size, hash);
-            send_response(STATUS_OK, response);
+            text = malloc(text_size*sizeof(char));
+            snprintf(text, text_size, "%lld,%s", file_stat.st_size, hash);
+            send_response(STATUS_OK, text);
+            free(text);
+            free(hash);
 
             // Leggi e invia il file a chunks
             FILE *f = fopen(params->filename, "rb");
@@ -711,28 +735,22 @@ void serial_handler_task(void *pvParameters) {
                 size_t to_read = MIN(SERIAL_FILE_CHUNK_SIZE, file_stat.st_size - bytes_sent);
                 size_t read = fread(chunk, 1, to_read, f);
                 if (read != to_read) {
-                    free(chunk);
-                    fclose(f);
                     send_response(STATUS_ERROR, "Failed to read file");
-                    continue;
+                    goto free_serialRead;
                 }
 
                 // Invia chunk
                 if (fwrite(chunk, 1, read, stdout) != read) {
-                    free(chunk);
-                    fclose(f);
                     send_response(STATUS_ERROR, "Failed to send chunk");
-                    continue;
+                    goto free_serialRead;
                 }
                 fflush(stdout);
 
                 // Attendi ACK
                 char ack[10];
                 if (fgets(ack, sizeof(ack), stdin) == NULL || strncmp(ack, "OK", 2) != 0) {
-                    free(chunk);
-                    fclose(f);
                     send_response(STATUS_ERROR, "Failed to get chunk ACK");
-                    continue;
+                    goto free_serialRead;
                 }
 
                 bytes_sent += read;
@@ -740,9 +758,12 @@ void serial_handler_task(void *pvParameters) {
 
             end_exclusive_serial();
 
-            free(chunk);
-            fclose(f);
             send_response(STATUS_OK, "File sent successfully");
+
+            free_serialRead:{
+                free(chunk);
+                fclose(f);
+            }            
         }
         else if (strcmp(cmd_type, CMD_LIST_FILES) == 0) {
             monitor_disable();
@@ -762,7 +783,9 @@ void serial_handler_task(void *pvParameters) {
             ////////////////////////////////
             DIR *dir;
             struct dirent *ent;
-            char file_list[4096] = "LIST:";  // Buffer per la lista file
+            const size_t file_list_size = 4096;
+            char* file_list = malloc(sizeof(char)*file_list_size);  // Buffer per la lista file
+            strcpy(file_list, "LIST:");
             size_t offset = 5;                
 
             dir = opendir(SD_MOUNT_POINT);
@@ -784,7 +807,7 @@ void serial_handler_task(void *pvParameters) {
                 if (stat(fullpath, &file_stat) == 0) {
                     int written = snprintf(file_list + offset, 
                                         sizeof(file_list) - offset,
-                                        "%s,%ld;", 
+                                        "%s,%lld;", 
                                         ent->d_name, 
                                         file_stat.st_size);
                     if (written > 0) {
@@ -803,7 +826,8 @@ void serial_handler_task(void *pvParameters) {
             }
 
             send_response(STATUS_OK, file_list);
-            end_exclusive_serial();
+            free(file_list);
+            monitor_enable();
         }
         else if (strcmp(cmd_type, CMD_DELETE_FILE) == 0) {
             /*if (!params->filename) { // always true
@@ -832,9 +856,10 @@ void serial_handler_task(void *pvParameters) {
             }*/
 
             if (stat(params->filename, &file_stat) == 0) {
-                char size_str[20];
-                snprintf(size_str, sizeof(size_str), "%ld", file_stat.st_size);
+                char* size_str = malloc(20*sizeof(char));
+                snprintf(size_str, 20, "%lld", file_stat.st_size);
                 send_response(STATUS_OK, size_str);
+                free(size_str);
             } else {
                 send_response(STATUS_ERROR, "File not found");
             }
@@ -879,8 +904,10 @@ void serial_handler_task(void *pvParameters) {
             end_exclusive_serial();
         }
         else {
+            text = malloc(text_size*sizeof(char));
             sprintf(text, "Unknown command: %s", cmd_type);                
             send_response(STATUS_ERROR, text);
+            free(text);
         }
     
         vTaskDelay(pdMS_TO_TICKS(10));
