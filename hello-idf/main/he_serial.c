@@ -845,9 +845,9 @@ void serial_handler_task(void *pvParameters) {
                     free(settings->_serial_wasm_read_string);
 
                 size_t len = strlen(params->cmdline);
-                settings->_serial_wasm_read_string = malloc(sizeof(char) * (len+1));
+                settings->_serial_wasm_read_string = malloc(sizeof(char) * (len));
+                settings->_serial_wasm_read_string_len = len;
                 strcpy(settings->_serial_wasm_read_string, params->cmdline);
-                settings->_serial_wasm_read_string[len] = '\0';
 
                 settings->_serial_wasm_read = false;
                 send_response(STATUS_OK, "Command sent to WASM");
