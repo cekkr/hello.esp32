@@ -215,28 +215,11 @@ M3Result wasm_esp_read_serial(IM3Runtime runtime, IM3ImportContext *ctx, uint64_
     if(HELLO_DEBUG_wasm_esp_read_serial) ESP_LOGI("WASM3", "esp_read_serial: serial_wasm_read setted to false");
 
     if(settings->_serial_wasm_read_string){       
-        /* When compiler optimizations void variable assignments:        
-        // Soluzione 1: Usa volatile
-        volatile size_t len = settings->_serial_wasm_read_string_len;
-
-        // Soluzione 2: Usa una barriera di memoria
-        size_t len = settings->_serial_wasm_read_string_len;
-        __sync_synchronize();
-
-        // Soluzione 3: Disabilita l'ottimizzazione per questa variabile
-        size_t len __attribute__((used)) = settings->_serial_wasm_read_string_len;
-        */
-
-        size_t tmplen = settings->_serial_wasm_read_string_len;
-        volatile size_t len = settings->_serial_wasm_read_string_len;
-        //__sync_synchronize();
-
-        void* retStr = m3_Malloc(_mem, len*sizeof(char));
-        M3Result res = m3_memcpy(_mem, retStr, settings->_serial_wasm_read_string, len);
+        void* retStr = m3_Malloc(_mem, settings->_serial_wasm_read_string_len*sizeof(char));
+        M3Result res = m3_memcpy(_mem, retStr, settings->_serial_wasm_read_string, settings->_serial_wasm_read_string_len);
         
         if(HELLO_DEBUG_wasm_esp_read_serial){ 
-            ESP_LOGI("WASM3", "esp_read_serial: retStr: %p (len: %lu)", retStr, len);
-            ESP_LOGI("WASM3", "esp_read_serial: content (%lu) is: %s", settings->_serial_wasm_read_string_len, settings->_serial_wasm_read_string);   
+            ESP_LOGI("WASM3", "esp_read_serial: retStr: %p (len: %lu)", retStr, settings->_serial_wasm_read_string_len);            
         }
 
         if(res != NULL){
