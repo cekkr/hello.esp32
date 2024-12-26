@@ -214,7 +214,7 @@ static int cmd_help(shell_t* shell, int argc, char **argv) {
 // Funzione principale per l'elaborazione dei comandi
 int process_command(shell_t* shell, char* cmd_str) {
     char* argv[MAX_ARGS];
-    char cmd_copy[MAX_CMD_LENGTH];
+    char* cmd_copy = malloc(MAX_CMD_LENGTH*sizeof(char));
     
     // Copia il comando per non modificare l'originale
     strncpy(cmd_copy, cmd_str, MAX_CMD_LENGTH - 1);
@@ -238,15 +238,22 @@ int process_command(shell_t* shell, char* cmd_str) {
     argc--;     // decrementa il contatore degli argomenti
     /// 
 
+    int ret = -1;
+
     // Cerca il comando nella tabella
     for (const command_entry_t* cmd = commands; cmd->command != NULL; cmd++) {
         if (strcmp(program, cmd->command) == 0) {
-            return cmd->handler(shell, argc, argv);
+            ret = cmd->handler(shell, argc, argv);
+            break;
         }
     }
     
-    ESP_LOGI(TAG, "Unknown command: %s\n", argv[0]);
-    return -1;
+    if(ret == -1)
+        ESP_LOGI(TAG, "Unknown command: %s\n", argv[0]);
+
+    free(cmd_copy);
+
+    return ret;
 }
 
 ///
