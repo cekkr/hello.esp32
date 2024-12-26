@@ -1,15 +1,6 @@
 #ifndef HELLOESP_SERIAL_H
 #define HELLOESP_SERIAL_H
-#include <stdio.h>
-#include <string.h>
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "esp_log.h"
-#include <errno.h>
-#include "driver/uart.h"     // Per UART_NUM_0 e altre costanti UART
-#include "esp_task_wdt.h"
-#include <dirent.h>
-#include "mbedtls/md5.h"
+
 #include "he_defines.h"
 
 // Definizioni

@@ -1,3 +1,6 @@
+#include "driver/uart.h"     // Per UART_NUM_0 e altre costanti UART
+
+////////////////////////////////
 #include "he_defines.h"
 #include "he_settings.h"
 

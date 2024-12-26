@@ -5,8 +5,11 @@
 #include "esp_log.h"
 #include <errno.h>
 #include "driver/uart.h"     // Per UART_NUM_0 e altre costanti UART
-#include <dirent.h>
+#include "dirent.h"
 #include "portmacro.h"
+#include "esp_task_wdt.h"
+#include "mbedtls/md5.h"
+#include <sys/stat.h>
 
 #include "he_device.h"
 #include "he_monitor.h"
@@ -136,10 +139,10 @@ static void send_response(command_status_t status, const char* message) {
     char* buffer = malloc(sizeof(char)*LOG_BUFFER_SIZE);
     switch(status) {
         case STATUS_OK:
-            sprintf(buffer, "!!OK!!: %s\n", message);            
+            sprintf(buffer, "!!OK!!:%s\n", message);            
             break;
         default:
-            sprintf(buffer, "!!ERROR!!: %s\n", message);
+            sprintf(buffer, "!!ERROR!!:%s\n", message);
             break;
     }
 
@@ -151,15 +154,15 @@ static void send_response_immediate(command_status_t status, const char* message
     char* buffer = malloc(sizeof(char)*LOG_BUFFER_SIZE);
     switch(status) {
         case STATUS_OK:
-            sprintf(buffer, "!!OK!!: %s\n", message);            
+            sprintf(buffer, "!!OK!!:%s\n", message);            
             break;
         default:
-            sprintf(buffer, "!!ERROR!!: %s\n", message);
+            sprintf(buffer, "!!ERROR!!:%s\n", message);
             break;
     }
 
     uart_write_bytes(UART_NUM_0, buffer, strlen(buffer));
-    uart_wait_tx_done(UART_NUM_0, portMAX_DELAY);
+    //uart_wait_tx_done(UART_NUM_0, portMAX_DELAY);
 
     free(buffer);
 }
@@ -509,7 +512,8 @@ void serial_handler_task(void *pvParameters) {
                      uxTaskGetStackHighWaterMark(NULL));
         }
         
-        end_exclusive_serial();
+        monitor_enable();
+        //end_exclusive_serial();
 
         if(params->has_filename){
             params->filename[0] = '\0';
@@ -579,6 +583,7 @@ void serial_handler_task(void *pvParameters) {
             if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "Calculating MD5\n");
             size_t total_received = 0;
             uint8_t* chunk_buffer = malloc(SERIAL_FILE_CHUNK_SIZE*sizeof(uint8_t));
+            memset(chunk_buffer, 0, SERIAL_FILE_CHUNK_SIZE*sizeof(uint8_t));
             char* calculated_hash = malloc(SERIAL_HASH_SIZE * sizeof(char));
             mbedtls_md5_context* md5_ctx = malloc(sizeof(mbedtls_md5_context));
             if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "mbedtls_md5_init\n");
@@ -589,10 +594,11 @@ void serial_handler_task(void *pvParameters) {
 
             text = malloc(text_size*sizeof(char));
             sprintf(text, "OK:READY: Wait for chunks");    
-            send_response(STATUS_OK, text);                              
+            send_response_immediate(STATUS_OK, text);                              
 
             bool chunkHashFailed = false;
             int invalidChunkCmds = 0;
+            int chunk_num = 0;
             while (total_received < params->filesize) {
                 // Attendi comando chunk
 
@@ -602,19 +608,19 @@ void serial_handler_task(void *pvParameters) {
                     fclose(file);
                     unlink(params->filename);
 
-                    sprintf(text, "Invalid chunk command: %s", cmd_type_chunk);             
+                    sprintf(text, "Invalid chunk command: %s\n", cmd_type_chunk);             
                     send_response(STATUS_ERROR, text);
 
-                    if(invalidChunkCmds++ > 3){
-                        send_response(STATUS_ERROR, "Too many invalid chunk commands");
+                    if(invalidChunkCmds++ > 2){
+                        send_response(STATUS_ERROR, "Too many invalid chunk commands\n");
                         break;
                     }
                     
                     continue;
                 }    
                 else {
-                    sprintf(text, "OK:READY: Ready for chunk (%d)", params->filesize);    
-                    send_response(STATUS_OK, text);
+                    sprintf(text, "OK:READY: Ready for chunk (%d)", chunk_num);    
+                    send_response_immediate(STATUS_OK, text);
                 }                    
 
                 // Leggi e verifica chunk
@@ -659,7 +665,7 @@ void serial_handler_task(void *pvParameters) {
                 mbedtls_md5_update(md5_ctx, chunk_buffer, total_read);
                 fwrite(chunk_buffer, sizeof(chunk_buffer[0]), total_received, file);                
 
-                send_response(STATUS_OK, "Chunk received");                
+                send_response_immediate(STATUS_OK, "Chunk received");                
             }
 
             free(text); // no more needed
@@ -668,7 +674,7 @@ void serial_handler_task(void *pvParameters) {
                 goto freeEverything;
             }
 
-            if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "All data received\n");
+            if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "All data received");
 
             if(!SERIAL_IGNORE_FINAL_FILE_HASH){ 
                 // Verifica hash finale
@@ -680,7 +686,7 @@ void serial_handler_task(void *pvParameters) {
 
                 fclose(file);
 
-                if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "Verifying total hash...\n");
+                if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "Verifying total hash...");
                 if (strcmp(calculated_hash, params->file_hash) != 0) {
                     unlink(params->filename);
                     send_response(STATUS_ERROR, "File hash mismatch");
@@ -713,6 +719,8 @@ void serial_handler_task(void *pvParameters) {
             continue;
         }
         else if (strcmp(cmd_type, CMD_READ_FILE) == 0) {
+            monitor_disable();
+
             /*if (!params->filename) { // always true
                 send_response(STATUS_ERROR, "Missing filename");
                 continue;
@@ -830,7 +838,7 @@ void serial_handler_task(void *pvParameters) {
                 if (stat(fullpath, &file_stat) == 0) {
                     int written = snprintf(file_list, 
                                         file_list_size,
-                                        "%s,%lld\n", 
+                                        "%s,%ld\n", 
                                         ent->d_name, 
                                         file_stat.st_size);
                     
@@ -843,8 +851,7 @@ void serial_handler_task(void *pvParameters) {
             closedir(dir);
 
             send_response_immediate(STATUS_OK, "!!END!!\n");
-            free(file_list);
-            monitor_enable();
+            free(file_list);            
         }
         else if (strcmp(cmd_type, CMD_DELETE_FILE) == 0) {
             /*if (!params->filename) { // always true

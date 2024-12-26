@@ -9,6 +9,9 @@
 #include "esp_rom_sys.h"
 #include "esp_log.h"
 
+#include <sys/stat.h> 
+
+////////////////////////////////////////////////////////////////
 #include "he_defines.h"
 
 #include "he_io.h"
