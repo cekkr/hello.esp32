@@ -48,7 +48,7 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _s
     char formatted_output[512];  // Increased buffer for safety
     
     // Recupera e valida il puntatore al formato
-    const char* format = m3ApiOffsetToPtr(stack[0]);    
+    const char* format = m3ApiOffsetToPtr((void*)stack[0]);    
     if (!format) {
         ESP_LOGE("WASM3", "esp_printf: Invalid format string pointer");
         return ERROR_MSG_FAILED;
@@ -56,7 +56,7 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _s
 
     if(HELLO_DEBUG_wasm_esp_printf) ESP_LOGE("WASM3", "wasm_esp_printf: format(%p): %s", format, format);
 
-    void* args_ptr = m3ApiOffsetToPtr(stack[1]);
+    void* args_ptr = m3ApiOffsetToPtr((void*)stack[1]);
     if (!args_ptr) {
         ESP_LOGE("WASM3", "esp_printf: Invalid format string pointer");
         return ERROR_MSG_FAILED;
@@ -95,7 +95,18 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _s
                         break;
                     case 's': {
                         // Gestione stringhe con validazione del puntatore
-                        args[arg_count].s = m3ApiOffsetToPtr(stack_ptr);
+                        void* ptr = m3ApiOffsetToPtr(stack_ptr);
+
+                        if(ptr != NULL){
+                            //todo: check the nature of this redudancy
+                            void* base_ptr = *(void**)ptr;
+                            if(IsValidMemoryAccess(_mem, (mos)base_ptr, 1)){
+                                ptr = resolve_pointer(_mem, base_ptr);
+                            }
+                        }
+
+                        args[arg_count].s = ptr;
+
                         if (!args[arg_count].s) {
                             ESP_LOGE("WASM3", "esp_printf: Invalid string pointer");
                             return ERROR_MSG_FAILED;
@@ -103,7 +114,7 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _s
                         break;
                     }
                     case 'p': {
-                        // Gestione puntatori
+                        // Gestione puntatori                        
                         args[arg_count].p = m3ApiOffsetToPtr(stack_ptr);
                         break;
                     }                    
@@ -145,7 +156,7 @@ M3Result wasm_lcd_draw_text(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t*
     int x = (int)args[0];
     int y = (int)args[1];
     int size = (int)args[2];
-    const char* text = (const char *)m3ApiOffsetToPtr(args[3]); // is m3ApiOffsetToPtr still needed?
+    const char* text = (const char *)m3ApiOffsetToPtr((void*)args[3]); // is m3ApiOffsetToPtr still needed?
 
     if(HELLO_DEBUG_wasm_lcd_draw_text){
         printf("lcd_draw_text called with x:%d y:%d size:%d text: %s\n", x, y, size, text);
@@ -194,7 +205,7 @@ M3Result wasm_esp_add(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, 
 
 ////////////////////////////////////////////////////////////////
 
-const bool HELLO_DEBUG_wasm_esp_read_serial = true;
+const bool HELLO_DEBUG_wasm_esp_read_serial = false;
 M3Result wasm_esp_read_serial(IM3Runtime runtime, IM3ImportContext *ctx, uint64_t* _sp, void* _mem) {
     if (!runtime || !_mem) {
         ESP_LOGW("WASM3", "wasm_esp_read_serial blocked: runtime=%p, mem=%p", runtime, _mem);
@@ -219,7 +230,8 @@ M3Result wasm_esp_read_serial(IM3Runtime runtime, IM3ImportContext *ctx, uint64_
         M3Result res = m3_memcpy(_mem, retStr, settings->_serial_wasm_read_string, settings->_serial_wasm_read_string_len);
         
         if(HELLO_DEBUG_wasm_esp_read_serial){ 
-            ESP_LOGI("WASM3", "esp_read_serial: retStr: %p (len: %lu)", retStr, settings->_serial_wasm_read_string_len);            
+            ESP_LOGI("WASM3", "esp_read_serial: retStr: %p (len: %lu)", retStr, settings->_serial_wasm_read_string_len); 
+            ESP_LOGI("WASM3", "esp_read_serial: retStr content: %s", (char*)resolve_pointer(_mem, retStr));  // it works
         }
 
         if(res != NULL){
