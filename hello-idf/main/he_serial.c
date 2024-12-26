@@ -62,7 +62,7 @@ void serial_writer_broker_task(void *pvParameters){
 void init_serial_writer_broker(){
     BaseType_t ret = xTaskCreatePinnedToCore(
         serial_handler_task,
-        "serial_handler",
+        "serial_writer_broker",
         SERIAL_WRITER_BROKER_TASK_STACK_SIZE,     
         NULL,
         SERIAL_WRITER_BROKER_TASK_PRIORITY,              // Priorità media
@@ -87,7 +87,7 @@ void begin_exclusive_serial() {
 
 void end_exclusive_serial() {  
     if(!EXCLUSIVE_SERIAL_ON_CMD) return;
-    
+
     settings_t* settings = get_main_settings();  
     if(settings->_exclusive_serial_mode){
         settings->_exclusive_serial_mode = false;
