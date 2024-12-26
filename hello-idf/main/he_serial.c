@@ -582,15 +582,25 @@ void serial_handler_task(void *pvParameters) {
 
             if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "Calculating MD5\n");
             size_t total_received = 0;
-            uint8_t* chunk_buffer = malloc(SERIAL_FILE_CHUNK_SIZE*sizeof(uint8_t));
-            memset(chunk_buffer, 0, SERIAL_FILE_CHUNK_SIZE*sizeof(uint8_t));
+            uint8_t* chunk_buffer = malloc(SERIAL_FILE_CHUNK_SIZE*sizeof(uint8_t));            
             char* calculated_hash = malloc(SERIAL_HASH_SIZE * sizeof(char));
+            memset(calculated_hash, 0, SERIAL_FILE_CHUNK_SIZE*sizeof(char));
             mbedtls_md5_context* md5_ctx = malloc(sizeof(mbedtls_md5_context));
             if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "mbedtls_md5_init\n");
             mbedtls_md5_init(md5_ctx);
             if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "mbedtls_md5_init\n");
             mbedtls_md5_starts(md5_ctx);
-            if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "mbedtls_md5_init COMPLETE\n");      
+            if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "mbedtls_md5_init COMPLETE\n");     
+
+            if(params->filesize == 0){
+                // Non ci sono bytes da leggere
+                text = malloc(text_size*sizeof(char));
+                sprintf(text, "File size is 0");    
+                send_response_immediate(STATUS_OK, text);
+                free(text);
+
+                goto freeEverything;
+            } 
 
             text = malloc(text_size*sizeof(char));
             sprintf(text, "OK:READY: Wait for chunks");    
@@ -613,6 +623,7 @@ void serial_handler_task(void *pvParameters) {
 
                     if(invalidChunkCmds++ > 2){
                         send_response(STATUS_ERROR, "Too many invalid chunk commands\n");
+                        goto freeEverything;
                         break;
                     }
                     
@@ -621,7 +632,9 @@ void serial_handler_task(void *pvParameters) {
                 else {
                     sprintf(text, "OK:READY: Ready for chunk (%d)", chunk_num);    
                     send_response_immediate(STATUS_OK, text);
-                }                    
+                }    
+
+                free(cmd_type_chunk);             
 
                 // Leggi e verifica chunk
                 size_t to_read = params_chunk->chunk_size;
@@ -916,7 +929,10 @@ void serial_handler_task(void *pvParameters) {
             monitor_enable();
         }
         else if(strcmp(cmd_type, CMD_CHUNK) == 0){
-            send_response(STATUS_ERROR, "Chunk out of context");
+            text = malloc(sizeof(char) * text_size);
+            sprintf(text, "Chunk out of context: %s", cmd_type);
+            send_response(STATUS_ERROR, text);
+            free(text);
         }
         else if(strcmp(cmd_type, CMD_RESET) == 0){
             restart_device();
