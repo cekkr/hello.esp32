@@ -76,7 +76,7 @@ void init_serial_writer_broker(){
 ///
 
 void begin_exclusive_serial() {
-    if(!EXCLUSIVE_SERIAL_ON_CMD) return;
+    if(EXCLUSIVE_SERIAL_ON_CMD) return;
 
     settings_t* settings = get_main_settings();
     if(!settings->_exclusive_serial_mode){
