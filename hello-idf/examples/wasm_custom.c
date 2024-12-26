@@ -134,9 +134,10 @@ void wasm_task(void *pvParameters) {
         }
     }
 
-cleanup:
-    m3_FreeRuntime(runtime);
-    m3_FreeEnvironment(env);
-    g_wasm_ctx = NULL;
-    vTaskDelete(NULL);
+    cleanup:{
+        m3_FreeRuntime(runtime);
+        m3_FreeEnvironment(env);
+        g_wasm_ctx = NULL;
+        vTaskDelete(NULL);
+    }
 }

@@ -882,15 +882,16 @@ void serial_handler_task(void *pvParameters) {
         vTaskDelay(pdMS_TO_TICKS(10));
     }
 
-cleanup:
-    //free(command);
-    free(cmd_type);
-    free(params);
-    shell_cleanup(&shell);
+    cleanup:{
+        //free(command);
+        free(cmd_type);
+        free(params);
+        shell_cleanup(&shell);
 
-    WATCHDOG_END
+        WATCHDOG_END
 
-    vTaskDelete(NULL);
+        vTaskDelete(NULL);
+    }
 }
 
 esp_err_t start_serial_handler(void) {

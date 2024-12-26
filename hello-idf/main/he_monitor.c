@@ -172,9 +172,10 @@ void taskStatusMonitor(void *pvParameters) {
             monitor_printf("Failed to allocate memory for monitoring");
         }
         
-        end:
-        monitor_printf("!!end!!");
-        vTaskDelay(pdMS_TO_TICKS(1000*MONITOR_EVERY_SECONDS));
+        end: {
+            monitor_printf("!!end!!");
+            vTaskDelay(pdMS_TO_TICKS(1000*MONITOR_EVERY_SECONDS));
+        }
     }
 }
 

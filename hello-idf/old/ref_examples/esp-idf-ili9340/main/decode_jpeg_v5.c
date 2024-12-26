@@ -183,16 +183,17 @@ esp_err_t decode_jpeg(pixel_jpeg ***pixels, char * file, int screenWidth, int sc
 	return ret;
 
 	//Something went wrong! Exit cleanly, de-allocating everything we allocated.
-	err:
-	fclose(jd.fp);
-	if (*pixels != NULL) {
-		for (int i = 0; i < screenHeight; i++) {
-			if ((*pixels)[i]) free((*pixels)[i]);
+	err: {
+		fclose(jd.fp);
+		if (*pixels != NULL) {
+			for (int i = 0; i < screenHeight; i++) {
+				if ((*pixels)[i]) free((*pixels)[i]);
+			}
+			free(*pixels);
 		}
-		free(*pixels);
+		free(work);
+		return ret;
 	}
-	free(work);
-	return ret;
 }
 
 

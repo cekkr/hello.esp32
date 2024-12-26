@@ -136,15 +136,16 @@ pngle_t *pngle_new(uint16_t width, uint16_t height)
 	pngle->screenHeight = height;
 	return pngle;
 
-	err:
-	//Something went wrong! Exit cleanly, de-allocating everything we allocated.
-	if (pngle->pixels != NULL) {
-		for (int i = 0; i < height; i++) {
-			if ((pngle->pixels)[i]) free((pngle->pixels)[i]);
+	err: {
+		//Something went wrong! Exit cleanly, de-allocating everything we allocated.
+		if (pngle->pixels != NULL) {
+			for (int i = 0; i < height; i++) {
+				if ((pngle->pixels)[i]) free((pngle->pixels)[i]);
+			}
+			free(pngle->pixels);
 		}
-		free(pngle->pixels);
+		return NULL;
 	}
-	return NULL;
 }
 
 void pngle_destroy(pngle_t *pngle, uint16_t width, uint16_t height)
