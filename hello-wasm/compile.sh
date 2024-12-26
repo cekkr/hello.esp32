@@ -39,6 +39,7 @@ compile_wasm() {
         -s STACK_SIZE=${stack_size} \
         -s ALLOW_MEMORY_GROWTH=1 \
         -s EXPORTED_FUNCTIONS='["_start"]' \
+        -s MEMORY64=1 \
         --no-entry \
         -O1 \
         -fno-inline 

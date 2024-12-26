@@ -4,14 +4,18 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-typedef uint32_t size_t;
+#ifdef __EMSCRIPTEN_WASM64__
+typedef uint64_t _size_t;
+#else
+typedef uint32_t _size_t;
+#endif
 
 ///
 /// Standard C Library
 ///
 
 // String functions
-extern size_t strlen(const char* str) 
+/*extern _size_t strlen(const char* str) 
     __attribute__((import_module("env"), import_name("strlen")));
 
 extern char* strcpy(char* dest, const char* src) 
@@ -24,20 +28,20 @@ extern char* strcat(char* dest, const char* src)
     __attribute__((import_module("env"), import_name("strcat")));
 
 // Memory functions
-extern void* malloc(size_t size) 
+extern void* malloc(_size_t size) 
     __attribute__((import_module("env"), import_name("malloc")));
 
 extern void free(void* ptr) 
     __attribute__((import_module("env"), import_name("free")));
 
-extern void* realloc(void* ptr, size_t size) 
+extern void* realloc(void* ptr, _size_t size) 
     __attribute__((import_module("env"), import_name("realloc")));
 
-extern void* memset(void* dest, int c, size_t count) 
+extern void* memset(void* dest, int c, _size_t count) 
     __attribute__((import_module("env"), import_name("memset")));
 
-extern int memcmp(const void* ptr1, const void* ptr2, size_t num) 
-    __attribute__((import_module("env"), import_name("memcmp")));
+extern int memcmp(const void* ptr1, const void* ptr2, _size_t num) 
+    __attribute__((import_module("env"), import_name("memcmp")));*/
 
 ///
 /// Hello ESP functions

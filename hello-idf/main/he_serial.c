@@ -133,7 +133,7 @@ char serial_read_char_or_null() {
 
 // Funzione per inviare la risposta
 static void send_response(command_status_t status, const char* message) {
-    char buffer[LOG_BUFFER_SIZE];
+    char* buffer = malloc(sizeof(char)*LOG_BUFFER_SIZE);
     switch(status) {
         case STATUS_OK:
             sprintf(buffer, "!!OK!!: %s\n", message);            
@@ -144,6 +144,24 @@ static void send_response(command_status_t status, const char* message) {
     }
 
     serial_write(buffer, strlen(buffer));    
+    free(buffer);
+}
+
+static void send_response_immediate(command_status_t status, const char* message) {
+    char* buffer = malloc(sizeof(char)*LOG_BUFFER_SIZE);
+    switch(status) {
+        case STATUS_OK:
+            sprintf(buffer, "!!OK!!: %s\n", message);            
+            break;
+        default:
+            sprintf(buffer, "!!ERROR!!: %s\n", message);
+            break;
+    }
+
+    uart_write_bytes(UART_NUM_0, buffer, strlen(buffer));
+    uart_wait_tx_done(UART_NUM_0, portMAX_DELAY);
+
+    free(buffer);
 }
 
 ///
@@ -789,18 +807,17 @@ void serial_handler_task(void *pvParameters) {
             ////////////////////////////////
             DIR *dir;
             struct dirent *ent;
-            const size_t file_list_size = 4096;
+            const size_t file_list_size = 512;
             char* file_list = malloc(sizeof(char)*file_list_size);  // Buffer per la lista file
-            strcpy(file_list, "LIST:");
-            size_t offset = 5;                
-
+            send_response_immediate(STATUS_OK, "!!LIST!!\n");
+          
             dir = opendir(SD_MOUNT_POINT);
             if (dir == NULL) {
                 send_response(STATUS_ERROR, "Failed to open directory");
                 continue;
             }            
 
-            char fullpath[MAX_FILENAME+64];
+            char* fullpath = malloc(sizeof(char)*(MAX_FILENAME+64));
             while ((ent = readdir(dir)) != NULL) {
                 // Salta directory . e ..
                 if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0) {
@@ -811,14 +828,13 @@ void serial_handler_task(void *pvParameters) {
 
                 // Prendi dimensione file
                 if (stat(fullpath, &file_stat) == 0) {
-                    int written = snprintf(file_list + offset, 
-                                        sizeof(file_list) - offset,
-                                        "%s,%lld;", 
+                    int written = snprintf(file_list, 
+                                        file_list_size,
+                                        "%s,%lld\n", 
                                         ent->d_name, 
                                         file_stat.st_size);
-                    if (written > 0) {
-                        offset += written;
-                    }
+                    
+                    send_response_immediate(STATUS_OK, file_list);
                 }
                 else {         
                     ESP_LOGE(TAG, "File %s stat error: %s", fullpath, strerror(errno));                    
@@ -826,12 +842,7 @@ void serial_handler_task(void *pvParameters) {
             }
             closedir(dir);
 
-            if (offset > 0) {
-                offset++;
-                file_list[offset] = '\0';  // Rimuovi ultimo separatore
-            }
-
-            send_response(STATUS_OK, file_list);
+            send_response_immediate(STATUS_OK, "!!END!!\n");
             free(file_list);
             monitor_enable();
         }
