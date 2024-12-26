@@ -336,6 +336,9 @@ static command_status_t parse_command(const char* command, char* cmd_type, comma
      else if(strncmp(command, CMD_SILENCE_ON, strlen(CMD_SILENCE_ON)) == 0) {
         strcpy(cmd_type, CMD_SILENCE_ON);
     }
+    else {
+        ESP_LOGW(TAG,"Unknown command: %s", command);
+    }
 
     // ... altri comandi ...
     return STATUS_OK;
@@ -343,11 +346,11 @@ static command_status_t parse_command(const char* command, char* cmd_type, comma
 
 #define COMMAND_BUFFER_SIZE 1536
 command_status_t wait_for_command(char* cmd_type, command_params_t* params) {    
-    char* command_buffer = malloc(COMMAND_BUFFER_SIZE*sizeof(char));
+    char* command_buffer = malloc((COMMAND_BUFFER_SIZE+1)*sizeof(char));
     size_t length = 0;
     
     int incipit = 0;
-    while (length < sizeof(command_buffer) - 1) {
+    while (length < COMMAND_BUFFER_SIZE) {
         //char c = getchar();        
 
         char c = serial_read_char();    
@@ -358,11 +361,11 @@ command_status_t wait_for_command(char* cmd_type, command_params_t* params) {
 
         if(incipit == 0){
             if(c == '\0' || c != '$'){
-                vTaskDelay(0.01);            
+                vTaskDelay(pdMS_TO_TICKS(10));            
                 continue;
             }
             else if(c != '$'){
-                vTaskDelay(0.01);
+                vTaskDelay(pdMS_TO_TICKS(10));
                 continue;
             }
         }
@@ -371,24 +374,22 @@ command_status_t wait_for_command(char* cmd_type, command_params_t* params) {
             incipit++;
         }
         
-        if (incipit < 3 && length > 3){
+        // Reset
+        if ((incipit < 3 && length > 3) || c == EOF){
             command_buffer[length] = '\0';
             if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "wait_for_command: reset (%s) (length: %d) (incipit: %d)\n", command_buffer, length, incipit);
             incipit = 0;
             length = 0;
             continue;
         }
-
-        if (c == EOF) {
-            if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "wait_for_command: EOF\n");
-            command_buffer[length] = '\0';
-            return STATUS_ERROR_TIMEOUT;
-        }
         
         if (c == '\n') {            
             command_buffer[length] = '\0';
-            if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "wait_for_command: end (%lu) '%s'\n", sizeof(command_buffer), command_buffer);
-            break;
+
+            if(length > 0){
+                if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "wait_for_command: end (%lu) '%s'\n", sizeof(command_buffer), command_buffer);
+                break;
+            }
         }
         
         command_buffer[length++] = c;
@@ -400,6 +401,7 @@ command_status_t wait_for_command(char* cmd_type, command_params_t* params) {
         return STATUS_ERROR_BUFFER;
     }
     
+    if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "wait_for_command: parsing command %s\n", command_buffer);
     command_status_t res = parse_command(command_buffer, cmd_type, params);
 
     free(command_buffer);
@@ -436,11 +438,12 @@ static bool is_filename_valid(const char* filename) {
 
 
 // Funzione per la scrittura del file
+#define SERIAL_MAX_CMD_SIZE 64
 void serial_handler_task(void *pvParameters) {    
     WATCHDOG_ADD
 
     //char* command = malloc(SERIAL_FILE_BUFFER_SIZE);
-    char* cmd_type = malloc(SERIAL_FILE_BUFFER_SIZE);
+    char* cmd_type = malloc(SERIAL_MAX_CMD_SIZE*sizeof(char));
     
     command_params_t* params = malloc(sizeof(command_params_t));
     memset(params, 0, sizeof(command_params_t));
