@@ -1,6 +1,7 @@
 #include "he_cmd.h"
 
 // WASM
+#include "he_defines.h"
 #include "he_esp_exception.h"
 #include "he_monitor.h"
 #include "he_wasm.h"
@@ -84,6 +85,9 @@ static int cmd_run(shell_t* shell, int argc, char** argv) {
             return ESP_ERR_NO_MEM;
         }
         
+        params->filename = malloc(sizeof(char)*MAX_FILENAME);
+        strcpy(params->filename, argv[0]);
+
         params->wasm_data = data;
         params->wasm_size = size;
         params->shell = shell;
@@ -137,6 +141,7 @@ static int cmd_run(shell_t* shell, int argc, char** argv) {
                     error_msg, err_reason, ret);
             
             // Pulizia memoria
+            free(params->filename);
             free(params->wasm_data);
             free(params);
             return ESP_ERR_NO_MEM;

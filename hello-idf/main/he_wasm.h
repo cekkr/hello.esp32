@@ -12,6 +12,7 @@
 
 typedef struct wasm_task_params{
     uint8_t* wasm_data;
+    char* filename;
     size_t wasm_size;
     shell_t * shell;
 } wasm_task_params_t;

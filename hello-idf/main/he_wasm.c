@@ -135,16 +135,14 @@ void run_wasm(uint8_t* wasm, uint32_t fsize, shell_t* shell)
     if (result) FATAL(env, "m3_Call: %s", result);  
 
     freeEnv:  
-    if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "Freeing WASM3 context\n");  
-        
+    if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "Freeing WASM3 context\n");      
+
     if(runtime) m3_FreeRuntime(runtime);           
-    if(env) m3_FreeEnvironment(env);
+    if(env) m3_FreeEnvironment(env);    
     
     if(HELLOESP_RUN_WASM_WDT){ 
         WATCHDOG_END
-    }   
-
-    if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "run_wasm: end of function"); 
+    }       
 }
 
 // WASM3 Task
@@ -156,9 +154,10 @@ void wasm_task(void* pvParameters) {
     // Esegui WASM in un contesto isolato
     run_wasm(params->wasm_data, params->wasm_size, params->shell);
     
-    if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "wasm_task: after run_wasm execution");
+    ESP_LOGI(TAG, "End of %s execution", params->filename);
 
     // Libera la memoria
+    free(params->filename);
     free(params->wasm_data);
     free(params);
     
