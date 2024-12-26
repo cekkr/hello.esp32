@@ -32,7 +32,7 @@ size_t default_get_available_memory(paging_stats_t* g_stats){
     return g_stats->available_memory;
 }
 
-const bool HE_DEBUG_default_request_segment_paging = true;
+const bool HE_DEBUG_default_request_segment_paging = false;
 esp_err_t default_request_segment_paging(paging_stats_t* g_stats, uint32_t segment_id){
     if(HE_DEBUG_default_request_segment_paging){
         ESP_LOGI(TAG, "default_request_segment_paging: requested paging for segment %u", segment_id);
@@ -53,7 +53,7 @@ esp_err_t default_request_segment_paging(paging_stats_t* g_stats, uint32_t segme
     return res;
 }
 
-const bool HE_DEBUG_default_request_segment_load = true;
+const bool HE_DEBUG_default_request_segment_load = false;
 esp_err_t default_request_segment_load(paging_stats_t* g_stats, uint32_t segment_id){
     if(HE_DEBUG_default_request_segment_load){
         ESP_LOGI(TAG, "default_request_segment_load: requested page load for segment %u", segment_id);
