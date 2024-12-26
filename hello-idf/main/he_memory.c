@@ -196,7 +196,7 @@ esp_err_t paging_deinit(paging_stats_t * g_stats){
     if(g_stats){
         for(uint32_t s=0; s<g_stats->num_segments; s++){
             if(g_stats->segments[s]->has_page){
-                paging_delete_segment_page(g_stats, &g_stats->segments[s]);
+                paging_delete_segment_page(g_stats, g_stats->segments[s]);
             }
         }
 
