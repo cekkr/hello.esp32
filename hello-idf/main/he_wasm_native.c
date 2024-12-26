@@ -215,7 +215,7 @@ M3Result wasm_esp_read_serial(IM3Runtime runtime, IM3ImportContext *ctx, uint64_
     if(HELLO_DEBUG_wasm_esp_read_serial) ESP_LOGI("WASM3", "esp_read_serial: serial_wasm_read setted to false");
 
     if(settings->_serial_wasm_read_string){
-        if(HELLO_DEBUG_wasm_esp_read_serial) ESP_LOGI("WASM3", "esp_read_serial: content is: %s", settings->_serial_wasm_read_string);   
+        if(HELLO_DEBUG_wasm_esp_read_serial) ESP_LOGI("WASM3", "esp_read_serial: content (%lu) is: %s", settings->_serial_wasm_read_string_len, settings->_serial_wasm_read_string);   
 
         size_t len = settings->_serial_wasm_read_string_len;
         void* retStr = m3_Malloc(_mem, len*sizeof(char));

@@ -33,11 +33,13 @@ size_t default_get_available_memory(paging_stats_t* g_stats){
 const bool HE_DEBUG_default_request_segment_paging = true;
 esp_err_t default_request_segment_paging(paging_stats_t* g_stats, uint32_t segment_id){
     if(HE_DEBUG_default_request_segment_paging){
-        ESP_LOGI(TAG, "default_request_segment_paging: requested paging for segment %lu", segment_id);
+        ESP_LOGI(TAG, "default_request_segment_paging: requested paging for segment %u", segment_id);
     }
 
-    segment_info_t* segment = &g_stats->segments[segment_id];
+    segment_info_t* segment = g_stats->segments[segment_id];
     char* pageName = create_segment_page_name(g_stats->base_path, segment_id);
+    if(HE_DEBUG_default_request_segment_paging) ESP_LOGI(TAG, "default_request_segment_paging: segment page name: %s", pageName);
+
     esp_err_t res = write_data_chunk(pageName, *segment->data, g_stats->segment_size, 0);
     free(pageName);
 
@@ -52,11 +54,13 @@ esp_err_t default_request_segment_paging(paging_stats_t* g_stats, uint32_t segme
 const bool HE_DEBUG_default_request_segment_load = true;
 esp_err_t default_request_segment_load(paging_stats_t* g_stats, uint32_t segment_id){
     if(HE_DEBUG_default_request_segment_load){
-        ESP_LOGI(TAG, "default_request_segment_load: requested page load for segment %lu", segment_id);
+        ESP_LOGI(TAG, "default_request_segment_load: requested page load for segment %u", segment_id);
     }
 
-    segment_info_t* segment = &g_stats->segments[segment_id];
+    segment_info_t* segment = g_stats->segments[segment_id];
     char* pageName = create_segment_page_name(g_stats->base_path, segment_id);
+    if(HE_DEBUG_default_request_segment_load) ESP_LOGI(TAG, "default_request_segment_load: segment page name: %s", pageName);
+
     esp_err_t res = read_data_chunk(pageName, *segment->data, g_stats->segment_size, 0);
     free(pageName);
     return res;
@@ -329,7 +333,7 @@ esp_err_t paging_check_paging_needed(paging_stats_t* g_stats){
         if(g_stats->last_segment_id == i)
             continue;
 
-        segment_info_t* segment = &g_stats->segments[i];
+        segment_info_t* segment = g_stats->segments[i];
         total_frequency += segment->usage_frequency;
 
         if(g_stats->available_memory > (g_stats->total_memory / 3)){

@@ -36,8 +36,8 @@ typedef struct {
     X(_disable_monitor, bool, false) \
     X(_serial_wasm_read, bool, false) \
     X(_serial_wasm_read_string, char*, false) \
-    X(_serial_wasm_read_string_len, int, 0) \
-    X(_serial_mutex, int, NULL)
+    X(_serial_wasm_read_string_len, size_t, 0) \
+    X(_serial_mutex, int, 0)
 
 typedef struct settings {
     #define X(_name, _type, _default) _type _name;
