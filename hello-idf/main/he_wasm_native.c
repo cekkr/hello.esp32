@@ -214,14 +214,16 @@ M3Result wasm_esp_read_serial(IM3Runtime runtime, IM3ImportContext *ctx, uint64_
 
     if(HELLO_DEBUG_wasm_esp_read_serial) ESP_LOGI("WASM3", "esp_read_serial: serial_wasm_read setted to false");
 
-    if(settings->_serial_wasm_read_string){
-        if(HELLO_DEBUG_wasm_esp_read_serial) ESP_LOGI("WASM3", "esp_read_serial: content (%lu) is: %s", settings->_serial_wasm_read_string_len, settings->_serial_wasm_read_string);   
-
+    if(settings->_serial_wasm_read_string){       
         size_t len = settings->_serial_wasm_read_string_len;
         void* retStr = m3_Malloc(_mem, len*sizeof(char));
-        ESP_LOGI("WASM3", "esp_read_serial: retStr: %p (len: %ld)", retStr, len);
-        
         M3Result res = m3_memcpy(_mem, retStr, settings->_serial_wasm_read_string, len);
+        
+        if(HELLO_DEBUG_wasm_esp_read_serial){ 
+            ESP_LOGI("WASM3", "esp_read_serial: retStr: %p (len: %lu)", retStr, len);
+            ESP_LOGI("WASM3", "esp_read_serial: content (%lu) is: %s", settings->_serial_wasm_read_string_len, settings->_serial_wasm_read_string);   
+        }
+
         if(res != NULL){
             ESP_LOGE("WASM3", "wasm_esp_read_serial: error while copying string to memory (%s)", res);
             m3_free(_mem, retStr);
