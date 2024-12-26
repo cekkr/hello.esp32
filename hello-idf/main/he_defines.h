@@ -76,7 +76,7 @@ void* serial_print(const char* msg);
 #define WASM_TASK_CORE 1
 
 #define WASM_STACK_SIZE (32*1024)  
-#define WASM_TASK_SIZE WASM_STACK_SIZE + (16*1024)
+#define WASM_TASK_SIZE (32*1024)
 #define WASM_TASK_PRIORITY 5
 
 ////////////////////////////////////////////////////////////////
@@ -132,7 +132,7 @@ void* serial_print(const char* msg);
 ///
 
 #define MAX_CMD_LENGTH 512
-#define SERIAL_STACK_SIZE (1024*48)
+#define SERIAL_STACK_SIZE (1024*16)
 
 #define EXCLUSIVE_SERIAL_ON_CMD false
 
