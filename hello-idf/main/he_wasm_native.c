@@ -180,19 +180,8 @@ M3Result wasm_esp_add(IM3Runtime runtime, IM3ImportContext *ctx, mos _sp, void* 
     }
 
     m3ApiReturnType  (int32_t)
-
-    ESP_LOGI("WASM3", "_sp: %lu, mos: %p", _sp, (mos)_sp);
-
-    // Ottiene il puntatore allo stack
-    mos stack = (mos)*(uint32_t*)m3ApiOffsetToPtr(_sp++);      
-
-    ESP_LOGI("WASM3", "stack: %p", stack);
-    vTaskDelay(pdMS_TO_TICKS(100));
-
-
-    // Legge i due parametri dallo stack
-    int32_t a = *(int32_t*)m3ApiOffsetToPtr(stack); stack += sizeof(int32_t);
-    int32_t b = *(int32_t*)m3ApiOffsetToPtr(stack); stack += sizeof(int32_t);
+    m3ApiGetArg      (int32_t, a)
+    m3ApiGetArg      (int32_t, b)
 
     if(HELLO_DEBUG_wasm_esp_add) {
         ESP_LOGI("WASM3", "Add function called with params: a=%d, b=%d", a, b);
