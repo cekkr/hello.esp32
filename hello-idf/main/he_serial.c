@@ -633,7 +633,7 @@ void serial_handler_task(void *pvParameters) {
                     continue;
                 }    
                 else {
-                    sprintf(text, "OK:READY: Ready for chunk (%d), to_read: %d", chunk_num, params_chunk->chunk_size;);    
+                    sprintf(text, "OK:READY: Ready for chunk (%d), to_read: %ld", chunk_num, params_chunk->chunk_size);    
                     send_response(STATUS_OK, text);
                 }    
 
