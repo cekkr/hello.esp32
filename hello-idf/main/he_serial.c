@@ -162,7 +162,7 @@ static void send_response_immediate(command_status_t status, const char* message
     }
 
     uart_write_bytes(UART_NUM_0, buffer, strlen(buffer));
-    //uart_wait_tx_done(UART_NUM_0, portMAX_DELAY);
+    uart_wait_tx_done(UART_NUM_0, portMAX_DELAY);
 
     free(buffer);
 }
@@ -580,6 +580,7 @@ void serial_handler_task(void *pvParameters) {
             }
 
             monitor_disable();
+            vTaskDelay(pdMS_TO_TICKS(100));
 
             if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "Calculating MD5\n");
             size_t total_received = 0;
@@ -632,8 +633,8 @@ void serial_handler_task(void *pvParameters) {
                     continue;
                 }    
                 else {
-                    sprintf(text, "OK:READY: Ready for chunk (%d)", chunk_num);    
-                    send_response_immediate(STATUS_OK, text);
+                    sprintf(text, "OK:READY: Ready for chunk (%d), to_read: %d", chunk_num, params_chunk->chunk_size;);    
+                    send_response(STATUS_OK, text);
                 }    
 
                 free(cmd_type_chunk);
@@ -718,6 +719,7 @@ void serial_handler_task(void *pvParameters) {
                 free(md5_ctx);
                 free(chunk_buffer);
                 free(calculated_hash);
+                monitor_enable();
                 continue;
             }
         }

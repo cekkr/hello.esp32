@@ -46,6 +46,9 @@ void monitor_enable(){
 
 // Funzione proxy per i log del monitor
 void monitor_printf(const char* format, ...) {
+    settings_t* settings = get_main_settings();
+    if(settings->_exclusive_serial_mode || settings->_disable_monitor) return;
+
     #if SERIAL_WRITER_BROKER_ENABLE
 
     va_list args;
@@ -76,9 +79,7 @@ void monitor_printf(const char* format, ...) {
 
     free(buffer2Print);
 
-    #else
-    settings_t* settings = get_main_settings();
-    if(settings->_exclusive_serial_mode || settings->_disable_monitor) return;
+    #else 
 
     if(settings->_serial_mutex && xSemaphoreTake(settings->_serial_mutex, pdMS_TO_TICKS(SERIAL_SEMAPHORE_WAIT_MS)) != pdTRUE) {
         return; // Skip printing if can't get mutex
@@ -170,8 +171,9 @@ void taskStatusMonitor(void *pvParameters) {
             monitor_printf("Failed to allocate memory for monitoring");
         }
         
-        end: {
-            monitor_printf("!!end!!");
+        monitor_printf("!!end!!");
+
+        end: {            
             vTaskDelay(pdMS_TO_TICKS(1000*MONITOR_EVERY_SECONDS));
         }
     }
