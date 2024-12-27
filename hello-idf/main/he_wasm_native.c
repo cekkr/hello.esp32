@@ -13,6 +13,7 @@
 #include "m3_segmented_memory.h"
 
 #include "he_wasm_native_stdclib.h"
+#include "wasm3_defs.h"
 
 ///
 ///
@@ -22,7 +23,7 @@ const char* ERROR_MSG_NULLS = "wasm_esp_printf: runtime or _mem is null";
 const char* ERROR_MSG_FAILED = "wasm_esp_printf: failed";
 
 const bool HELLO_DEBUG_wasm_esp_printf = false;
-M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, mos _sp, void* _mem) {
+M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, m3stack_t _sp, void* _mem) {
     if(HELLO_DEBUG_wasm_esp_printf){
         ESP_LOGI("WASM3", "Entering wasm_esp_printf with params:");
         ESP_LOGI("WASM3", "  runtime: %p", runtime);
@@ -40,11 +41,11 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, mos _sp, voi
     }
 
     if (runtime_null || mem_null) {
-        ESP_LOGW("WASM3", "wasm_esp_printf blocked: runtime=%p, _sp=%p, mem=%p", runtime, _sp, _mem);
-        //return ERROR_MSG_NULLS;
+        //ESP_LOGW("WASM3", "wasm_esp_printf blocked: runtime=%p, _sp=%p, mem=%p", runtime, _sp, _mem);
+        return m3Err_nullMemory;
     }
 
-    uint64_t* stack = (uint64_t*)m3ApiOffsetToPtr(_sp);
+    uint64_t* stack = m3ApiOffsetToPtr((mos)*_sp);
     _sp++;
 
     char formatted_output[512];  // Increased buffer for safety
@@ -53,15 +54,15 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, mos _sp, voi
     const char* format = (const char*) m3ApiOffsetToPtr((mos)stack[0]);    
     if (!format) {
         ESP_LOGE("WASM3", "esp_printf: Invalid format string pointer");
-        return ERROR_MSG_FAILED;
+        return m3Err_pointerOverflow;
     }
 
     if(HELLO_DEBUG_wasm_esp_printf) ESP_LOGE("WASM3", "wasm_esp_printf: format(%p): %s", format, format);
 
-    mos args_ptr = m3ApiOffsetToPtr((mos)stack[1]);
+    ptr args_ptr = m3ApiOffsetToPtr((mos)stack[1]);
     if (!args_ptr) {
         ESP_LOGE("WASM3", "esp_printf: Invalid format string pointer");
-        return ERROR_MSG_FAILED;
+        return m3Err_pointerOverflow;
     }
 
     // Array per memorizzare gli argomenti processati
@@ -86,7 +87,7 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, mos _sp, voi
                 }
 
                 // Processa l'argomento basandosi sul tipo
-                mos stack_ptr_mos = m3ApiOffsetToPtr(args_ptr);
+                ptr stack_ptr_mos = m3ApiOffsetToPtr((mos)args_ptr);
                 void* stack_ptr = (void*)stack_ptr_mos;
                 switch (*fmt_ptr) {
                     case 'd': case 'i': case 'u': case 'x': case 'X':
@@ -98,7 +99,7 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, mos _sp, voi
                         break;
                     case 's': {
                         // Gestione stringhe con validazione del puntatore
-                        void* ptr = (void*) m3ApiOffsetToPtr(stack_ptr_mos);
+                        void* ptr = (void*) m3ApiOffsetToPtr((mos)stack_ptr_mos);
 
                         if(ptr != NULL){
                             //todo: check the nature of this redudancy
@@ -118,7 +119,7 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, mos _sp, voi
                     }
                     case 'p': {
                         // Gestione puntatori                        
-                        args[arg_count].p = m3ApiOffsetToPtr(stack_ptr);
+                        args[arg_count].p = m3ApiOffsetToPtr((mos)stack_ptr);
                         break;
                     }                    
                 }
@@ -172,16 +173,19 @@ M3Result wasm_lcd_draw_text(IM3Runtime runtime, IM3ImportContext *ctx, mos _sp, 
 
 ////////////////////////////////////////////////////////////////////////
 
-const bool HELLO_DEBUG_wasm_esp_add = false;
-M3Result wasm_esp_add(IM3Runtime runtime, IM3ImportContext *ctx, mos _sp, void* _mem) {
+const bool HELLO_DEBUG_wasm_esp_add = true;
+M3Result wasm_esp_add(IM3Runtime runtime, IM3ImportContext *ctx, mos sp, void* _mem) {
     if (!runtime || !_mem) {
         ESP_LOGW("WASM3", "wasm_esp_add blocked: runtime=%p, mem=%p", runtime, _mem);
         return ERROR_MSG_NULLS;
     }
 
+    ptr _sp = m3_ResolvePointer(_mem, sp);
+
     m3ApiReturnType  (int32_t)
-    m3ApiGetArg      (int32_t, a)
-    m3ApiGetArg      (int32_t, b)
+    m3ApiGetBaseArg(int32_t, a)
+    //m3ApiGetBaseArg(int32_t, b)
+    int32_t b = 3;
 
     if(HELLO_DEBUG_wasm_esp_add) {
         ESP_LOGI("WASM3", "Add function called with params: a=%d, b=%d", a, b);

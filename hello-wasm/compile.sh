@@ -39,6 +39,17 @@ compile_wasm() {
         -s STACK_SIZE=${stack_size} \
         -s ALLOW_MEMORY_GROWTH=1 \
         -s EXPORTED_FUNCTIONS='["_start"]' \
+        --no-entry \
+        -O1 \
+        -fno-inline 
+
+    emcc "samples/${script_name}.c" -o "output/${script_name}.64.wasm" \
+        -s WASM=1 \
+        -s STANDALONE_WASM=0 \
+        -s IMPORTED_MEMORY=1 \
+        -s STACK_SIZE=${stack_size} \
+        -s ALLOW_MEMORY_GROWTH=1 \
+        -s EXPORTED_FUNCTIONS='["_start"]' \
         -s MEMORY64=1 \
         --no-entry \
         -O1 \

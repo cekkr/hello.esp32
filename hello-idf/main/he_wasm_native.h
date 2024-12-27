@@ -10,7 +10,7 @@
 ///
 ///
 
-M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, mos _sp, void* _mem);
+M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, m3stack_t _sp, void* _mem);
 
 M3Result wasm_lcd_draw_text(IM3Runtime runtime, IM3ImportContext *ctx, mos _sp, void* _mem);
 

@@ -26,7 +26,7 @@ typedef struct {
 
 
 bool prepare_wasm_execution(const uint8_t* wasm_data, size_t size);
-void run_wasm(uint8_t* wasm, uint32_t fsize, shell_t* shell);
+void run_wasm(uint8_t* wasm, uint32_t fsize, shell_t* shell, char* filename);
 void wasm_task(void* pvParameters);
 
 #endif // HELLOESP_WASM
