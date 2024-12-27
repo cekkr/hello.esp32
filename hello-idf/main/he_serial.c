@@ -747,7 +747,7 @@ void serial_handler_task(void *pvParameters) {
 
             // Invia dimensione file e hash
             text = malloc(text_size*sizeof(char));
-            snprintf(text, text_size, "%lld,%s", file_stat.st_size, hash);
+            snprintf(text, text_size, "%ld,%s", file_stat.st_size, hash);
             send_response(STATUS_OK, text);
             free(text);
             free(hash);
@@ -883,7 +883,7 @@ void serial_handler_task(void *pvParameters) {
         else if (strcmp(cmd_type, CMD_CHECK_FILE) == 0) {
             if (stat(params->filename, &file_stat) == 0) {
                 char* size_str = malloc(20*sizeof(char));
-                snprintf(size_str, 20, "%lld", file_stat.st_size);
+                snprintf(size_str, 20, "%ld", file_stat.st_size);
                 send_response(STATUS_OK, size_str);
                 free(size_str);
             } else {

@@ -3,6 +3,7 @@
 #include "esp_log.h"
 #include "esp_system.h"
 #include "he_settings.h"
+#include "he_task_broker.h"
 #include "string.h"  // per memset()
 #include <stdio.h>
 #include <string.h>
@@ -44,6 +45,8 @@ void monitor_enable(){
 
 ////////////////////////////////////////////////////////////////
 
+const char monitor_task_name[] = "monitor";
+
 // Funzione proxy per i log del monitor
 void monitor_printf(const char* format, ...) {
     settings_t* settings = get_main_settings();
@@ -75,7 +78,7 @@ void monitor_printf(const char* format, ...) {
     sprintf(buffer2Print, "%s%s%s", MONITOR_START, buffer, MONITOR_END);
     free(buffer);
 
-    safe_printf(buffer2Print);
+    safe_printf_from(buffer2Print, monitor_task_name);
 
     free(buffer2Print);
 
@@ -108,6 +111,8 @@ void taskStatusMonitor(void *pvParameters) {
     char pcWriteBuffer[50];
 
     settings_t* settings = get_main_settings();
+
+    broker_register_task(monitor_task_name);
     
     while(1) {
         if(settings->_exclusive_serial_mode || settings->_disable_monitor) {
@@ -177,6 +182,8 @@ void taskStatusMonitor(void *pvParameters) {
             vTaskDelay(pdMS_TO_TICKS(1000*MONITOR_EVERY_SECONDS));
         }
     }
+
+    broker_unregister_task(monitor_task_name);
 }
 
 void init_tasksMonitor(void) {
