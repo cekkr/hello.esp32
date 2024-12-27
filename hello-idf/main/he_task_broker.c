@@ -53,7 +53,7 @@ bool broker_init(void) {
     }
 
     // Crea il task del broker
-    BaseType_t ret = xTaskCreate(broker_task, "broker_task", BROKER_TASK_STACK_SIZE, NULL, 5, NULL);
+    BaseType_t ret = xTaskCreate(broker_task, "broker_task", BROKER_TASK_STACK_SIZE, NULL, BROKER_TASK_PRIORITY, NULL);
     if (ret != pdPASS) {
         ESP_LOGE(TAG, "Failed to create broker task");
         vQueueDelete(broker_ctx.broker_queue);

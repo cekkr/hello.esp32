@@ -64,7 +64,7 @@ void serial_writer_broker_task(void *pvParameters){
 
 void init_serial_writer_broker(){
     BaseType_t ret = xTaskCreatePinnedToCore(
-        serial_handler_task,
+        serial_writer_broker_task,
         "serial_writer_broker",
         SERIAL_WRITER_BROKER_TASK_STACK_SIZE,     
         NULL,
@@ -356,7 +356,7 @@ static command_status_t parse_command(const char* command, char* cmd_type, comma
     else if(strncmp(command, CMD_SILENCE_OFF, strlen(CMD_SILENCE_OFF)) == 0) {
         strcpy(cmd_type, CMD_SILENCE_OFF);
     }
-     else if(strncmp(command, CMD_SILENCE_ON, strlen(CMD_SILENCE_ON)) == 0) {
+    else if(strncmp(command, CMD_SILENCE_ON, strlen(CMD_SILENCE_ON)) == 0) {
         strcpy(cmd_type, CMD_SILENCE_ON);
     }
     else {
@@ -609,14 +609,14 @@ void serial_handler_task(void *pvParameters) {
 
             text = malloc(text_size*sizeof(char));
             sprintf(text, "OK:READY: Wait for chunks (%d < %d)\n", total_received, params->filesize);    
-            send_response(STATUS_OK, text);                              
+            send_response_immediate(STATUS_OK, text);                              
 
             bool chunkHashFailed = false;
             int invalidChunkCmds = 0;
             int chunk_num = 0;            
             while (total_received < params->filesize) {
                 // Attendi comando chunk
-                //ESP_LOGI(TAG, "CMD_WRITE_FILE: chunk cycle %ld < %ld", total_received, params->filesize);            
+                ESP_LOGI(TAG, "CMD_WRITE_FILE: chunk cycle %ld < %ld", total_received, params->filesize);            
                 
                 command_params_t* params_chunk = malloc(sizeof(command_params_t));
                 if (wait_for_command(cmd_chunk_buffer, params_chunk) != STATUS_OK || strcmp(cmd_chunk_buffer, CMD_CHUNK) != 0) {
@@ -638,8 +638,6 @@ void serial_handler_task(void *pvParameters) {
                     sprintf(text, "OK:READY: Ready for chunk (%d), to_read: %ld", chunk_num, params_chunk->chunk_size);    
                     send_response_immediate(STATUS_OK, text);
                 }    
-
-                free(cmd_chunk_buffer);
 
                 // Leggi e verifica chunk
                 size_t to_read = params_chunk->chunk_size;
@@ -690,9 +688,7 @@ void serial_handler_task(void *pvParameters) {
 
             if(chunkHashFailed){                
                 goto freeEverything;
-            }
-
-            if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "All data received");
+            }            
 
             if(!SERIAL_IGNORE_FINAL_FILE_HASH){ 
                 // Verifica hash finale
@@ -710,11 +706,13 @@ void serial_handler_task(void *pvParameters) {
                     send_response(STATUS_ERROR, "File hash mismatch");
                 } else {
                     send_response(STATUS_OK, "File written successfully");
-                }
+                    ESP_LOGI(TAG, "Upload file: successfully uploaded");
+                }                
             }
             else {
                 fclose(file);
                 send_response(STATUS_OK, "File written successfully");
+                ESP_LOGI(TAG, "Upload file: successfully uploaded");
             }
             
             freeEverything: {
@@ -725,18 +723,6 @@ void serial_handler_task(void *pvParameters) {
                 monitor_enable();
                 continue;
             }
-        }
-        else if (strcmp(cmd_type, CMD_CHECK_FILE) == 0) {
-            // Controllo esistenza file
-            if (stat(params->filename, &file_stat) != 0) {
-                send_response(STATUS_ERROR, "0: File not found");                   
-            }
-            else {
-                char resp [128];
-                sprintf(resp, "%lld: File found", file_stat.st_size);            
-                send_response(STATUS_OK, "1: File found");
-            }                
-            continue;
         }
         else if (strcmp(cmd_type, CMD_READ_FILE) == 0) {
             monitor_disable();
@@ -895,11 +881,6 @@ void serial_handler_task(void *pvParameters) {
             send_response(STATUS_OK, "File deleted successfully");
         }
         else if (strcmp(cmd_type, CMD_CHECK_FILE) == 0) {
-            /*if (!params->filename) { // always true
-                send_response(STATUS_ERROR, "Missing filename");
-                continue;
-            }*/
-
             if (stat(params->filename, &file_stat) == 0) {
                 char* size_str = malloc(20*sizeof(char));
                 snprintf(size_str, 20, "%lld", file_stat.st_size);
