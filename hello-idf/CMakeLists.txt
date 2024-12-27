@@ -24,3 +24,6 @@ project(hello-idf)
 #spiffs_create_partition_image(storage0 font FLASH_IN_PROJECT)
 #spiffs_create_partition_image(storage1 icons FLASH_IN_PROJECT)
 #spiffs_create_partition_image(storage2 images FLASH_IN_PROJECT)
+
+idf_build_set_property(COMPILE_OPTIONS "-Wno-error" APPEND)
+set_property(DIRECTORY PROPERTY CLEAN_NO_CUSTOM 1)
