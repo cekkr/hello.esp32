@@ -13,7 +13,6 @@
 #include "m3_segmented_memory.h"
 
 #include "he_wasm_native_stdclib.h"
-#include "wasm3_defs.h"
 
 ///
 ///

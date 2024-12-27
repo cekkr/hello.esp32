@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+// or #ifdef __MEMORY64__
 #ifdef __EMSCRIPTEN_WASM64__
 typedef uint64_t _size_t;
 #else
