@@ -601,15 +601,15 @@ void serial_handler_task(void *pvParameters) {
                 // Non ci sono bytes da leggere
                 text = malloc(text_size*sizeof(char));
                 sprintf(text, "File size is 0");    
-                send_response_immediate(STATUS_OK, text);
+                send_response(STATUS_OK, text);
                 free(text);
 
                 goto freeEverything;
             } 
 
             text = malloc(text_size*sizeof(char));
-            sprintf(text, "OK:READY: Wait for chunks");    
-            send_response_immediate(STATUS_OK, text);                              
+            sprintf(text, "OK:READY: Wait for chunks (%d < %d)\n", total_received, params->filesize);    
+            send_response(STATUS_OK, text);                              
 
             bool chunkHashFailed = false;
             int invalidChunkCmds = 0;
@@ -626,7 +626,7 @@ void serial_handler_task(void *pvParameters) {
                     sprintf(text, "Invalid chunk command: %s\n", cmd_chunk_buffer);             
                     send_response_immediate(STATUS_ERROR, text);
 
-                    if(invalidChunkCmds++ > 2){
+                    if(invalidChunkCmds++ > 3){
                         send_response(STATUS_ERROR, "Too many invalid chunk commands\n");
                         free(text);                        
                         goto freeEverything;
@@ -636,7 +636,7 @@ void serial_handler_task(void *pvParameters) {
                 }    
                 else {
                     sprintf(text, "OK:READY: Ready for chunk (%d), to_read: %ld", chunk_num, params_chunk->chunk_size);    
-                    send_response(STATUS_OK, text);
+                    send_response_immediate(STATUS_OK, text);
                 }    
 
                 free(cmd_chunk_buffer);
