@@ -614,19 +614,19 @@ void serial_handler_task(void *pvParameters) {
             while (total_received < params->filesize) {
                 // Attendi comando chunk
 
-                char* cmd_type_chunk = malloc(SERIAL_MAX_CMD_SIZE*sizeof(char));
+                char* cmd_chunk_buffer = malloc(COMMAND_BUFFER_SIZE*sizeof(char));
                 command_params_t* params_chunk = malloc(sizeof(command_params_t));
-                if (wait_for_command(cmd_type_chunk, params_chunk) != STATUS_OK || strcmp(cmd_type_chunk, CMD_CHUNK) != 0) {
+                if (wait_for_command(cmd_chunk_buffer, params_chunk) != STATUS_OK || strcmp(cmd_chunk_buffer, CMD_CHUNK) != 0) {
                     fclose(file);
                     unlink(params->filename);
 
-                    sprintf(text, "Invalid chunk command: %s\n", cmd_type_chunk);             
+                    sprintf(text, "Invalid chunk command: %s\n", cmd_chunk_buffer);             
                     send_response_immediate(STATUS_ERROR, text);
 
                     if(invalidChunkCmds++ > 2){
                         send_response(STATUS_ERROR, "Too many invalid chunk commands\n");
                         free(text);
-                        free(cmd_type_chunk);
+                        free(cmd_chunk_buffer);
                         goto freeEverything;
                     }
                     
@@ -637,7 +637,7 @@ void serial_handler_task(void *pvParameters) {
                     send_response(STATUS_OK, text);
                 }    
 
-                free(cmd_type_chunk);
+                free(cmd_chunk_buffer);
 
                 // Leggi e verifica chunk
                 size_t to_read = params_chunk->chunk_size;
