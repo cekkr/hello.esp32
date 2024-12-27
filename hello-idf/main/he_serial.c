@@ -48,7 +48,7 @@ void serial_writer_broker_task(void *pvParameters){
     }
 
     settings->_serial_writer_broker_connected = true;
-    ESP_LOGI(TAG, "Serial broker writer connected");
+    //ESP_LOGI(TAG, "Serial broker writer connected");
 
     broker_message_t msg;
     while(1) {        

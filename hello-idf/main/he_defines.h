@@ -39,6 +39,18 @@ static const char *TAG = "HELLOESP";
 #define SERIAL_TASK_PRIORITY 5
 
 ////////////////////////////////////////////////////////////////
+/////////////////////// TASK BROKER ////////////////////////////
+////////////////////////////////////////////////////////////////
+
+#define MAX_TASKS 8
+#define MAX_TASK_NAME_LENGTH 32
+#define MAX_MESSAGE_SIZE LOG_BUFFER_SIZE
+#define BROKER_QUEUE_SIZE 8
+#define BROKER_TASK_PRIORITY 20
+#define BROKER_TASK_STACK_SIZE (1024*32)
+#define BROKER_TASK_CORE 1
+
+////////////////////////////////////////////////////////////////
 ///////////// SERIAL_WRITER_BROKER /////////////////////////////
 ////////////////////////////////////////////////////////////////
 
@@ -47,9 +59,9 @@ static const char *TAG = "HELLOESP";
 #define LOG_BUFFER_SIZE 2048
 
 #define SERIAL_WRITER_BROKER_ENABLE 1
-#define SERIAL_WRITER_BROKER_TASK_CORE 0
-#define SERIAL_WRITER_BROKER_TASK_PRIORITY 5
-#define SERIAL_WRITER_BROKER_TASK_STACK_SIZE (16*1024)
+#define SERIAL_WRITER_BROKER_TASK_CORE BROKER_TASK_CORE
+#define SERIAL_WRITER_BROKER_TASK_PRIORITY BROKER_TASK_PRIORITY
+#define SERIAL_WRITER_BROKER_TASK_STACK_SIZE (4*1024)
 
 #if SERIAL_WRITER_BROKER_ENABLE
 static const char serial_writer_broker_name[] = "serial_writer_broker";
@@ -60,21 +72,11 @@ void serial_write(const char* data, size_t len);
 void* serial_print(const char* msg);
 
 ////////////////////////////////////////////////////////////////
-/////////////////////// TASK BROKER ////////////////////////////
-////////////////////////////////////////////////////////////////
-
-#define MAX_TASKS 16
-#define MAX_TASK_NAME_LENGTH 32
-#define MAX_MESSAGE_SIZE LOG_BUFFER_SIZE
-#define BROKER_QUEUE_SIZE 24
-#define BROKER_TASK_PRIORITY 10
-
-////////////////////////////////////////////////////////////////
 ///////////////////////// WASM 3 ///////////////////////////////
 ////////////////////////////////////////////////////////////////
 
 #define WASM_TASK_ADV 1
-#define WASM_TASK_CORE 1
+#define WASM_TASK_CORE 0
 
 #define WASM_STACK_SIZE (32*1024)  
 #define WASM_TASK_SIZE (32*1024)
@@ -136,7 +138,6 @@ void* serial_print(const char* msg);
 
 #define MAX_CMD_LENGTH 512
 #define SERIAL_STACK_SIZE (1024*16)
-#define BROKER_TASK_STACK_SIZE (1024*12)
 
 #define EXCLUSIVE_SERIAL_ON_CMD false
 

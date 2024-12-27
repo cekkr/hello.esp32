@@ -1,6 +1,7 @@
 // task_broker.c
 #include "he_task_broker.h"
 #include "he_defines.h"
+#include "he_settings.h"
 
 // Struttura per gestire le informazioni di ogni task
 typedef struct {
@@ -10,7 +11,7 @@ typedef struct {
 } task_info_t;
 
 // Variabili globali del broker
-static struct {
+struct {
     task_info_t tasks[MAX_TASKS];
     QueueHandle_t broker_queue;
     bool initialized;
@@ -27,8 +28,11 @@ static void broker_task(void *pvParameters) {
                 if (broker_ctx.tasks[i].in_use && 
                     strcmp(broker_ctx.tasks[i].name, message.destination) == 0) {
                     // Inoltra il messaggio alla coda del task destinatario
-                    if (xQueueSend(broker_ctx.tasks[i].queue, &message, 0) != pdPASS) {
-                        ESP_LOGW(TAG, "Failed to forward message to %s", message.destination);
+                    int attempts = 0;
+                    while (xQueueSend(broker_ctx.tasks[i].queue, &message, 0) != pdPASS) {
+                        if(attempts++ > SERIAL_MUTEX_MAX_TRIES) break;
+                        vTaskDelay(pdMS_TO_TICKS(SERIAL_WRITER_WAIT_MS));
+                        //ESP_LOGW(TAG, "Failed to forward message to %s from %s", message.destination, message.source);
                     }
                     break;
                 }
@@ -38,6 +42,8 @@ static void broker_task(void *pvParameters) {
 }
 
 bool broker_init(void) {
+    settings_t* settings = get_main_settings();
+
     if (broker_ctx.initialized) {
         return true;
     }
@@ -53,7 +59,7 @@ bool broker_init(void) {
     }
 
     // Crea il task del broker
-    BaseType_t ret = xTaskCreate(broker_task, "broker_task", BROKER_TASK_STACK_SIZE, NULL, BROKER_TASK_PRIORITY, NULL);
+    BaseType_t ret = xTaskCreatePinnedToCore(broker_task, "broker_task", BROKER_TASK_STACK_SIZE, NULL, BROKER_TASK_PRIORITY, NULL, BROKER_TASK_CORE);
     if (ret != pdPASS) {
         ESP_LOGE(TAG, "Failed to create broker task");
         vQueueDelete(broker_ctx.broker_queue);
@@ -62,6 +68,8 @@ bool broker_init(void) {
 
     broker_ctx.initialized = true;
     ESP_LOGI(TAG, "Broker initialized successfully");
+
+    settings->_broker_task_initialized = true;
     return true;
 }
 
@@ -130,15 +138,6 @@ bool broker_send_message(const char* source, const char* destination,
         return false;
     }
     
-    // Define maximum data size in the broker_message_t struct
-    const size_t max_data_size = sizeof(((broker_message_t*)0)->data);
-    
-    // Ensure we don't overflow the buffer
-    if (length > max_data_size) {
-        ESP_LOGW(TAG, "Message too large: %zu bytes (max: %zu)", length, max_data_size);
-        return false;
-    }
-
     broker_message_t message = {0};
     strncpy(message.source, source, MAX_TASK_NAME_LENGTH - 1);
     message.source[MAX_TASK_NAME_LENGTH - 1] = '\0';  // Ensure null termination
@@ -151,7 +150,7 @@ bool broker_send_message(const char* source, const char* destination,
     message.message_type = type;
 
     if (xQueueSend(broker_ctx.broker_queue, &message, 0) != pdPASS) {
-        ESP_LOGW(TAG, "Failed to send message from %s to %s", source, destination);
+        //ESP_LOGW(TAG, "Failed to send message from %s to %s", source, destination);
         return false;
     }
 
