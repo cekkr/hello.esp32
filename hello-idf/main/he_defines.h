@@ -82,7 +82,7 @@ void* serial_print(const char* msg);
 #define WASM_TASK_SIZE (32*1024)
 #define WASM_TASK_PRIORITY 5
 
-#define WASM_PTRS_64BITS 1
+#define WASM_PTRS_64BITS 0
 
 ////////////////////////////////////////////////////////////////
 //////////////////////// WATCHDOG //////////////////////////////
