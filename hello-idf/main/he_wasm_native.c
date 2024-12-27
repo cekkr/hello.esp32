@@ -181,12 +181,18 @@ M3Result wasm_esp_add(IM3Runtime runtime, IM3ImportContext *ctx, mos _sp, void* 
 
     m3ApiReturnType  (int32_t)
 
+    ESP_LOGI("WASM3", "_sp: %lu, mos: %p", _sp, (mos)_sp);
+
     // Ottiene il puntatore allo stack
-    uint64_t* stack = (uint64_t*)m3ApiOffsetToPtr(_sp++);
+    mos stack = (mos)*(uint32_t*)m3ApiOffsetToPtr(_sp++);      
+
+    ESP_LOGI("WASM3", "stack: %p", stack);
+    vTaskDelay(pdMS_TO_TICKS(100));
+
 
     // Legge i due parametri dallo stack
-    int32_t a = stack[0];
-    int32_t b = (int32_t)stack[1];
+    int32_t a = *(int32_t*)m3ApiOffsetToPtr(stack); stack += sizeof(int32_t);
+    int32_t b = *(int32_t*)m3ApiOffsetToPtr(stack); stack += sizeof(int32_t);
 
     if(HELLO_DEBUG_wasm_esp_add) {
         ESP_LOGI("WASM3", "Add function called with params: a=%d, b=%d", a, b);
@@ -265,7 +271,7 @@ const WasmFunctionEntry functionTable[] = {
     { 
         .name = "esp_printf",           // Function name in WASM
         .func = wasm_esp_printf,    // Pointer to function
-        .signature = "v(pi)"        // Signature: void (raw_ptr, int32)
+        .signature = "v(pp)"        // Signature: void (raw_ptr, size_t)
     },
     { 
         .name = "lcd_draw_text",           // Function name in WASM
