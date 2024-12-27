@@ -49,6 +49,7 @@ static int cmd_restart(shell_t* shell, int argc, char** argv);
 static int cmd_core_dump(shell_t* shell, int argc, char** argv);
 static int cmd_devinfo(shell_t* shell, int argc, char** argv);
 static int cmd_help(shell_t* shell, int argc, char **argv);
+static int cmd_thread_id(shell_t* shell, int argc, char **argv);
 
 // Tabella dei comandi supportati
 static const command_entry_t commands[] = {
@@ -59,6 +60,7 @@ static const command_entry_t commands[] = {
     {"core_dump", cmd_core_dump},
     {"devinfo", cmd_devinfo},
     {"help", cmd_help},
+    {"thread_id", cmd_thread_id},
     {NULL, NULL}  // Terminatore
 };
 

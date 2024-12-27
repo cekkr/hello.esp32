@@ -68,9 +68,9 @@ void init_serial_writer_broker(){
         "serial_writer_broker",
         SERIAL_WRITER_BROKER_TASK_STACK_SIZE,     
         NULL,
-        SERIAL_WRITER_BROKER_TASK_PRIORITY,              // Priorità media
-        NULL,           // Non ci serve l'handle
-        SERIAL_WRITER_BROKER_TASK_CORE               // Core 1
+        SERIAL_WRITER_BROKER_TASK_PRIORITY,              
+        NULL,           
+        SERIAL_WRITER_BROKER_TASK_CORE               
     );
 }
 
@@ -431,7 +431,7 @@ command_status_t wait_for_command(char* cmd_type, command_params_t* params) {
 
     if(res == STATUS_OK) {
         if(strncmp(cmd_type, CMD_PING, strlen(CMD_PING)) == 0){
-            send_response(STATUS_OK, "PONG");
+            send_response(STATUS_OK, "!!!PONG!!!");
             return wait_for_command(cmd_type, params);
         }
     }
@@ -521,7 +521,9 @@ void serial_handler_task(void *pvParameters) {
             params->has_filename = false;    
         }
 
+        vTaskPrioritySet( NULL, SERIAL_TASK_PRIORITY );
         command_status_t parse_status = wait_for_command(cmd_type, params);
+        vTaskPrioritySet( NULL, SERIAL_TASK_PRIORITY + 5 );
 
         if(params->has_filename) {
             prepend_cwd(shell.cwd, params->filename);
@@ -580,7 +582,6 @@ void serial_handler_task(void *pvParameters) {
             }
 
             monitor_disable();
-            vTaskDelay(pdMS_TO_TICKS(100));
 
             if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "Calculating MD5\n");
             size_t total_received = 0;
@@ -593,6 +594,8 @@ void serial_handler_task(void *pvParameters) {
             if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "mbedtls_md5_init\n");
             mbedtls_md5_starts(md5_ctx);
             if(HELLO_DEBUG_CMD) ESP_LOGI(TAG, "mbedtls_md5_init COMPLETE\n");     
+
+            char* cmd_chunk_buffer = malloc(COMMAND_BUFFER_SIZE*sizeof(char));
 
             if(params->filesize == 0){
                 // Non ci sono bytes da leggere
@@ -610,11 +613,11 @@ void serial_handler_task(void *pvParameters) {
 
             bool chunkHashFailed = false;
             int invalidChunkCmds = 0;
-            int chunk_num = 0;
+            int chunk_num = 0;            
             while (total_received < params->filesize) {
                 // Attendi comando chunk
-
-                char* cmd_chunk_buffer = malloc(COMMAND_BUFFER_SIZE*sizeof(char));
+                //ESP_LOGI(TAG, "CMD_WRITE_FILE: chunk cycle %ld < %ld", total_received, params->filesize);            
+                
                 command_params_t* params_chunk = malloc(sizeof(command_params_t));
                 if (wait_for_command(cmd_chunk_buffer, params_chunk) != STATUS_OK || strcmp(cmd_chunk_buffer, CMD_CHUNK) != 0) {
                     fclose(file);
@@ -625,8 +628,7 @@ void serial_handler_task(void *pvParameters) {
 
                     if(invalidChunkCmds++ > 2){
                         send_response(STATUS_ERROR, "Too many invalid chunk commands\n");
-                        free(text);
-                        free(cmd_chunk_buffer);
+                        free(text);                        
                         goto freeEverything;
                     }
                     
@@ -719,6 +721,7 @@ void serial_handler_task(void *pvParameters) {
                 free(md5_ctx);
                 free(chunk_buffer);
                 free(calculated_hash);
+                free(cmd_chunk_buffer);
                 monitor_enable();
                 continue;
             }

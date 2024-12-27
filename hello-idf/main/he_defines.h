@@ -64,7 +64,7 @@ void* serial_print(const char* msg);
 ////////////////////////////////////////////////////////////////
 
 #define MAX_TASKS 16
-#define MAX_TASK_NAME_LENGTH 16
+#define MAX_TASK_NAME_LENGTH 32
 #define MAX_MESSAGE_SIZE LOG_BUFFER_SIZE
 #define BROKER_QUEUE_SIZE 24
 

@@ -211,6 +211,12 @@ static int cmd_help(shell_t* shell, int argc, char **argv) {
     return 0;
 }
 
+static int cmd_thread_id(shell_t* shell, int argc, char **argv) {
+    uint32_t task_id = (uint32_t)esp_pthread_get_task_id();
+    ESP_LOGI(TAG, "Current task id: %d", task_id);
+    return 0;
+}
+
 ////
 ////
 ////
