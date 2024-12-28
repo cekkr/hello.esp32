@@ -2,24 +2,27 @@ import re
 import sys
 from pathlib import Path
 
-
 def sanitize_name(name):
-    # Sostituisce i punti con underscore
+    # Sostituisce i punti e slash con underscore
     return name.replace('.', '_').replace('/', '_')
 
 def extract_op_names(file_path):
     with open(file_path, 'r') as f:
         content = f.read()
     
-    pattern = r'M3OP\(\s*"([^"]+)"'
+    # Pattern modificato per catturare anche il nome dell'operazione
+    pattern = r'(M3OP|M3OP_F)\s*\(\s*"([^"]+)"'
     matches = re.finditer(pattern, content)
     
     op_names = {}
     for i, match in enumerate(matches):
-        name = match.group(1)
-        # Usa il nome sanitizzato per l'enum ma mantiene l'originale per l'array
-        sanitized = sanitize_name(name)
-        op_names[name] = {'index': i, 'enum_name': sanitized}
+        op_type = match.group(1)  # M3OP o M3OP_F
+        op_name = match.group(2).replace('-','_').replace('.','_').replace(':','_').replace('/','_')  # il nome dell'operazione (es: "i32.load")
+        
+        # Combina il tipo e il nome per l'enum
+        full_name = f"{op_name}"  # oppure f"{op_type}_{op_name}" se vuoi includere il tipo
+        sanitized = sanitize_name(full_name)
+        op_names[full_name] = {'index': i, 'enum_name': sanitized}
     
     return op_names
 
@@ -50,9 +53,7 @@ def generate_header(op_names):
     
     return enum_text + array_text + getter_text
 
-
 def main():
-
     file_path = 'hello-idf/main/wasm3/source/m3_compile.c'
 
     if len(sys.argv) > 1:
