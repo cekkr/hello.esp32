@@ -27,7 +27,9 @@ def extract_op_names(file_path):
     return op_names
 
 def generate_header(op_names):
-    enum_text = "// Auto-generated enum for operation names\n"
+    enum_text = "// Auto-generated enum for operation names (by generate_c_operations_enum.py)\n"
+    enum_text += "#pragma once\n"
+    enum_text += "#\nif DEBUG && M3_FUNCTIONS_ENUM\n"
     enum_text += "enum M3OpNames {\n"
     
     for name, info in op_names.items():
@@ -36,8 +38,12 @@ def generate_header(op_names):
     
     enum_text += "};\n\n"
     
-    array_text = "// Auto-generated array of operation names\n"
-    array_text += "static const char * const RODATA_ATTR opNames[] = {\n"
+    # or __attribute__((section(".irom.text"))) 
+    # or __attribute__((section(".rodata"), aligned(4))) for alignment
+    attribute_section = '__attribute__((section(".rodata")))'
+
+    array_text = "#pragma once\n\n// Auto-generated array of operation names\n// bgenerate_c_operations_enum.py - Riccardo Cecchini \n"
+    array_text += "static const char * const opNames[] "+attribute_section+" = {\n"
     
     for name in op_names.keys():
         array_text += f'    "{name}",\n'
@@ -45,8 +51,7 @@ def generate_header(op_names):
     array_text += "};\n\n"
     
     getter_text = "// Auto-generated getter function\n"
-    getter_text += "#ifdef DEBUG\n"
-    getter_text += "const char* getOpName(uint8_t id) {\n"
+    getter_text += "static const char* getOpName(uint8_t id) {\n"
     getter_text += "    return opNames[id];\n"
     getter_text += "}\n"
     getter_text += "#endif\n"
