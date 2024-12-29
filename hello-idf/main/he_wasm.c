@@ -10,7 +10,9 @@
 #include "m3_env.h"
 #include "m3_api_esp_wasi.h"
 
+#if HELLOESP_WASM_DEBUG
 #include "m3_debug_post.h"
+#endif
 
 /////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
@@ -43,15 +45,15 @@ bool prepare_wasm_execution(const uint8_t* wasm_data, size_t size) {
 
 const bool HELLOESP_RUN_WASM_WDT = ENABLE_WATCHDOG_WASM3 && ENABLE_WATCHDOG;
 const bool HELLOESP_WASM_RUNTIME_AT_PARSE = true;
-const bool HELLOESP_DEBUG_run_wasm = false;
+const bool HELLOESP_DEBUG_run_wasm = true;
 void run_wasm(uint8_t* wasm, uint32_t fsize, shell_t* shell, char* filename)
 {
     //disable_watchdog();
     if(HELLOESP_RUN_WASM_WDT) { WATCHDOG_ADD }   // Aggiunge il task corrente    
 
-    if(HELLOESP_DEBUG_run_wasm){
+    #if HELLOESP_WASM_DEBUG
         WASM3_Debug_PrintOpsInfo();
-    }
+    #endif
 
     //watchdog_task_register();
 
