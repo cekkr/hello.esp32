@@ -70,4 +70,5 @@
         "--compile-commands-dir=${workspaceFolder}/hello-idf/build"
     ],
     "terminal.integrated.scrollback": 100000,
+    "idf.port": "/dev/tty.usbserial-1120",
 }

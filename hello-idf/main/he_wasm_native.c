@@ -13,6 +13,7 @@
 #include "m3_segmented_memory.h"
 
 #include "he_wasm_native_stdclib.h"
+#include "wasm3_defs.h"
 
 ///
 ///
@@ -22,7 +23,7 @@ const char* ERROR_MSG_NULLS = "wasm_esp_printf: runtime or _mem is null";
 const char* ERROR_MSG_FAILED = "wasm_esp_printf: failed";
 
 const bool HELLO_DEBUG_wasm_esp_printf = true;
-M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, m3stack_t _sp, void* _mem) {
+WASM_NATIVE wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, m3stack_t _sp, void* _mem) {
     if(HELLO_DEBUG_wasm_esp_printf){
         ESP_LOGI("WASM3", "Entering wasm_esp_printf with params:");
         ESP_LOGI("WASM3", "  runtime: %p", runtime);
@@ -44,13 +45,12 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, m3stack_t _s
         return m3Err_nullMemory;
     }
 
-    uint64_t* stack = m3ApiOffsetToPtr((mos)*_sp);
-    _sp++;
+    m3stack_t stack = m3ApiOffsetToPtr(CAST_PTR _sp++);
 
     char formatted_output[512];  // Increased buffer for safety
     
     // Recupera e valida il puntatore al formato
-    const char* format = (const char*) m3ApiOffsetToPtr((mos)stack[0]);    
+    const char* format = (const char*) m3ApiOffsetToPtr(CAST_PTR stack[0]);    
     if (!format) {
         ESP_LOGE("WASM3", "esp_printf: Invalid format string pointer");
         return m3Err_pointerOverflow;
@@ -58,7 +58,7 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, m3stack_t _s
 
     if(HELLO_DEBUG_wasm_esp_printf) ESP_LOGE("WASM3", "wasm_esp_printf: format(%p): %s", format, format);
 
-    ptr args_ptr = m3ApiOffsetToPtr((mos)stack[1]);
+    ptr args_ptr = m3ApiOffsetToPtr(CAST_PTR stack[1]);
     if (!args_ptr) {
         ESP_LOGE("WASM3", "esp_printf: Invalid format string pointer");
         return m3Err_pointerOverflow;
@@ -86,7 +86,7 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, m3stack_t _s
                 }
 
                 // Processa l'argomento basandosi sul tipo
-                ptr stack_ptr_mos = m3ApiOffsetToPtr((mos)args_ptr);
+                ptr stack_ptr_mos = m3ApiOffsetToPtr(CAST_PTR args_ptr);
                 void* stack_ptr = (void*)stack_ptr_mos;
                 switch (*fmt_ptr) {
                     case 'd': case 'i': case 'u': case 'x': case 'X':
@@ -98,17 +98,16 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, m3stack_t _s
                         break;
                     case 's': {
                         // Gestione stringhe con validazione del puntatore
-                        void* ptr = (void*) m3ApiOffsetToPtr((mos)stack_ptr_mos);
+                        void* ptr = (void*) m3ApiOffsetToPtr(CAST_PTR stack_ptr_mos);
 
-                        if(ptr != NULL){
-                            //todo: check the nature of this redudancy
-                            mos base_ptr = *(mos*)ptr;
-                            if(IsValidMemoryAccess(_mem, base_ptr, 1)){
-                                ptr = (void*)m3_ResolvePointer(_mem, base_ptr);
-                            }
+                        // is double resolve needed in case of string?
+                        if(IsValidMemoryAccess(_mem, CAST_PTR ptr, 1)){
+                            ESP_LOGW("WASM3", "yes, double resolve needed in case of string");
+                            ptr = (void*) m3ApiOffsetToPtr(CAST_PTR ptr);                            
                         }
 
-                        args[arg_count].s = ptr;
+                        args[arg_count].s = malloc(sizeof(char) * LOG_BUFFER_SIZE);
+                        m3_memcpy(_mem, args[arg_count].s, ptr,  strlen(ptr));
 
                         if (!args[arg_count].s) {
                             ESP_LOGE("WASM3", "esp_printf: Invalid string pointer");
@@ -118,7 +117,7 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, m3stack_t _s
                     }
                     case 'p': {
                         // Gestione puntatori                        
-                        args[arg_count].p = m3ApiOffsetToPtr((mos)stack_ptr);
+                        args[arg_count].p = m3ApiOffsetToPtr(CAST_PTR stack_ptr);
                         break;
                     }                    
                 }
@@ -153,8 +152,8 @@ M3Result wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, m3stack_t _s
 ////////////////////////////////////////////////////////////////
 
 const bool HELLO_DEBUG_wasm_lcd_draw_text = false;
-M3Result wasm_lcd_draw_text(IM3Runtime runtime, IM3ImportContext *ctx, mos _sp, void* _mem){
-    uint64_t* args = (uint64_t*) m3ApiOffsetToPtr(_sp++);
+WASM_NATIVE wasm_lcd_draw_text(IM3Runtime runtime, IM3ImportContext *ctx, m3stack_t _sp, void* _mem){
+    uint64_t* args = (uint64_t*) m3ApiOffsetToPtr(CAST_PTR _sp++);
 
     int x = (int)args[0];
     int y = (int)args[1];
@@ -173,7 +172,7 @@ M3Result wasm_lcd_draw_text(IM3Runtime runtime, IM3ImportContext *ctx, mos _sp, 
 ////////////////////////////////////////////////////////////////////////
 
 const bool HELLO_DEBUG_wasm_esp_add = true;
-M3Result wasm_esp_add(IM3Runtime runtime, IM3ImportContext *ctx, mos sp, void* _mem) {
+WASM_NATIVE wasm_esp_add(IM3Runtime runtime, IM3ImportContext *ctx, m3stack_t sp, void* _mem) {
     if (!runtime || !_mem) {
         ESP_LOGW("WASM3", "wasm_esp_add blocked: runtime=%p, mem=%p", runtime, _mem);
         return ERROR_MSG_NULLS;
@@ -207,7 +206,7 @@ M3Result wasm_esp_add(IM3Runtime runtime, IM3ImportContext *ctx, mos sp, void* _
 ////////////////////////////////////////////////////////////////
 
 const bool HELLO_DEBUG_wasm_esp_read_serial = false;
-M3Result wasm_esp_read_serial(IM3Runtime runtime, IM3ImportContext *ctx, mos _sp, void* _mem) {
+WASM_NATIVE wasm_esp_read_serial(IM3Runtime runtime, IM3ImportContext *ctx, m3stack_t _sp, void* _mem) {
     if (!runtime || !_mem) {
         ESP_LOGW("WASM3", "wasm_esp_read_serial blocked: runtime=%p, mem=%p", runtime, _mem);
         return ERROR_MSG_NULLS;
@@ -283,11 +282,16 @@ const WasmFunctionEntry functionTable[] = {
     // Altre funzioni possono essere aggiunte qui
 };
 
+const bool HELLOESP_WASM_REGISTER_CLIB = false;
 M3Result registerNativeWASMFunctions(IM3Module module, m3_wasi_context_t *ctx){
-    // C Standard Library
-    M3Result result = RegisterStandardCLibFunctions(module, ctx);
-    if (result) {
-        return result;
+    M3Result result;
+
+    if(HELLOESP_WASM_REGISTER_CLIB){
+        // C Standard Library
+        result = RegisterStandardCLibFunctions(module, ctx);
+        if (result) {
+            return result;
+        }
     }
 
     // HelloESP Functions

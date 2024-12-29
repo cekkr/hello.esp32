@@ -25,7 +25,11 @@
 
 ////////////////////////////////////////////////////////////////
 
-// Essential constants
+///
+/// Essential constants
+///
+#define LOG_BUFFER_SIZE 2048
+
 static const char *TAG = "HELLOESP";
 #define SD_MOUNT_POINT "/sdcard"
 #define MAX_FILENAME 256
@@ -55,8 +59,6 @@ static const char *TAG = "HELLOESP";
 ////////////////////////////////////////////////////////////////
 
 #define SERIAL_WRITER_WAIT_MS 10
-
-#define LOG_BUFFER_SIZE 2048
 
 #define SERIAL_WRITER_BROKER_ENABLE 1
 #define SERIAL_WRITER_BROKER_TASK_CORE BROKER_TASK_CORE
@@ -191,5 +193,9 @@ void safe_printf(const char* format, ...);
 ////////////////////////////////////////////////////////////////
 
 #define MIN(x, y) ((x) < (y) ? (x) : (y)) 
+
+static void waitsec(float seconds) {
+    vTaskDelay(pdMS_TO_TICKS(1000+(int)(seconds*1000)));
+}
 
 #endif

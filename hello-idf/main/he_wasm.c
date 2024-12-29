@@ -9,6 +9,9 @@
 
 #include "m3_env.h"
 #include "m3_api_esp_wasi.h"
+#include "m3_pointers.h"
+#include "m3_segmented_memory.h"
+#include "wasm3.h"
 
 #if HELLOESP_WASM_DEBUG_OPTRACE
 #include "m3_debug_post.h"
@@ -18,7 +21,7 @@
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 
-#define FATAL(env, msg, ...) { ESP_LOGI(TAG, "ERROR: Fatal: " msg "\n", ##__VA_ARGS__); goto freeEnv; }
+#define FATAL(env, msg, ...) if(true){ ESP_LOGI(TAG, "ERROR: Fatal: " msg "\n", ##__VA_ARGS__); goto freeEnv; }
 
 #define HE_WASM_PREALLOCATE false
 
@@ -41,6 +44,20 @@ bool prepare_wasm_execution(const uint8_t* wasm_data, size_t size) {
     
     // Continua con l'esecuzione...
     return true;
+}
+
+void wasm_check_result(IM3Runtime runtime, M3Result result) {
+    ESP_LOGW("WASM3", "M3Result error pointer: %p", result);        
+    if(is_ptr_valid(result)){
+        if(IsValidMemoryAccess(&runtime->memory, CAST_PTR result, 1)){
+            result = (M3Result) m3_ResolvePointer(&runtime->memory, CAST_PTR result);
+        }
+    }
+    else {
+        ESP_LOGE("WASM3", "Failed M3Result, invalid error message (%p)", result);
+    }
+
+    waitsec(1);
 }
 
 const bool HELLOESP_RUN_WASM_WDT = ENABLE_WATCHDOG_WASM3 && ENABLE_WATCHDOG;
@@ -110,18 +127,23 @@ void run_wasm(uint8_t* wasm, uint32_t fsize, shell_t* shell, char* filename)
 
     if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "run_wasm: registerNativeWASMFunctions\n");
     result = registerNativeWASMFunctions(module, wasi_ctx);
-    if (result) FATAL(env, "registerNativeWASMFunctions: %s", result);
-
-    /*result = m3_LinkRawFunction(module, "env", "esp_printf", "v(ii)", &wasm_esp_printf);
-    if (result) {
-        ESP_LOGE(TAG, "Failed to link native function: %s", result);
-    }*/
+    if (result) FATAL(env, "registerNativeWASMFunctions: %s", result);     
 
     // Execution
-    if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "run_wasm: m3_FindFunction\n");
+    if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "run_wasm: m3_FindFunction\n");            
+    
+
     IM3Function f;
     result = m3_FindFunction(&f, runtime, "start");
-    if (result || !f) FATAL(env, "m3_FindFunction: %s", result);
+    if (result || !f) {
+        if(result){
+            wasm_check_result(runtime, result);
+            FATAL(env, "m3_FindFunction: %s", result);
+        }
+        else {
+            FATAL(env, "m3_FindFunction: Function not found");
+        }
+    }    
 
     if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "run_wasm: Starting call\n");
 
@@ -140,7 +162,9 @@ void run_wasm(uint8_t* wasm, uint32_t fsize, shell_t* shell, char* filename)
 
     result = m3_CallV(f);
 
-    if (result) FATAL(env, "m3_Call: %s", result);  
+    if (result) {
+        FATAL(env, "m3_Call: %s", result);        
+    }
 
     freeEnv:  
     if(HELLOESP_DEBUG_run_wasm) ESP_LOGI(TAG, "Freeing WASM3 context\n");      

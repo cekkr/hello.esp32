@@ -1,0 +1,28 @@
+{
+  "helloesp-mac": {
+    "build": {
+      "compileArgs": [],
+      "ninjaArgs": [],
+      "buildDirectoryPath": "build",
+      "sdkconfigDefaults": [],
+      "sdkconfigFilePath": "sdkconfig"
+    },
+    "env": {},
+    "flashBaudRate": "",
+    "idfTarget": "",
+    "monitorBaudRate": "",
+    "openOCD": {
+      "debugLevel": 3,
+      "configs": [
+        "openocd.cfg"
+      ],
+      "args": []
+    },
+    "tasks": {
+      "preBuild": "",
+      "preFlash": "",
+      "postBuild": "",
+      "postFlash": ""
+    }
+  }
+}
