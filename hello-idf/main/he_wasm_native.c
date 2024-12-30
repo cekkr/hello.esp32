@@ -22,6 +22,8 @@
 const char* ERROR_MSG_NULLS = "wasm_esp_printf: runtime or _mem is null";
 const char* ERROR_MSG_FAILED = "wasm_esp_printf: failed";
 
+#define ArgAccess(ptr) m3_ResolvePointer(_mem, ptr)
+
 const bool HELLO_DEBUG_wasm_esp_printf = false;
 WASM_NATIVE wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, m3stack_t _sp, void* _mem) {
     if(HELLO_DEBUG_wasm_esp_printf){
@@ -45,24 +47,21 @@ WASM_NATIVE wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, m3stack_t
         return m3Err_nullMemory;
     }
 
-    m3stack_t stack = m3ApiOffsetToPtr(CAST_PTR _sp++);
-
     char formatted_output[512];  // Increased buffer for safety
     
+    int narg = 0;
+    uint64_t* args = (uint64_t*) m3ApiOffsetToPtr(CAST_PTR _sp++);
+
     // Recupera e valida il puntatore al formato
-    const char* format = (const char*) m3ApiOffsetToPtr(CAST_PTR stack[0]);    
+    const char* format = (const char*) m3ApiOffsetToPtr(CAST_PTR args[narg++]);
     if (!format) {
         ESP_LOGE("WASM3", "esp_printf: Invalid format string pointer");
         return m3Err_pointerOverflow;
     }
 
-    if(HELLO_DEBUG_wasm_esp_printf) ESP_LOGE("WASM3", "wasm_esp_printf: format(%p): %s", format, format);
+    //uint64_t* vargs = ((uint64_t*) m3ApiOffsetToPtr(CAST_PTR args[narg++]));
 
-    ptr args_ptr = m3ApiOffsetToPtr(CAST_PTR stack[1]);
-    if (!args_ptr) {
-        ESP_LOGE("WASM3", "esp_printf: Invalid format string pointer");
-        return m3Err_pointerOverflow;
-    }
+    if(HELLO_DEBUG_wasm_esp_printf) ESP_LOGE("WASM3", "wasm_esp_printf: format(%p): %s", format, format);
 
     // Array per memorizzare gli argomenti processati
     union {
@@ -71,7 +70,7 @@ WASM_NATIVE wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, m3stack_t
         float f;
         const char* s;
         void* p;
-    } args[16];  // Supporta fino a 16 argomenti
+    } sargs[16];  // Supporta fino a 16 argomenti
     int arg_count = 0;
 
     // Analizza la stringa di formato per determinare il numero di argomenti
@@ -85,20 +84,18 @@ WASM_NATIVE wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, m3stack_t
                     return ERROR_MSG_FAILED;
                 }
 
-                // Processa l'argomento basandosi sul tipo
-                ptr stack_ptr_mos = m3ApiOffsetToPtr(CAST_PTR args_ptr);
-                void* stack_ptr = (void*)stack_ptr_mos;
                 switch (*fmt_ptr) {
                     case 'd': case 'i': case 'u': case 'x': case 'X':
-                        args[arg_count].i = m3ApiReadMem32(stack_ptr);
+                        //ESP_LOGI("WASM3", "esp_printf: number %d at %p", *vargs, vargs);
+                        sargs[arg_count].i = *((uint64_t*) m3ApiOffsetToPtr(CAST_PTR args[narg++]));
                         break;
                     case 'f':
                         // Gestione float con controllo del tipo
-                        args[arg_count].f = *(float*)stack_ptr;
+                        sargs[arg_count].f = *(float*)ArgAccess(args[narg++]);
                         break;
                     case 's': {
                         // Gestione stringhe con validazione del puntatore
-                        void* ptr = (void*) m3ApiOffsetToPtr(CAST_PTR stack_ptr_mos);
+                        void* ptr = (void*) m3ApiOffsetToPtr(CAST_PTR args[narg++]);
 
                         // is double resolve needed in case of string?
                         if(IsValidMemoryAccess(_mem, CAST_PTR ptr, 1)){
@@ -106,10 +103,10 @@ WASM_NATIVE wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, m3stack_t
                             ptr = (void*) m3ApiOffsetToPtr(CAST_PTR ptr);                            
                         }
 
-                        args[arg_count].s = malloc(sizeof(char) * LOG_BUFFER_SIZE);
-                        m3_memcpy(_mem, args[arg_count].s, ptr,  strlen(ptr));
+                        sargs[arg_count].s = malloc(sizeof(char) * LOG_BUFFER_SIZE);
+                        m3_memcpy(_mem, sargs[arg_count].s, ptr,  strlen(ptr));
 
-                        if (!args[arg_count].s) {
+                        if (!sargs[arg_count].s) {
                             ESP_LOGE("WASM3", "esp_printf: Invalid string pointer");
                             return ERROR_MSG_FAILED;
                         }
@@ -117,11 +114,15 @@ WASM_NATIVE wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, m3stack_t
                     }
                     case 'p': {
                         // Gestione puntatori                        
-                        args[arg_count].p = m3ApiOffsetToPtr(CAST_PTR stack_ptr);
+                        sargs[arg_count].p = m3ApiOffsetToPtr(CAST_PTR args[narg++]);
                         break;
                     }                    
                 }
-                args_ptr += sizeof(mos);
+
+                //args_ptr += sizeof(mos);
+                //args_ptr++;
+                //vargs++;
+                
                 arg_count++;
             }
         }
@@ -132,12 +133,12 @@ WASM_NATIVE wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, m3stack_t
     if(HELLO_DEBUG_wasm_esp_printf) ESP_LOGD("WASM3", "esp_printf: Format: %s, ArgCount: %d", format, arg_count);
 
     // Formatta l'output usando vsnprintf
-    int result = snprintf(formatted_output, sizeof(formatted_output),
+    int result = snprintf(formatted_output, sizeof(formatted_output), //wtf is this?
                          format,
-                         args[0].i, args[1].i, args[2].i, args[3].i,
-                         args[4].i, args[5].i, args[6].i, args[7].i,
-                         args[8].i, args[9].i, args[10].i, args[11].i,
-                         args[12].i, args[13].i, args[14].i, args[15].i);
+                         sargs[0].i, sargs[1].i, sargs[2].i, sargs[3].i,
+                         sargs[4].i, sargs[5].i, sargs[6].i, sargs[7].i,
+                         sargs[8].i, sargs[9].i, sargs[10].i, sargs[11].i,
+                         sargs[12].i, sargs[13].i, sargs[14].i, sargs[15].i);
 
     if (result >= 0 && result < sizeof(formatted_output)) {
         ESP_LOGI("WASM3", "%s", formatted_output);

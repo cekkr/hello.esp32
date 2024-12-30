@@ -52,7 +52,7 @@ compile_wasm() {
         -s EXPORTED_FUNCTIONS='["_start"]' \
         -s MEMORY64=1 \
         --no-entry \
-        -O1 \
+        -O0 \
         -fno-inline 
         
     if [ $? -eq 0 ]; then
