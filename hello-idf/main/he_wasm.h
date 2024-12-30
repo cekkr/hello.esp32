@@ -5,9 +5,6 @@
 #include <unistd.h>
 #include "esp_log.h"
 
-#define HELLOESP_WASM_DEBUG 0
-#define HELLOESP_WASM_DEBUG_OPTRACE 0
-
 #include "he_cmd.h"
 #include "wasm3.h"
 

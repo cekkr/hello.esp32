@@ -13,7 +13,7 @@
 #include "m3_segmented_memory.h"
 #include "wasm3.h"
 
-#if HELLOESP_WASM_DEBUG_OPTRACE
+#if WASM_ENABLE_OP_TRACE
 #include "m3_debug_post.h"
 #endif
 
@@ -68,7 +68,7 @@ void run_wasm(uint8_t* wasm, uint32_t fsize, shell_t* shell, char* filename)
     //disable_watchdog();
     if(HELLOESP_RUN_WASM_WDT) { WATCHDOG_ADD }   // Aggiunge il task corrente    
 
-    #if HELLOESP_WASM_DEBUG_OPTRACE
+    #if WASM_ENABLE_OP_TRACE
         WASM3_Debug_PrintOpsInfo();
     #endif
 

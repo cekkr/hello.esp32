@@ -32,7 +32,7 @@ target_compile_options(${COMPONENT_LIB} PRIVATE -Wno-error=return-type -Wno-erro
                         -Wno-error=unused-value -Wno-error=maybe-uninitialized -Wno-error=uninitialized -Wno-error=format
                         -Wno-error=multistatement-macros -Wno-error=implicit-int -Wno-error=implicit-function-declaration
                         -Wno-error=implicit-function-declaration -Wno-error=implicit-function-declaration -Wno-error=format-overflow=
-                        -Wno-error=array-bounds=
+                        -Wno-error=array-bounds= -Wno-error=format-truncation= -Wno-error=misleading-indentation
                     )
 
 # Avoid IRAM

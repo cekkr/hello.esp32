@@ -22,7 +22,7 @@
 const char* ERROR_MSG_NULLS = "wasm_esp_printf: runtime or _mem is null";
 const char* ERROR_MSG_FAILED = "wasm_esp_printf: failed";
 
-const bool HELLO_DEBUG_wasm_esp_printf = true;
+const bool HELLO_DEBUG_wasm_esp_printf = false;
 WASM_NATIVE wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, m3stack_t _sp, void* _mem) {
     if(HELLO_DEBUG_wasm_esp_printf){
         ESP_LOGI("WASM3", "Entering wasm_esp_printf with params:");
@@ -171,7 +171,7 @@ WASM_NATIVE wasm_lcd_draw_text(IM3Runtime runtime, IM3ImportContext *ctx, m3stac
 
 ////////////////////////////////////////////////////////////////////////
 
-const bool HELLO_DEBUG_wasm_esp_add = true;
+const bool HELLO_DEBUG_wasm_esp_add = false;
 WASM_NATIVE wasm_esp_add(IM3Runtime runtime, IM3ImportContext *ctx, m3stack_t sp, void* _mem) {
     if (!runtime || !_mem) {
         ESP_LOGW("WASM3", "wasm_esp_add blocked: runtime=%p, mem=%p", runtime, _mem);
