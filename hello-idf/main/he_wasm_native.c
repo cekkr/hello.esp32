@@ -22,33 +22,18 @@
 const char* ERROR_MSG_NULLS = "wasm_esp_printf: runtime or _mem is null";
 const char* ERROR_MSG_FAILED = "wasm_esp_printf: failed";
 
-#define ArgAccess(ptr) m3_ResolvePointer(_mem, ptr)
+#define ArgAccess(ptr) m3_ResolvePointer(_mem, CAST_PTR ptr)
 
 const bool HELLO_DEBUG_wasm_esp_printf = false;
-WASM_NATIVE wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, m3stack_t _sp, void* _mem) {
-    if(HELLO_DEBUG_wasm_esp_printf){
-        ESP_LOGI("WASM3", "Entering wasm_esp_printf with params:");
-        ESP_LOGI("WASM3", "  runtime: %p", runtime);
-        ESP_LOGI("WASM3", "  ctx: %p", ctx);
-        ESP_LOGI("WASM3", "  _sp: %p", _sp);
-        ESP_LOGI("WASM3", "  _mem: %p", _mem);
-    }
-
+WASM_NATIVE wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, m3stack_t _sp, IM3Memory _mem) {
     bool runtime_null = (runtime == NULL);
     bool mem_null = (_mem == NULL);
     
-    if(HELLO_DEBUG_wasm_esp_printf){
-        ESP_LOGI("WASM3", "runtime_null: %d", runtime_null);
-        ESP_LOGI("WASM3", "mem_null: %d", mem_null);
-    }
-
     if (runtime_null || mem_null) {
         //ESP_LOGW("WASM3", "wasm_esp_printf blocked: runtime=%p, _sp=%p, mem=%p", runtime, _sp, _mem);
         return m3Err_nullMemory;
     }
 
-    char formatted_output[512];  // Increased buffer for safety
-    
     int narg = 0;
     uint64_t* args = (uint64_t*) m3ApiOffsetToPtr(CAST_PTR _sp++);
 
@@ -59,7 +44,7 @@ WASM_NATIVE wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, m3stack_t
         return m3Err_pointerOverflow;
     }
 
-    //uint64_t* vargs = ((uint64_t*) m3ApiOffsetToPtr(CAST_PTR args[narg++]));
+    uint64_t* vargs = (uint64_t*) m3ApiOffsetToPtr(CAST_PTR args[narg++]); //*((uint64_t**) args[narg++]);
 
     if(HELLO_DEBUG_wasm_esp_printf) ESP_LOGE("WASM3", "wasm_esp_printf: format(%p): %s", format, format);
 
@@ -86,16 +71,16 @@ WASM_NATIVE wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, m3stack_t
 
                 switch (*fmt_ptr) {
                     case 'd': case 'i': case 'u': case 'x': case 'X':
-                        //ESP_LOGI("WASM3", "esp_printf: number %d at %p", *vargs, vargs);
-                        sargs[arg_count].i = *((uint64_t*) m3ApiOffsetToPtr(CAST_PTR args[narg++]));
+                        //todo: implement every format
+                        sargs[arg_count].i = *(int64_t*)vargs;                        
                         break;
                     case 'f':
                         // Gestione float con controllo del tipo
-                        sargs[arg_count].f = *(float*)ArgAccess(args[narg++]);
+                        sargs[arg_count].f = *(float*)vargs;              
                         break;
                     case 's': {
                         // Gestione stringhe con validazione del puntatore
-                        void* ptr = (void*) m3ApiOffsetToPtr(CAST_PTR args[narg++]);
+                        void* ptr = (void*) m3ApiOffsetToPtr(CAST_PTR vargs);
 
                         // is double resolve needed in case of string?
                         if(IsValidMemoryAccess(_mem, CAST_PTR ptr, 1)){
@@ -114,15 +99,12 @@ WASM_NATIVE wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, m3stack_t
                     }
                     case 'p': {
                         // Gestione puntatori                        
-                        sargs[arg_count].p = m3ApiOffsetToPtr(CAST_PTR args[narg++]);
+                        sargs[arg_count].p = vargs;
                         break;
                     }                    
                 }
-
-                //args_ptr += sizeof(mos);
-                //args_ptr++;
-                //vargs++;
                 
+                vargs += 2; //todo: check for architecture bits size
                 arg_count++;
             }
         }
@@ -132,18 +114,109 @@ WASM_NATIVE wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, m3stack_t
     // Debug logging
     if(HELLO_DEBUG_wasm_esp_printf) ESP_LOGD("WASM3", "esp_printf: Format: %s, ArgCount: %d", format, arg_count);
 
-    // Formatta l'output usando vsnprintf
-    int result = snprintf(formatted_output, sizeof(formatted_output), //wtf is this?
-                         format,
-                         sargs[0].i, sargs[1].i, sargs[2].i, sargs[3].i,
-                         sargs[4].i, sargs[5].i, sargs[6].i, sargs[7].i,
-                         sargs[8].i, sargs[9].i, sargs[10].i, sargs[11].i,
-                         sargs[12].i, sargs[13].i, sargs[14].i, sargs[15].i);
+    ///
+    /// Print result
+    ///
 
-    if (result >= 0 && result < sizeof(formatted_output)) {
+    //todo: malloc it
+    char formatted_output[512];  // Increased buffer for safety    
+
+    // Variabili per la formattazione dell'output
+    char temp_buffer[sizeof(formatted_output)];
+    char *out_ptr = formatted_output;
+    size_t remaining = sizeof(formatted_output);
+    int current_arg = 0;
+    
+    // Processa la stringa di formato carattere per carattere
+    fmt_ptr = format;
+    while (*fmt_ptr && remaining > 0) {
+        if (*fmt_ptr != '%') {
+            // Copia caratteri normali
+            *out_ptr++ = *fmt_ptr++;
+            remaining--;
+            continue;
+        }
+        
+        // Gestisce il carattere %
+        fmt_ptr++;
+        if (*fmt_ptr == '%') {
+            *out_ptr++ = '%';
+            fmt_ptr++;
+            remaining--;
+            continue;
+        }
+        
+        if (current_arg >= arg_count) {
+            ESP_LOGE("WASM3", "esp_printf: Not enough arguments for format string");
+            return ERROR_MSG_FAILED;
+        }
+        
+        // Formatta l'argomento corrente in base al suo tipo
+        int write_result = 0;
+        switch (*fmt_ptr) {
+            case 'd':
+            case 'i':
+                write_result = snprintf(temp_buffer, remaining, "%d", sargs[current_arg].i);
+                break;
+            case 'u':
+                write_result = snprintf(temp_buffer, remaining, "%u", sargs[current_arg].u);
+                break;
+            case 'x':
+                write_result = snprintf(temp_buffer, remaining, "%x", sargs[current_arg].u);
+                break;
+            case 'X':
+                write_result = snprintf(temp_buffer, remaining, "%X", sargs[current_arg].u);
+                break;
+            case 'f':
+                write_result = snprintf(temp_buffer, remaining, "%f", sargs[current_arg].f);
+                break;
+            case 's':
+                write_result = snprintf(temp_buffer, remaining, "%s", sargs[current_arg].s);
+                break;
+            case 'p':
+                write_result = snprintf(temp_buffer, remaining, "%p", sargs[current_arg].p);
+                break;
+            default:
+                ESP_LOGE("WASM3", "esp_printf: Unsupported format specifier: %c", *fmt_ptr);
+                return ERROR_MSG_FAILED;
+        }
+        
+        if (write_result < 0 || write_result >= remaining) {
+            ESP_LOGE("WASM3", "esp_printf: Buffer overflow while formatting argument");
+            return ERROR_MSG_FAILED;
+        }
+        
+        // Copia il risultato nel buffer di output
+        strcpy(out_ptr, temp_buffer);
+        out_ptr += write_result;
+        remaining -= write_result;
+        
+        current_arg++;
+        fmt_ptr++;
+    }
+    
+    // Verifica che ci sia spazio per il terminatore e finalizza la stringa
+    if (remaining > 0) {
+        *out_ptr = '\0';
+        // Output del risultato finale
         ESP_LOGI("WASM3", "%s", formatted_output);
+        
+        // Libera la memoria allocata per le stringhe
+        for (int i = 0; i < arg_count; i++) {
+            const char* fmt_scan = format;
+            int format_spec_count = 0;
+            while (*fmt_scan && format_spec_count < i) {
+                if (*fmt_scan == '%' && *(fmt_scan + 1) != '%') {
+                    format_spec_count++;
+                }
+                fmt_scan++;
+            }
+            if (*fmt_scan == '%' && *(fmt_scan + 1) == 's' && sargs[i].s != NULL) {
+                free((void*)sargs[i].s);
+            }
+        }
     } else {
-        ESP_LOGE("WASM3", "esp_printf: Formatting error");
+        ESP_LOGE("WASM3", "esp_printf: Output buffer overflow");
         return ERROR_MSG_FAILED;
     }
 

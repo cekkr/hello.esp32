@@ -11,8 +11,7 @@ uint32_t fib(uint32_t n) {
         return n;
     }
     
-    uint32_t prev = 0, curr = 1;
-    
+    uint32_t prev = 0, curr = 1;    
     for(uint32_t i = 2; i <= n; i++) {
         uint32_t next = prev + curr;
         prev = curr;
