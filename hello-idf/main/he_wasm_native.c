@@ -226,7 +226,7 @@ WASM_NATIVE wasm_esp_printf(IM3Runtime runtime, IM3ImportContext *ctx, m3stack_t
 ////////////////////////////////////////////////////////////////
 
 const bool HELLO_DEBUG_wasm_lcd_draw_text = false;
-WASM_NATIVE wasm_lcd_draw_text(IM3Runtime runtime, IM3ImportContext *ctx, m3stack_t _sp, void* _mem){
+WASM_NATIVE wasm_lcd_draw_text(IM3Runtime runtime, IM3ImportContext *ctx, m3stack_t _sp, IM3Memory _mem){
     uint64_t* args = (uint64_t*) m3ApiOffsetToPtr(CAST_PTR _sp++);
 
     int x = (int)args[0];
@@ -246,21 +246,19 @@ WASM_NATIVE wasm_lcd_draw_text(IM3Runtime runtime, IM3ImportContext *ctx, m3stac
 ////////////////////////////////////////////////////////////////////////
 
 const bool HELLO_DEBUG_wasm_esp_add = false;
-WASM_NATIVE wasm_esp_add(IM3Runtime runtime, IM3ImportContext *ctx, m3stack_t sp, void* _mem) {
+WASM_NATIVE wasm_esp_add(IM3Runtime runtime, IM3ImportContext *ctx, m3stack_t _sp, IM3Memory _mem) {
     if (!runtime || !_mem) {
         ESP_LOGW("WASM3", "wasm_esp_add blocked: runtime=%p, mem=%p", runtime, _mem);
         return ERROR_MSG_NULLS;
     }
 
-    ptr _sp = m3_ResolvePointer(_mem, sp);
-
-    m3ApiReturnType  (int32_t)
-    m3ApiGetBaseArg(int32_t, a)
-    //m3ApiGetBaseArg(int32_t, b)
-    int32_t b = 3;
+    m3_GetArgs();
+    m3_GetReturn(int32_t);    
+    m3_GetArg(int32_t, a);
+    m3_GetArg(int32_t, b);
 
     if(HELLO_DEBUG_wasm_esp_add) {
-        ESP_LOGI("WASM3", "Add function called with params: a=%d, b=%d", a, b);
+        ESP_LOGI("WASM3", "esp_add: Add function called with params: a=%d, b=%d, return: %p", a, b, raw_return);
     }
 
     // Calcola la somma
@@ -280,7 +278,7 @@ WASM_NATIVE wasm_esp_add(IM3Runtime runtime, IM3ImportContext *ctx, m3stack_t sp
 ////////////////////////////////////////////////////////////////
 
 const bool HELLO_DEBUG_wasm_esp_read_serial = false;
-WASM_NATIVE wasm_esp_read_serial(IM3Runtime runtime, IM3ImportContext *ctx, m3stack_t _sp, void* _mem) {
+WASM_NATIVE wasm_esp_read_serial(IM3Runtime runtime, IM3ImportContext *ctx, m3stack_t _sp, IM3Memory _mem) {
     if (!runtime || !_mem) {
         ESP_LOGW("WASM3", "wasm_esp_read_serial blocked: runtime=%p, mem=%p", runtime, _mem);
         return ERROR_MSG_NULLS;
@@ -305,7 +303,7 @@ WASM_NATIVE wasm_esp_read_serial(IM3Runtime runtime, IM3ImportContext *ctx, m3st
         
         if(HELLO_DEBUG_wasm_esp_read_serial){ 
             ESP_LOGI("WASM3", "esp_read_serial: retStr: %p (len: %lu)", retStr, settings->_serial_wasm_read_string_len); 
-            ESP_LOGI("WASM3", "esp_read_serial: retStr content: %s", (char*)m3_ResolvePointer(_mem, retStr));  // it works
+            ESP_LOGI("WASM3", "esp_read_serial: retStr content: %s", (char*)m3_ResolvePointer(_mem, CAST_PTR retStr));  // it works
         }
 
         if(res != NULL){
