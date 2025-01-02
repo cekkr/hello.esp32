@@ -1,9 +1,9 @@
 file(GLOB HELLO_SRCS "he_serial.c" "he_io.c" "he_wasm_native.c" "he_wasm.c" "./*.c")
-file(GLOB_RECURSE WASM_SRCS "wasm3/source/*.c")
+file(GLOB_RECURSE WASM_SRCS "wasm30/source/*.c")
 
 idf_component_register(
     SRCS ${WASM_SRCS} ${HELLO_SRCS}
-    INCLUDE_DIRS "." "../components/XPT2046/include" "../components/LCD/include" "../components/GUI/include"  "wasm3/source" 
+    INCLUDE_DIRS "." "../components/XPT2046/include" "../components/LCD/include" "../components/GUI/include"  "wasm30/source" 
     REQUIRES 
         esp_timer 
         esp_system 
