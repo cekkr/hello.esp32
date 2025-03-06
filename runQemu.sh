@@ -10,6 +10,7 @@
   -d in_asm,cpu,guest_errors,unimp \
   -s -S
 
+# source ./hello-idf/espShellEnv.sh
 # xtensa-esp32-elf-gdb hello-idf/build/hello-idf.elf
 
 #   -nographic \
