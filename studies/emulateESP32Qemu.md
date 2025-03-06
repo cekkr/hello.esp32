@@ -23,6 +23,9 @@ Apri il terminale e installa i pacchetti richiesti:
 brew install cmake ninja dfu-util
 brew install python3
 
+brew install gnutls
+brew install pkg-config
+
 # Installa QEMU con supporto per ESP32
 brew install qemu
 ```
@@ -62,6 +65,23 @@ cd build
              --enable-sdl \
              --enable-curses
 make -j8  # Sostituisci 8 con il numero di core disponibili
+
+# macOS configuration
+# substitute 3.8.4 with your brew package version
+
+# Imposta le variabili di ambiente per gli include path
+export CFLAGS="-I/opt/homebrew/Cellar/gnutls/3.8.4/include $CFLAGS"
+export CPPFLAGS="-I/opt/homebrew/Cellar/gnutls/3.8.4/include $CPPFLAGS"
+
+# Imposta anche la variabile per i library path se necessario
+export LDFLAGS="-L/opt/homebrew/Cellar/gnutls/3.8.4/lib $LDFLAGS"
+
+# Aggiorna anche PKG_CONFIG_PATH
+export PKG_CONFIG_PATH="/opt/homebrew/Cellar/gnutls/3.8.4/lib/pkgconfig:$PKG_CONFIG_PATH"
+
+../configure (...)
+
+make -j8
 ```
 
 ## 4. Configurazione del supporto per LCD, touch, SD e PSRAM
@@ -108,7 +128,8 @@ Per emulare una scheda SD:
 
 ```bash
 # Creiamo una immagine di file system per la SD
-dd if=/dev/zero of=~/esp/sdcard.img bs=1M count=32
+cd ~/esp/
+dd if=/dev/zero of=sdcard.img bs=1M count=32
 
 # Aggiungiamo la configurazione SD al file
 cat >> ~/esp/qemu_esp32_lcd.cfg << 'EOF'
