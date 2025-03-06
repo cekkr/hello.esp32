@@ -508,3 +508,115 @@ Se stai sviluppando un'applicazione che fa un uso intensivo della PSRAM, conside
    ```c
    ESP_LOGI(TAG, "PSRAM libera: %d KB", heap_caps_get_free_size(MALLOC_CAP_SPIRAM) / 1024);
    ```
+
+# Serial
+
+Per connetterti alla porta seriale della macchina QEMU che emula l'ESP32, ci sono diversi approcci possibili. Ecco come fare:
+
+### 1. Utilizzare l'opzione di redirezione seriale di QEMU
+
+Puoi reindirizzare l'output seriale dell'ESP32 a vari tipi di dispositivi. Il modo più semplice è usare l'opzione `-serial`:
+
+```bash
+~/esp/qemu/build/qemu-system-xtensa \
+  -machine esp32 \
+  -m 4M \
+  -drive file=~/esp/sdcard.img,if=sd,format=raw \
+  -display sdl \
+  -cpu esp32 \
+  -nographic \
+  -serial stdio \
+  -no-reboot \
+  -L ~/esp/qemu_esp32_lcd.cfg \
+  -kernel ~/esp/esp32-lcd-touch-sd-demo/build/esp32-lcd-touch-sd-demo.elf
+```
+
+L'opzione `-serial stdio` reindirizza la porta seriale dell'ESP32 verso lo standard input/output, permettendoti di interagire con la console seriale direttamente nel terminale in cui hai avviato QEMU.
+
+### 2. Reindirizzare la seriale a un socket TCP
+
+Se vuoi connetterti alla porta seriale da un'altra applicazione (come un monitor seriale dedicato):
+
+```bash
+~/esp/qemu/build/qemu-system-xtensa \
+  -machine esp32 \
+  -m 4M \
+  -drive file=~/esp/sdcard.img,if=sd,format=raw \
+  -display sdl \
+  -cpu esp32 \
+  -nographic \
+  -serial tcp:127.0.0.1:1234,server,nowait \
+  -no-reboot \
+  -L ~/esp/qemu_esp32_lcd.cfg \
+  -kernel ~/esp/esp32-lcd-touch-sd-demo/build/esp32-lcd-touch-sd-demo.elf
+```
+
+Questo crea un server TCP sulla porta 1234 del tuo localhost. Puoi connetterti usando diversi strumenti:
+
+- Screen: `screen 127.0.0.1 1234` 
+- Minicom: `minicom -D socket:127.0.0.1:1234`
+- Python: `nc 127.0.0.1 1234`
+- Qualsiasi monitor seriale che supporti connessioni TCP
+
+### 3. Reindirizzare a un file
+
+Per salvare l'output seriale in un file per l'analisi successiva:
+
+```bash
+~/esp/qemu/build/qemu-system-xtensa \
+  -machine esp32 \
+  -m 4M \
+  -drive file=~/esp/sdcard.img,if=sd,format=raw \
+  -display sdl \
+  -cpu esp32 \
+  -nographic \
+  -serial file:output_seriale.txt \
+  -no-reboot \
+  -L ~/esp/qemu_esp32_lcd.cfg \
+  -kernel ~/esp/esp32-lcd-touch-sd-demo/build/esp32-lcd-touch-sd-demo.elf
+```
+
+### 4. Utilizzare l'interfaccia monitor di QEMU
+
+Se utilizzi `-nographic` ma vuoi comunque accedere alla console monitor di QEMU per inviare comandi all'emulatore, puoi usare:
+
+```bash
+~/esp/qemu/build/qemu-system-xtensa \
+  -machine esp32 \
+  -m 4M \
+  -drive file=~/esp/sdcard.img,if=sd,format=raw \
+  -display none \
+  -cpu esp32 \
+  -serial stdio \
+  -monitor telnet:127.0.0.1:1234,server,nowait \
+  -no-reboot \
+  -L ~/esp/qemu_esp32_lcd.cfg \
+  -kernel ~/esp/esp32-lcd-touch-sd-demo/build/esp32-lcd-touch-sd-demo.elf
+```
+
+In questo caso, puoi connetterti alla console monitor usando `telnet 127.0.0.1 1234` mentre l'output seriale viene mostrato direttamente nel terminale.
+
+### 5. Configurare più porte seriali
+
+Se hai bisogno di più interfacce seriali (ESP32 ne ha 3), puoi configurarle tutte:
+
+```bash
+~/esp/qemu/build/qemu-system-xtensa \
+  -machine esp32 \
+  -m 4M \
+  -drive file=~/esp/sdcard.img,if=sd,format=raw \
+  -display sdl \
+  -cpu esp32 \
+  -nographic \
+  -serial stdio \
+  -serial tcp:127.0.0.1:1234,server,nowait \
+  -serial file:uart2_output.txt \
+  -no-reboot \
+  -L ~/esp/qemu_esp32_lcd.cfg \
+  -kernel ~/esp/esp32-lcd-touch-sd-demo/build/esp32-lcd-touch-sd-demo.elf
+```
+
+Questo configura UART0 su stdio, UART1 su socket TCP e UART2 su file.
+
+Per uscire dalla sessione QEMU quando usi `-nographic` con `-serial stdio`, usa la sequenza di tasti `Ctrl+A` seguito da `X`.
+
