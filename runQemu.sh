@@ -9,7 +9,7 @@
 source ./hello-idf/espShellEnv.sh
 
 # prepare with: idf.py qemu monitor
-~/esp/qemu/build/qemu-system-xtensa -M esp32 -m 4M -drive file=/Users/riccardo/Sources/GitHub/hello.esp32/hello-idf/build/flash_image.bin,if=mtd,format=raw -drive file=/Users/riccardo/Sources/GitHub/hello.esp32/hello-idf/build/qemu_efuse.bin,if=none,format=raw,id=efuse -global driver=nvram.esp32.efuse,property=drive,value=efuse -global driver=timer.esp32.timg,property=wdt_disable,value=true -nic user,model=open_eth -serial tcp::5555,server,nowait \
+~/esp/qemu/build/qemu-system-xtensa -M esp32 -m 4M -drive file=hello-idf/build/flash_image.bin,if=mtd,format=raw -drive file=hello-idf/build/qemu_efuse.bin,if=none,format=raw,id=efuse -global driver=nvram.esp32.efuse,property=drive,value=efuse -global driver=timer.esp32.timg,property=wdt_disable,value=true -nic user,model=open_eth -serial tcp::5555,server,nowait \
  -drive file=local/sdcard.img,if=sd,format=raw \
  -L qemu_esp32_lcd.cfg \
  -bios hello-idf/build/hello-idf.elf \
