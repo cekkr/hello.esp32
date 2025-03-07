@@ -10,7 +10,11 @@
 
 #include "driver/gpio.h"
 #include "driver/spi_common.h"
-#include "driver/uart_vfs.h"
+
+//#include "driver/uart_vfs.h"
+#include "esp_vfs.h"
+#include "esp_vfs_dev.h"
+
 #include "hal/uart_ll.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
