@@ -32,6 +32,9 @@
 ///
 /// Essential constants
 ///
+
+#define ON_REAL_ESP32 0
+
 #define LOG_BUFFER_SIZE 2048
 
 static const char *TAG = "HELLOESP";

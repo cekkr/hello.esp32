@@ -16,10 +16,8 @@
 #include "he_esp_exception.h"
 #include "he_defines.h"
 
-#define ENABLE_COREDUMP 0
-
 void print_core_dump_info() {
-    #if ENABLE_COREDUMP
+    #if ON_REAL_ESP32
     printf( "================================================================");
     printf( "================================================================\n");
 

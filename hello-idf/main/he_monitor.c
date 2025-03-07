@@ -163,7 +163,10 @@ void taskStatusMonitor(void *pvParameters) {
                     status.usStackHighWaterMark * sizeof(StackType_t),
                     (status.usStackHighWaterMark * 100) / ram_info.total_allocated_bytes);
                 monitor_printf("- State: %s", taskState);
+
+                #if ON_REAL_ESP32
                 monitor_printf("- Core: %d", status.xCoreID);
+                #endif
                 
                 /*if(status.eCurrentState == eBlocked) {
                     vTaskGetTaskInfo(status.xHandle, NULL, pdTRUE, pcWriteBuffer); // vTaskGetTaskInfo doesn't exists
