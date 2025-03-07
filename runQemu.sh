@@ -4,16 +4,17 @@
 #brew install socat
 
 # Crea una coppia di porte seriali virtuali
-socat -d -d pty,raw,echo=0,link=/tmp/ttyS0 pty,raw,echo=0,link=/tmp/ttyS1 &
+#socat -d -d pty,raw,echo=0,link=/tmp/ttyS0 pty,raw,echo=0,link=/tmp/ttyS1 &
 
 # Avvia QEMU utilizzando una delle porte seriali virtuali
 ~/esp/qemu/build/qemu-system-xtensa \
   -machine esp32 \
   -m 4M \
-  -nographic \
-  -serial unix:/tmp/ttyS0,server \
+  -serial stdio \
   -monitor telnet:127.0.0.1:1234,server,nowait \
   -kernel hello-idf/build/hello-idf.elf
+
+# Connect through: screen /tmp/ttyS0 115200
 
 # source ./hello-idf/espShellEnv.sh
 # xtensa-esp32-elf-gdb hello-idf/build/hello-idf.elf

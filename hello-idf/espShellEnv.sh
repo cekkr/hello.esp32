@@ -7,6 +7,8 @@
 
 clear
 
+export CMAKE_ROOT="/opt/homebrew/Cellar/cmake/3.31.6/bin"
+
 CUR_DIR=$(pwd)
 
 cd "$IDF_PATH"
