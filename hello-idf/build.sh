@@ -17,6 +17,8 @@ idf.py build -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DMAKE_C_FLAGS="$C_FLAGS" #-DCMAK
 
 #idf.py -p COM3 flash    # Windows
 #idf.py -p /dev/ttyUSB0 flash    # Linux
-idf.py -p $ESP_DEV flash -b 115200    # MacOS
+
+#idf.py -p $ESP_DEV flash -b 115200    # MacOS
+idf.py -p /tmp/ttyS1 flash -b 115200 # MacOS QEMU
 
 #idf.py monitor
