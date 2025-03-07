@@ -27,8 +27,10 @@ dd if=/dev/zero of=flash_image_padded.bin bs=1M count=4
 # Copia il contenuto dell'immagine originale nell'immagine padded
 dd if=flash_image.bin of=flash_image_padded.bin conv=notrunc
 
+~/esp/qemu/build/qemu-system-xtensa -M esp32 -m 4M -drive file=flash_image_padded.bin,if=mtd,format=raw -drive file=/Users/riccardo/Sources/GitHub/hello.esp32/hello-idf/build/qemu_efuse.bin,if=none,format=raw,id=efuse -global driver=nvram.esp32.efuse,property=drive,value=efuse -global driver=timer.esp32.timg,property=wdt_disable,value=true -nic user,model=open_eth -nographic -serial tcp::5555,server,nowait -no-reboot
+
 # Avvia QEMU utilizzando una delle porte seriali virtuali
-~/esp/qemu/build/qemu-system-xtensa \
+echo ~/esp/qemu/build/qemu-system-xtensa \
   -machine esp32 \
   -m 4M \
   -bios hello-idf/build/bootloader/bootloader.elf \
