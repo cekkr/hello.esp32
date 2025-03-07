@@ -7,8 +7,6 @@
 
 clear
 
-export CMAKE_ROOT="/opt/homebrew/Cellar/cmake/3.31.6/bin"
-
 CUR_DIR=$(pwd)
 
 cd "$IDF_PATH"
@@ -59,6 +57,8 @@ find_serial_port() {
     echo "$port"
     return 0
 }
+
+export CMAKE_ROOT="/opt/homebrew/Cellar/cmake/3.31.6/share/cmake"
 
 # Usa la funzione per settare la variabile
 export ESP_DEV="/dev/tty.usbserial-1120"
