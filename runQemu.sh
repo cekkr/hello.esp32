@@ -23,14 +23,15 @@ python $IDF_PATH/components/esptool_py/esptool/esptool.py --chip esp32 merge_bin
 ~/esp/qemu/build/qemu-system-xtensa \
   -machine esp32 \
   -m 4M \
-  -kernel hello-idf/build/bootloader/bootloader.elf \
+  -bios hello-idf/build/hello-idf.elf \
   -L qemu_esp32_lcd.cfg \
   -no-reboot \
   -drive file=flash_image.bin,if=mtd,format=raw \
   -drive file=local/sdcard.img,if=sd,format=raw \
   -serial stdio \
   -display sdl \
-  -monitor telnet:127.0.0.1:5555,server,nowait
+  -monitor telnet:127.0.0.1:5555,server,nowait \
+  -d guest_errors,unimp
 
 # -serial tcp::5555,server,nowait \
 # -monitor telnet:127.0.0.1:1234,server,nowait \
