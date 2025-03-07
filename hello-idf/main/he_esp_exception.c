@@ -16,8 +16,10 @@
 #include "he_esp_exception.h"
 #include "he_defines.h"
 
+#define ENABLE_COREDUMP 0
 
 void print_core_dump_info() {
+    #if ENABLE_COREDUMP
     printf( "================================================================");
     printf( "================================================================\n");
 
@@ -121,6 +123,7 @@ void print_core_dump_info() {
 
     printf(TAG, "================================================================");
     printf(TAG, "================================================================\n");
+    #endif
 }
 
 ///
