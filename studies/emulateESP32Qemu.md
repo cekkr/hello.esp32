@@ -620,3 +620,9 @@ Questo configura UART0 su stdio, UART1 su socket TCP e UART2 su file.
 
 Per uscire dalla sessione QEMU quando usi `-nographic` con `-serial stdio`, usa la sequenza di tasti `Ctrl+A` seguito da `X`.
 
+
+# Faster:
+idf.py qemu monitor
+
+Generating efuse image: /Users/riccardo/Sources/GitHub/hello.esp32/hello-idf/build/qemu_efuse.bin
+Running qemu (bg): qemu-system-xtensa -M esp32 -m 4M -drive file=/Users/riccardo/Sources/GitHub/hello.esp32/hello-idf/build/flash_image.bin,if=mtd,format=raw -drive file=/Users/riccardo/Sources/GitHub/hello.esp32/hello-idf/build/qemu_efuse.bin,if=none,format=raw,id=efuse -global driver=nvram.esp32.efuse,property=drive,value=efuse -global driver=timer.esp32.timg,property=wdt_disable,value=true -nic user,model=open_eth -nographic -serial tcp::5555,server

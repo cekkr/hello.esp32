@@ -14,3 +14,5 @@ CMakeUserPresets.json
 build/
 
 local/
+
+flash_image.bin
