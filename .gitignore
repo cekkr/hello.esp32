@@ -15,4 +15,4 @@ build/
 
 local/
 
-flash_image.bin
+flash_image*

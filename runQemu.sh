@@ -14,24 +14,34 @@ echo ~/esp/qemu/build/qemu-system-xtensa -M esp32 -m 4M -drive file=hello-idf/bu
  -L qemu_esp32_lcd.cfg \
  -bios hello-idf/build/hello-idf.elf \
 
-python $IDF_PATH/components/esptool_py/esptool/esptool.py --chip esp32 merge_bin -o flash_image.bin --fill-flash-size 4MB \
+python $IDF_PATH/components/esptool_py/esptool/esptool.py --chip esp32 \
+merge_bin -o flash_image.bin \
+--flash_mode dio --flash_freq 40m --flash_size 4MB \
 0x1000 hello-idf/build/bootloader/bootloader.bin \
 0x8000 hello-idf/build/partition_table/partition-table.bin \
 0x10000 hello-idf/build/hello-idf.bin
+
+# Crea un file vuoto di 4MB
+dd if=/dev/zero of=flash_image_padded.bin bs=1M count=4
+
+# Copia il contenuto dell'immagine originale nell'immagine padded
+dd if=flash_image.bin of=flash_image_padded.bin conv=notrunc
 
 # Avvia QEMU utilizzando una delle porte seriali virtuali
 ~/esp/qemu/build/qemu-system-xtensa \
   -machine esp32 \
   -m 4M \
-  -bios hello-idf/build/hello-idf.elf \
+  -bios hello-idf/build/bootloader/bootloader.elf \
+  -drive file=flash_image_padded.bin,if=mtd,format=raw \
   -L qemu_esp32_lcd.cfg \
   -no-reboot \
-  -drive file=flash_image.bin,if=mtd,format=raw \
   -drive file=local/sdcard.img,if=sd,format=raw \
   -serial stdio \
   -display sdl \
   -monitor telnet:127.0.0.1:5555,server,nowait \
-  -d guest_errors,unimp
+  -d guest_errors,unimp,int
+
+#  -drive file=flash_image.bin,if=mtd,format=raw \
 
 # -serial tcp::5555,server,nowait \
 # -monitor telnet:127.0.0.1:1234,server,nowait \
