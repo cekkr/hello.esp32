@@ -187,16 +187,21 @@ void taskStatusMonitor(void *pvParameters) {
 }
 
 void init_tasksMonitor(void) {
-    #if configUSE_TRACE_FACILITY != 1
+    /*#if configUSE_TRACE_FACILITY != 1
     #error "configUSE_TRACE_FACILITY must be 1 in FreeRTOSConfig.h"
     #endif
     
     #if configGENERATE_RUN_TIME_STATS != 1
     #error "configGENERATE_RUN_TIME_STATS must be 1 in FreeRTOSConfig.h"
-    #endif
+    #endif*/
+
+    // Check it
+    #if configUSE_TRACE_FACILITY && configGENERATE_RUN_TIME_STATS
 
     // Crea la task di monitoraggio con priorità più bassa
     xTaskCreate(taskStatusMonitor, "TaskMonitor", 4096, NULL, 0, NULL);
     
     ESP_LOGI(TAG, "Task monitor initialized");
+
+    #endif
 }
