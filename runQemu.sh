@@ -1,5 +1,7 @@
 # Follow guide in studies/emulateESP32Qemu.md
 
+# END OF THE LINE: for the moment i'm not able to create an emulable build of the project
+
 # Installa socat se non è già installato
 #brew install socat
 
