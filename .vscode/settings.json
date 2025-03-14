@@ -71,5 +71,5 @@
     ],
     "terminal.integrated.scrollback": 100000,
     "idf.port": "/dev/tty.usbserial-1120",
-    "idf.pythonInstallPath": "/usr/bin/python",
+    "idf.pythonInstallPath": "/Users/riccardo/.pyenv/shims/python",
 }
