@@ -4,7 +4,8 @@
 // Funzione principale
 int start() {
     int numeri[10000];
-    
+    esp_printf("Array crated");
+
     // Riempimento dell'array con numeri
     for (int i = 0; i < 10000; i++) {
         numeri[i] = i;  // Assegna il valore dell'indice
