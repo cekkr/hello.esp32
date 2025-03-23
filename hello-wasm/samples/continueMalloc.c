@@ -11,12 +11,12 @@ int start() {
         
         // Stampa l'array ogni 100 numeri
         if ((i + 1) % 100 == 0) {
-            printf("Dopo %d elementi:\n", i + 1);
+            esp_printf("Dopo %d elementi:\n", i + 1);
             // Stampa tutti i numeri fino ad ora
             for (int j = 0; j <= i; j++) {
-                printf("%d ", numeri[j]);
+                esp_printf("%d ", numeri[j]);
             }
-            printf("\n\n");
+            esp_printf("\n\n");
         }
     }
     
