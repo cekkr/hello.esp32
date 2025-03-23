@@ -70,6 +70,5 @@
         "--compile-commands-dir=${workspaceFolder}/hello-idf/build"
     ],
     "terminal.integrated.scrollback": 100000,
-    "idf.port": "/dev/tty.usbserial-1120",
-    "idf.pythonInstallPath": "/Users/riccardo/.pyenv/shims/python",
+    "idf.port": "/dev/tty.usbserial-120",
 }
