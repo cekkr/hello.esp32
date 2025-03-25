@@ -16,6 +16,8 @@
 #include "he_serial.h"
 #include "he_device.h"
 
+// GDB Debug
+#include "esp_gdbstub.h"
 
 ///
 /// General
@@ -81,6 +83,8 @@ void init_uart() {
 ////
 
 void app_main(void) { 
+    esp_gdbstub_init();
+    
     settings_t* settings = get_main_settings();
     *settings = settings_default;
 

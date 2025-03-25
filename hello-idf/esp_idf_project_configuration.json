@@ -7,14 +7,16 @@
       "sdkconfigDefaults": [],
       "sdkconfigFilePath": "sdkconfig"
     },
-    "env": {},
-    "flashBaudRate": "",
+    "env": {
+      "serial": "/dev/tty.usbserial-120"
+    },
+    "flashBaudRate": "115200",
     "idfTarget": "",
-    "monitorBaudRate": "",
+    "monitorBaudRate": "115200",
     "openOCD": {
       "debugLevel": 3,
       "configs": [
-        "openocd.cfg"
+        "esp32_debug.cfg"
       ],
       "args": []
     },
