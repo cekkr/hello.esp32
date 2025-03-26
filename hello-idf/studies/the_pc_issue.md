@@ -3,3 +3,5 @@ In m3_env.c in function m3_Call is passed at RunCode i_function->compiled, that 
 In case of compiled functions is a mess, because you have to force the segmentation for requesting the "next page" if necessary.
 
 For the moment, the lack of a PSRAM seems an expensive limit to solve.
+
+Todo: Create a sort of "segmented memory with paging" for code pages
