@@ -283,7 +283,7 @@ esp_err_t paging_notify_segment_allocation(paging_stats_t* g_stats, segment_info
     return ESP_OK;
 }
 
-const bool HE_DEBUG_paging_notify_segment_access = false;
+const bool HE_DEBUG_paging_notify_segment_access = true;
 esp_err_t paging_notify_segment_access(paging_stats_t* g_stats, uint32_t segment_id) {
     segment_info_t* target = NULL;
     
