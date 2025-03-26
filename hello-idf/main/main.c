@@ -83,7 +83,7 @@ void init_uart() {
 ////
 
 void app_main(void) { 
-    esp_gdbstub_init();
+    //esp_gdbstub_init();
     
     settings_t* settings = get_main_settings();
     *settings = settings_default;
